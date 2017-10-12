@@ -43,11 +43,6 @@ const char *rez_key_worlds[] = {
         "True"
 };
 
-FILE *file;     //zdrojovy subor
-
-void set_source_file(FILE *f){
-    file = f;
-}
 
 /*  vrati dalsiu lexemu */
 char *get_lexema(){

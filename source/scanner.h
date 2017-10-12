@@ -6,7 +6,6 @@ typedef struct {
     void *data;
 } t_token;
 
-void set_source_file(FILE *f);
 t_token get_token();
 char *get_lexema();
 
