@@ -51,11 +51,6 @@ const char *rez_key_worlds[] = {
 };
 
 
-/*  vrati dalsiu lexemu */
-char *get_lexema(){
-    return NULL;
-}
-
 /*  zoberie lexemu a vrati token    */
 t_token tget_token(char *lex){
     //priprava bufferu
@@ -68,11 +63,17 @@ t_token tget_token(char *lex){
     while (loaded != EOF){
         switch (state){
             case s_START:
-                if (isalpha(loaded) || (loaded == '_')){
+                if (isspace(loaded)){
+                    state = s_START;
+                } else if (isalpha(loaded) || (loaded == '_')){
                     append_buff(loaded);
                     //next state
                     state = s_ID;
-                } //todo pre ine
+                } else if (loaded == '\''){
+                    state = s_line_comment;
+                } else if (loaded == '/'){
+                    state = s_block_coment_0;
+                }//todo pre ine
                 break;
             case s_ID:
                 if (isalnum(loaded)||(loaded == '_')){

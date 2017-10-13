@@ -6,6 +6,10 @@
 //stavy automatu
 #define s_START 0
 #define s_ID 1
+#define s_block_coment_0 2
+#define s_block_coment_1 3
+#define s_block_coment_2 4
+#define s_line_comment 5
 
 
 //zaheslovane typ tokenu
