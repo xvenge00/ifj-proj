@@ -15,5 +15,7 @@ void null_buffer();
 void append_buff(char c);
 char *get_buff();
 int buff_size();
+void init_buff();
+
 
 #endif //IFJ_PROJ_STR_BUFF_H

@@ -16,12 +16,17 @@
 #define s_double_0 9
 #define s_double_1 10
 #define s_double_2 11
+#define s_double_3 20
 #define s_str0 12
 #define s_strL 13
 #define s_str_spec 14
-#define s_str_spec_hexa 15
+#define s_str_spec_hexa0 15
+#define s_str_spec_hexa1 19
+
 #define s_EQ 18
 #define s_LT 17
+#define s_QT 21
+
 
 
 //zaheslovane typ tokenu

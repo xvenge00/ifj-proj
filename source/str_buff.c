@@ -23,7 +23,7 @@ void null_buffer(){
 
 void append_buff(char c){
     if (buffer.top >= buffer.max - 1){
-        buffer.ret = my_realloc(buffer.ret,sizeof(char) * (buffer.top + 100));
+        buffer.ret = my_realloc(buffer.ret,sizeof(char) * (buffer.top + 50));
     }
     buffer.ret[buffer.top] = c;
     buffer.top++;
@@ -35,4 +35,13 @@ char *get_buff(){
 
 int buff_size(){
     return buffer.top;
+}
+
+void init_buff(){
+    buffer.top = 0;
+    buffer.ret = realloc(buffer.ret, sizeof(char) * 101);
+    buffer.max = 101;
+    for (unsigned i=0; i<buffer.max; i++){
+        buffer.ret[i] = 0;
+    }
 }
