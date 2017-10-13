@@ -3,6 +3,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include "memwork.h"
+#include "str_buff.h"
+
 
 const char *key_worlds[] = {
         "As",
@@ -53,23 +56,18 @@ char *get_lexema(){
 
 /*  zoberie lexemu a vrati token    */
 t_token tget_token(char *lex){
+    //priprava bufferu
+    append_buff(0);
+    null_buffer();
+
     t_token result = {empty_token, NULL};
     static int state = s_START;
-
-    /*todo struktura buffery*/
-    static char buff[100] = {0,}; // todo prerobyt na prementlivu dlzku
-    static int top = 0;
-    static int max = 100;
-    /* konec bufferu */
-
     char loaded = getchar();
     while (loaded != EOF){
         switch (state){
             case s_START:
                 if (isalpha(loaded) || (loaded == '_')){
-                    //append buffer
-                    buff[top] = loaded;
-                    top++;
+                    append_buff(loaded);
                     //next state
                     state = s_ID;
                 } //todo pre ine
@@ -77,28 +75,21 @@ t_token tget_token(char *lex){
             case s_ID:
                 if (isalnum(loaded)||(loaded == '_')){
                     //append buffer
-                    buff[top] = loaded;
-                    top++;
+                    append_buff(loaded);
                 } else {
+                    // generovanie tokenu
                     char *name;
-                    name = malloc(sizeof(char)*(top+1));
-                    if (name == NULL){
-                        fprintf(stderr,"Nedostatok pamete\n");
-                        //todo uvolnenie vsetkej pamete a potom ukoncenie programu s kodom 99
-                    }
+                    char *buff = get_buff();
+                    name = my_malloc(sizeof(char)*(buff_size()+1));
                     //prekopirovanie str
-                    for (unsigned i=0; i<top + 1;i++){
+                    for (unsigned i=0; i<buff_size() + 1;i++){
                         name[i] = buff[i];
                     }
-                    top = 0;
+
+                    null_buffer();
                     //vytvorenie tokenu
                     result.token_type = ID;
                     result.data = (void *)name;
-
-                    //nulovanie bufferu
-                    for (unsigned i=0; i<max; i++){
-                        buff[i] = 0;
-                    }
 
                     //todo zistenie dalsiho stavu a pozadaovanieho spracovania nacitaneho znaku zatial sa znak zahodi a stav sa da start
                     state = s_START;
@@ -108,7 +99,7 @@ t_token tget_token(char *lex){
 
                 }
                 break;
-                //todo dorobit ostatne typy a doplnit 
+                //todo dorobit ostatne typy a doplnit
         }
     }
 
