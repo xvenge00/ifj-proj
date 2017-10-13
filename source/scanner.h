@@ -11,21 +11,18 @@
 #define s_block_coment_2 4
 #define s_line_comment 5
 #define s_asign_0 6
-#define s_asign_1 7
-#define s_INT 8
-#define s_double_0 9
-#define s_double_1 10
-#define s_double_2 11
-#define s_double_3 20
+#define s_INT 7
+#define s_double_0 8
+#define s_double_1 9
+#define s_double_2 10
+#define s_double_3 11
 #define s_str0 12
 #define s_strL 13
 #define s_str_spec 14
 #define s_str_spec_hexa0 15
-#define s_str_spec_hexa1 19
-
-#define s_EQ 18
+#define s_str_spec_hexa1 16
 #define s_LT 17
-#define s_QT 21
+#define s_QT 18
 
 
 
@@ -47,6 +44,8 @@
 #define QT 10
 #define QE 11
 #define MOD 12
+
+#define MIN_KEY_WORLD 1000
 
 
 

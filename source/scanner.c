@@ -33,7 +33,7 @@ const char *key_worlds[] = {
         "Then",
         "While"
 };
-
+const unsigned key_size = 22;
 const char *rez_key_worlds[] = {
         "And",
         "Boolean",
@@ -51,6 +51,15 @@ const char *rez_key_worlds[] = {
 };
 
 int old = 0;
+
+int is_key(char *ret){
+    for (unsigned i=0; i<key_size; i++){
+        if (strcmp(ret, key_worlds[i])){
+            return i+1;
+        }
+    }
+    return 0;
+}
 
 
 t_token tget_token(char *lex){
@@ -161,10 +170,15 @@ t_token tget_token(char *lex){
                         name[i] = buff[i];
                     }
                     old = loaded;
-                    //vytvorenie tokenu
-                    t_token result = {ID,(void *)name};
-                    return result;
 
+                    pom = is_key(name);
+                    if (pom){
+                        t_token result = {MIN_KEY_WORLD + pom - 1,NULL};
+                        return result;
+                    } else {
+                        t_token result = {ID, (void *) name};
+                        return result;
+                    }
                 }
                 break;
             case s_INT:
@@ -337,6 +351,16 @@ t_token tget_token(char *lex){
                     old = loaded;
                     t_token token = {QT, NULL};
                     return token;
+                }
+                break;
+            case s_asign_0:
+                if (loaded == '='){
+                    t_token token = {ASSIGN, NULL};
+                    return  token;
+                } else {
+                    fprintf(stderr,"zly znak priradenia chyba = na riadku %i\n",line);
+                    clear_all();
+                    exit(ERR_LEXIK);
                 }
 
                 //todo dorobit ostatne typy a doplnit
