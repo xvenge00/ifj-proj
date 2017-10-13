@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include "memwork.h"
 #include "str_buff.h"
+#include "main.h"
+
 
 
 const char *key_worlds[] = {
@@ -101,6 +103,7 @@ t_token tget_token(char *lex){
                 break;
                 //todo dorobit ostatne typy a doplnit
         }
+        loaded = getchar();
     }
 
 

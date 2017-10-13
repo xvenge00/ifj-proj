@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "memwork.h"
+#include "main.h"
 
 void **pole = NULL;
 unsigned max = 0;
@@ -25,7 +26,7 @@ void change_size(unsigned new){
         if (tmp == NULL){
             clear_all();
             fprintf(stderr, "ERR 99 -- malloc\n");
-            exit(99); //interna chyba
+            exit(ERR_INTER); //interna chyba
         }
         for (unsigned i=0;i<top;i++){
             tmp[i] = pole[i];
@@ -72,7 +73,7 @@ void *my_malloc(size_t size){
     tmp = malloc(size);
     if (tmp == NULL){
         clear_all();
-        exit(99);
+        exit(ERR_INTER);
     }
     append(tmp);
     return tmp;
@@ -83,7 +84,7 @@ void *my_realloc(void *ptr,size_t new_size){
     tmp = realloc(ptr, new_size);
     if (tmp == NULL){
         clear_all();
-        exit(99);
+        exit(ERR_INTER);
     }
     replace(ptr, tmp);
 }

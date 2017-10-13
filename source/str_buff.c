@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "memwork.h"
+#include "main.h"
+
 
 t_str_buff buffer = {NULL,0,0};
 
