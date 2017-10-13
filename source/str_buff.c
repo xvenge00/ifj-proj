@@ -15,9 +15,10 @@
 t_str_buff buffer = {NULL,0,0};
 
 void null_buffer(){
-    for (unsigned i=0; i<buffer.max; i++){
+    for (unsigned i=0; i<buffer.top; i++){
         buffer.ret[i] = 0;
     }
+    buffer.top = 0;
 }
 
 void append_buff(char c){
