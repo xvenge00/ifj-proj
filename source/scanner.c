@@ -66,7 +66,11 @@ t_str_buff *scanner_buff = NULL;
 
 t_token tget_token(char *lex){
     //priprava bufferu
-    scanner_buff = init_buff(scanner_buff);
+    if (scanner_buff == NULL){
+        scanner_buff = init_buff(scanner_buff);
+    } else {
+        null_buffer(scanner_buff);
+    }
     int loaded = 0;
     static unsigned line = 0;
     if (old != 0){

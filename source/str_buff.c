@@ -35,10 +35,10 @@ int buff_size(t_str_buff *buffer){
     return buffer->top;
 }
 
-t_str_buff *init_buff(t_str_buff *buffer){
-    if (buffer == NULL) {
-        buffer = my_malloc(sizeof(t_str_buff));
-    }
+t_str_buff *init_buff(){
+    t_str_buff *buffer;
+
+    buffer = my_malloc(sizeof(t_str_buff));
     buffer->top = 0;
     buffer->ret = my_realloc(buffer->ret, sizeof(char) * 101);
     buffer->max = 101;
