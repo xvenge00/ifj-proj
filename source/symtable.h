@@ -28,15 +28,12 @@ typedef union {
 typedef struct {
     TValue value; //obsah
     TType type; //datovy typ - enum
-    t_str_buff *name;
 } TVariable;
 
 typedef struct {
-    //TValue return_value; //funkce neco vraci
     TType return_type; //to co vraci ma nejaky typ
     unsigned int attr_count;
     TType *attributes;
-    t_str_buff *name;
 } TFunction;
 
 typedef union {
@@ -52,10 +49,12 @@ typedef enum {
 typedef struct {
     Symbol_type type; //enum var/func
     TData *data;
+    t_str_buff *name;
 } TSymbol;
 
 typedef struct {
-    unsigned int key; //hash jmena
+    t_str_buff *key; //identifikator
+    unsigned int hash; //hash identifikatoru
     TSymbol* data; //pointer na symbol obsahujici data a datovy typ
     struct TElement* next; // link na dalsi prvek seznamu
 } TElement; //prvek seznamu elementu se stejnym key (hashle jmeno)
@@ -67,10 +66,10 @@ typedef struct {
 } TTable; //samotna tabulka
 
 //konstruktory vsech struktur nadeklarovanych vyse
-TVariable *Var_Create(TValue value, TType type, t_str_buff *name);
-TFunction *Func_Create(TType return_type, t_str_buff *name,unsigned int attributes_count, TType * attributes_values);
-TSymbol *Sym_Create(Symbol_type type, TData *data);
-TElement *El_Create(TSymbol *data, unsigned int key); //element init
+TVariable *Var_Create(TValue value, TType type);
+TFunction *Func_Create(TType return_typ, unsigned int attributes_count, TType * attributes_values);
+TSymbol *Sym_Create(Symbol_type type, TData *data,t_str_buff *name);
+TElement *El_Create(TSymbol *data, unsigned int table_size); //element init
 TTable *Tbl_Create(); //table constructor
 
 //operace nad tabulkou viz IAL prednaska
@@ -80,5 +79,5 @@ bool Tbl_Search(TTable* tbl, t_str_buff name); //vraci true, pokud v tbl existuj
 int Tbl_Delete(TTable* tbl, t_str_buff name); //smaze z tabulky element s name
 void Tbl_Copy(TTable* tbl, t_str_buff name, TElement* el); //vraci v el to co je v tbl s name
 
-unsigned int hash(t_str_buff* str, TTable* tbl);
+unsigned int hash(t_str_buff* str, unsigned int table_size);
 #endif //IFJ_PROJ_SYMTABLE_H
