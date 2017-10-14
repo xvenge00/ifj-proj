@@ -7,7 +7,7 @@ enable_testing()
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES source source/main.c source/symtable.c)
+set(SOURCE_FILES  source/codegen.c source/main.c source/symtable.c source/str_buff.c source/memwork.c  source/parser.c source/scanner.c)
 
 add_executable(ifj_proj ${SOURCE_FILES})
 
