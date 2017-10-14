@@ -20,6 +20,7 @@ void null_buffer(t_str_buff *buffer){
 }
 
 void append_buff(t_str_buff *buffer, char c){
+    // ak maly buffer zvacsi ho
     if (buffer->top >= buffer->max - 1){
         buffer->ret = my_realloc(buffer->ret,sizeof(char) * (buffer->top + 50));
     }
@@ -36,6 +37,7 @@ int buff_size(t_str_buff *buffer){
 }
 
 t_str_buff *init_buff(){
+    //konstruktor
     t_str_buff *buffer;
 
     buffer = my_malloc(sizeof(t_str_buff));
