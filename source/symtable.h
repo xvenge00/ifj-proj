@@ -52,11 +52,11 @@ typedef struct {
     t_str_buff *name;
 } TSymbol;
 
-typedef struct {
+typedef struct TElement{
     t_str_buff *key; //identifikator
     unsigned int hash; //hash identifikatoru
     TSymbol* data; //pointer na symbol obsahujici data a datovy typ
-    struct TElement* next; // link na dalsi prvek seznamu
+    struct TElement * next; // link na dalsi prvek seznamu
 } TElement; //prvek seznamu elementu se stejnym key (hashle jmeno)
 
 typedef struct {
@@ -66,18 +66,19 @@ typedef struct {
 } TTable; //samotna tabulka
 
 //konstruktory vsech struktur nadeklarovanych vyse
-TVariable *Var_Create(TValue value, TType type);
-TFunction *Func_Create(TType return_typ, unsigned int attributes_count, TType * attributes_values);
+TData *Var_Create(TValue value, TType type);
+TData *Func_Create(TType return_typ, unsigned int attributes_count, TType * attributes_values);
 TSymbol *Sym_Create(Symbol_type type, TData *data,t_str_buff *name);
 TElement *El_Create(TSymbol *data, unsigned int table_size); //element init
 TTable *Tbl_Create(); //table constructor
 
-//operace nad tabulkou viz IAL prednaska
+//operace nad tabulkou viz IA
 
+void El_Free(TElement* element); //uvolni postupne vsechny soucasti elementu az do nejnizsi urovne
 int Tbl_Insert(TTable* tbl, TElement* el); //vlozi do tabulky tbl element el
-bool Tbl_Search(TTable* tbl, t_str_buff name); //vraci true, pokud v tbl existuje element s name
-int Tbl_Delete(TTable* tbl, t_str_buff name); //smaze z tabulky element s name
-void Tbl_Copy(TTable* tbl, t_str_buff name, TElement* el); //vraci v el to co je v tbl s name
+bool Tbl_Search(TTable* tbl, t_str_buff *name); //vraci true, pokud v tbl existuje element s name
+void Tbl_Delete(TTable* tbl, t_str_buff *name); //smaze z tabulky element s name
+void Tbl_Copy(TTable* tbl, t_str_buff *name, TElement* el); //vraci v el to co je v tbl s name
 
 unsigned int hash(t_str_buff* str, unsigned int table_size);
 #endif //IFJ_PROJ_SYMTABLE_H
