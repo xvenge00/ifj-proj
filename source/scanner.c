@@ -61,10 +61,12 @@ int is_key(char *ret){
     return 0;
 }
 
+t_str_buff *scanner_buff = NULL;
+
 
 t_token tget_token(char *lex){
     //priprava bufferu
-    init_buff();
+    scanner_buff = init_buff(scanner_buff);
     int loaded = 0;
     static unsigned line = 0;
     if (old != 0){
@@ -81,11 +83,11 @@ t_token tget_token(char *lex){
         line += (loaded == '\n')? 1 : 0;
         switch (state){
             case s_START:
-                null_buffer();
+                null_buffer(scanner_buff);
                 if (isspace(loaded)){
                     state = s_START;
                 } else if (isalpha(loaded) || (loaded == '_')){
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                     state = s_ID;
                 } else if (loaded == '\''){
                     state = s_line_comment;
@@ -94,7 +96,7 @@ t_token tget_token(char *lex){
                 } else if (loaded == ':'){
                     state = s_asign_0;
                 } else if (isdigit(loaded)){
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                     state = s_INT;
                 } else if (loaded == '!'){
                     state = s_str0;
@@ -134,9 +136,9 @@ t_token tget_token(char *lex){
                     state = s_block_coment_1;
                 } else if (isalnum(loaded) || (loaded == '_')){
                     old = loaded;
-                    null_buffer();
+                    null_buffer(scanner_buff);
                     t_token token = {DELENO, NULL};
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                     return token;
                 }else {
                     clear_all();
@@ -159,14 +161,14 @@ t_token tget_token(char *lex){
                 break;
             case s_ID:
                 if (isalnum(loaded)||(loaded == '_')){
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                 } else {
                     // generovanie tokenu
                     char *name;
-                    char *buff = get_buff();
-                    name = my_malloc(sizeof(char)*(buff_size()+1));
+                    char *buff = get_buff(scanner_buff);
+                    name = my_malloc(sizeof(char)*(buff_size(scanner_buff)+1));
                     //prekopirovanie str
-                    for (unsigned i=0; i<buff_size()+1;i++){
+                    for (unsigned i=0; i<buff_size(scanner_buff)+1;i++){
                         name[i] = buff[i];
                     }
                     old = loaded;
@@ -183,70 +185,70 @@ t_token tget_token(char *lex){
                 break;
             case s_INT:
                 if (isdigit(loaded)){
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                 } else if (isspace(loaded)){
                     state = s_START;
                 }else if (loaded == '.'){
                     state = s_double_0;
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                 } else if ((loaded == 'e') || (loaded == 'E')){
                     state = s_double_1;
                 } else {
                     //vygeneruj token
                     int *tmp;
                     tmp = my_malloc(sizeof(int));
-                    *tmp = strtol(get_buff(),NULL, 10);
+                    *tmp = strtol(get_buff(scanner_buff),NULL, 10);
                     t_token token = {INT, tmp};
-                    null_buffer();
+                    null_buffer(scanner_buff);
                     old = loaded;
                     return token;
                 }
                 break;
             case s_double_0:
                 if (isdigit(loaded)){
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                 } else  if ((loaded == 'e')||(loaded == 'E')){
                     state = s_double_1;
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                 } else {
                     old = loaded;
                     double  *tmp;
                     tmp = my_malloc(sizeof(double));
-                    *tmp = strtod(get_buff(),NULL);
+                    *tmp = strtod(get_buff(scanner_buff),NULL);
                     t_token token = {DOUBLE, tmp};
                     return token;
                 }
                 break;
             case s_double_1:
-                append_buff(loaded);
+                append_buff(scanner_buff,loaded);
                 if ((loaded == '+')||(loaded == '-')){
                     state = s_double_2;
                 } else if ( isdigit(loaded)){
                     state = s_double_3;
                 } else {
-                    fprintf(stderr,"CIslo nema exponenta %s na riadku %i\n", get_buff(), line);
+                    fprintf(stderr,"CIslo nema exponenta %s na riadku %i\n", get_buff(scanner_buff), line);
                     clear_all();
                     exit(ERR_LEXIK);
                 }
                 break;
             case s_double_2:
                 if (isdigit(loaded)){
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                     state = s_double_3;
                 } else {
-                    fprintf(stderr,"CIslo nema exponenta %s na riadku %i\n", get_buff(), line);
+                    fprintf(stderr,"CIslo nema exponenta %s na riadku %i\n", get_buff(scanner_buff), line);
                     clear_all();
                     exit(ERR_LEXIK);
                 }
                 break;
             case s_double_3:
                 if (isdigit(loaded)){
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
                 } else {
                     old =loaded;
                     double  *tmp;
                     tmp = my_malloc(sizeof(double));
-                    *tmp = strtod(get_buff(),NULL);
+                    *tmp = strtod(get_buff(scanner_buff),NULL);
                     t_token token = {DOUBLE, tmp};
                     return token;
                 }
@@ -263,9 +265,9 @@ t_token tget_token(char *lex){
             case s_strL:
                 if (loaded == '"'){
                     char *ret;
-                    char *buff = get_buff();
-                    ret = my_malloc(sizeof(char) * (buff_size() + 1));
-                    for (unsigned i=0; i<=buff_size();i++){
+                    char *buff = get_buff(scanner_buff);
+                    ret = my_malloc(sizeof(char) * (buff_size(scanner_buff) + 1));
+                    for (unsigned i=0; i<=buff_size(scanner_buff);i++){
                         ret[i] = buff[i];
                     }
                     t_token token = {STR, ret};
@@ -273,10 +275,10 @@ t_token tget_token(char *lex){
                 } else if (loaded == '\\'){
                     state = s_str_spec;
                 } else if (loaded < 256){
-                    append_buff(loaded);
+                    append_buff(scanner_buff,loaded);
 
                 } else {
-                    fprintf(stderr,"v retazci \"%s\" na riadku %i bol pouzity znak mimo aci\n",get_buff(),line);
+                    fprintf(stderr,"v retazci \"%s\" na riadku %i bol pouzity znak mimo aci\n",get_buff(scanner_buff),line);
                     clear_all();
                     exit(ERR_LEXIK);
                 }
@@ -286,16 +288,16 @@ t_token tget_token(char *lex){
                     pom = (loaded - '0')*10;
                     state = s_str_spec_hexa0;
                 } else if (loaded == 'n'){
-                    append_buff('\n');
+                    append_buff(scanner_buff,'\n');
                     state = s_strL;
                 } else if (loaded == '"'){
-                    append_buff('"');
+                    append_buff(scanner_buff,'"');
                     state = s_strL;
                 } else if (loaded == 't'){
-                    append_buff('\t');
+                    append_buff(scanner_buff,'\t');
                     state = s_strL;
                 } else if (loaded == '\\'){
-                    append_buff('\\');
+                    append_buff(scanner_buff,'\\');
                 } else {
                     fprintf(stderr, "Vretazci bol zadany zla esc sekvencia bud 3 cisla alebo n t \\ na riadku %i\n",line );
                     clear_all();
@@ -321,7 +323,7 @@ t_token tget_token(char *lex){
                         clear_all();
                         exit(ERR_LEXIK);
                     }
-                    append_buff(pom);
+                    append_buff(scanner_buff,pom);
                     state = s_strL;
                 } else {
                     fprintf(stderr, "Vretazci bol zadany zla esc sekvencia bud 3 cisla alebo n t \\ na riadku %i\n",
