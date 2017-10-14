@@ -13,9 +13,9 @@ int main(int argc, char** argv) {
     int result;     //do premennej sa zapisuju vysledky krokov
 
 
-    if (result = init()){   //inicializacia struktur
-        //osetrenie chyb
-    }
+    //if (result = init()){   //inicializacia struktur
+    //    //osetrenie chyb
+    //}
     if (result = parse()){
         //osetrenie chyb
     }
