@@ -2,6 +2,7 @@
 
 #include "symtable.h"
 #include "memwork.h"
+#include <stdio.h>
 
 #define DEFAULT_TABLE_SIZE 8;
 

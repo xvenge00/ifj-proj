@@ -40,7 +40,7 @@ t_str_buff *init_buff(){
 
     buffer = my_malloc(sizeof(t_str_buff));
     buffer->top = 0;
-    buffer->ret = my_realloc(buffer->ret, sizeof(char) * 101);
+    buffer->ret = my_malloc(sizeof(char) * 101);
     buffer->max = 101;
     for (unsigned i=0; i<buffer->max; i++){
         buffer->ret[i] = 0;
