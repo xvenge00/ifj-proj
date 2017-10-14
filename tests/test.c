@@ -1,4 +1,0 @@
-//
-// sem pojdu testy
-//
-
