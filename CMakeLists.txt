@@ -7,14 +7,33 @@ enable_testing()
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES  source/codegen.c source/main.c source/symtable.c source/str_buff.c source/memwork.c  source/parser.c source/scanner.c)
 
+set(SOURCE_FILES  source/codegen.c source/main.c source/symtable.c
+        source/str_buff.c source/memwork.c  source/parser.c source/scanner.c)
 add_executable(ifj_proj ${SOURCE_FILES})
 
 add_test(NAME test COMMAND tmp)
 
-set(SOURCE_FILES_STR_BUFF tests/test_str_buff.cpp
-        source/str_buff.c source/str_buff.h source/memwork.c source/memwork.h
+#testy memwork
+set(SOURCE_FILES_MEMWORK source/memwork.h source/memwork.c)
+add_executable(memwork ${SOURCE_FILES_MEMWORK} tests/memwork_test.cpp)
+target_link_libraries(memwork gtest)
+
+#testy str_buff
+set(SOURCE_FILES_STR_BUFF
+        source/str_buff.c source/str_buff.h ${SOURCE_FILES_MEMWORK}
         source/main.h)
-add_executable(str_buff ${SOURCE_FILES_STR_BUFF})
+add_executable(str_buff ${SOURCE_FILES_STR_BUFF} tests/test_str_buff.cpp)
 target_link_libraries(str_buff gtest)
+
+#testy symtable
+set(SOURCE_FILES_SYMTABLE source/symtable.h source/symtable.c ${SOURCE_FILES_STR_BUFF})
+add_executable(symtable ${SOURCE_FILES_SYMTABLE} tests/symtable_test.cpp)
+target_link_libraries(symtable gtest)
+
+
+
+#testy scanner
+set(SOURCE_FILES_SCANNER source/scanner.h source/scanner.c ${SOURCE_FILES_STR_BUFF} ${SOURCE_FILES_MEMWORK})
+add_executable(scanner ${SOURCE_FILES_SCANNER} tests/scanner_test.cpp)
+target_link_libraries(scanner gtest)

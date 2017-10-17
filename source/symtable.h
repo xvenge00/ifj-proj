@@ -54,7 +54,7 @@ typedef struct {
     TData *data;
 } TSymbol;
 
-typedef struct {
+typedef struct TElement{
     unsigned int key; //hash jmena
     TSymbol* data; //pointer na symbol obsahujici data a datovy typ
     struct TElement* next; // link na dalsi prvek seznamu
