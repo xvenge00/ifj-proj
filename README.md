@@ -12,7 +12,8 @@ Zavedení obecných věcí (viz výše).
 Review napsaného kódu.
 
 Rozdělení úkolů na další týden:
-  Petr - scanner - doplnění stavů, přepsat na pointery, přepsat key words
-  Adam - testy, CMake, kostra - hotovo   
-  Vojta - symtable - změna velikosti při zaplnění, přidat is_defined k funkci, typ void
-  Ondra + Adam - rozvržení projektu do jednotlivých tasků (co nejnižší úroveň), časový plán
+- Petr - scanner - doplnění stavů, přepsat na pointery, přepsat key words
+- Petr - upravit funkce pro práci s pamětí
+- Adam - testy, CMake, kostra - hotovo   
+- Vojta - symtable - změna velikosti při zaplnění, přidat is_defined k funkci, typ void
+- Ondra + Adam - rozvržení projektu do jednotlivých tasků (co nejnižší úroveň), časový plán
