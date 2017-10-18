@@ -1,7 +1,11 @@
 #ifndef IFJ_PROJ_SCANNER_H
 #define IFJ_PROJ_SCANNER_H
 
+#include <stdio.h>
+
 #define empty_token 0
+
+FILE *f;
 
 //nemenit !!!
 // toto su stavy automatu

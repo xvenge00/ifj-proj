@@ -9,6 +9,15 @@
 
 int main(int argc, char** argv) {
 
+    /* z dovodov testovania */
+    /* neviem automaticky testovat vstup zo stdin */
+    /* namiesto getchar pouzivajte teda fgetc(FILE *stream) */
+    if (argc == 2){
+        f = fopen(argv[1],"r");
+    } else {                        //ked neni zadany argument, cita vstup zo stdin
+        f = stdin;
+    }
+
 
     int result;     //do premennej sa zapisuju vysledky krokov
 
