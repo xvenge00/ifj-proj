@@ -9,46 +9,25 @@
 
 
 
-const char *key_worlds[] = {
-        "As",
-        "Asc",
-        "Declare",
-        "Dim",
-        "Do",
-        "Double",
-        "Else",
-        "End",
-        "Chr",
-        "Function",
-        "If",
-        "Input",
-        "Integer",
-        "Length",
-        "Loop",
-        "Print",
-        "Return",
-        "Scope",
-        "String",
-        "SubStr",
-        "Then",
-        "While"
-};
-const unsigned key_size = 22;
-const char *rez_key_worlds[] = {
-        "And",
-        "Boolean",
-        "Continue",
-        "Elseif",
-        "Exit",
-        "False",
-        "For",
-        "Next",
-        "Not",
-        "Or",
-        "Shared",
-        "Static",
-        "True"
-};
+
+/**
+ * funkcia ktora navrhne mozne riesenie lexikalnej chyby a ukonci program
+ * @param state
+ * @param loaded
+ * @param line
+ */
+void ERR_LEX(tstate state, char *loaded, int line){
+    fprintf(stderr,"ERR_LEX : na riadku %d je nespravne dany prvok %s\n", line, loaded);
+    if (state == s_START){
+        printf("pouzivate znak mimo asci\n");
+    } else {
+        fprintf(stderr, "neznama chyba\n"); // todo dorobit pre ostatne stavy
+    }
+
+    clear_all();
+    exit(ERR_LEXIK);
+}
+
 
 int old = 0;
 /**
@@ -65,40 +44,50 @@ int is_key(char *ret){
     return 0;
 }
 
+
+
 t_str_buff *scanner_buff = NULL;
 
 
-t_token tget_token(char *lex){
+t_token *create_token(ttype typ, tdata data){
+    t_token *tmp = my_malloc(sizeof(t_token));
+    tmp->token_type = typ;
+    tmp->data = data;
+    //vymaz buffer
+    my_free(scanner_buff->ret);
+    my_free(scanner_buff);
+    return tmp;
+}
+
+t_token *tget_token(char *lex){
+    tdata data;
+    data.s = NULL;
     //priprava bufferu
-    //zisti ci buffer uz existuje alebo nie
-    if (scanner_buff == NULL){
-        scanner_buff = init_buff(scanner_buff);
-    } else {
-        null_buffer(scanner_buff);
-    }
+    scanner_buff = init_buff(scanner_buff);
     //inicializacia znaku
     int loaded = 0;
     //riadok ktory je spracovavany
     static unsigned line = 0;
     //zistenie ci neostalo po predchodzom hladany znak
-    if (old != 0){
-        loaded = old;
-        old = 0;
-    } else {
-        loaded = getchar();
-    }
+
     //inicializovanie stavu na stav STRAT
-    int state = s_START;
+    tstate state = s_START;
     //pomocna premmena pre stavy
     int pom = 0;
 
     //vykonava cyklus pokial neskoncil subor alebo pokial sa nenasiel token
     do {
+        if (old != 0){
+            loaded = old;
+            old = 0;
+        } else {
+            loaded = fgetc(f);
+        }
         line += (loaded == '\n')? 1 : 0;    //ak je znak \n tak sa je dalsi riadok
         switch (state){
             case s_START: //stav START
                 if (isspace(loaded)){   //nic sa nemeni
-                    state = s_START;
+                    //state = s_START; nerob nic
                 } else if (isalpha(loaded) || (loaded == '_')){ // nasiel sa zaciatok ID
                     append_buff(scanner_buff,loaded);
                     state = s_ID;
@@ -106,43 +95,40 @@ t_token tget_token(char *lex){
                     state = s_line_comment;
                 } else if (loaded == '/'){  //blokovy koment alebo deleno
                     state = s_block_coment_0;
-                } else if (loaded == ':'){  //mozne priradenie
-                    state = s_asign_0;
                 } else if (isdigit(loaded)){    // zaciatok INT
                     append_buff(scanner_buff,loaded);
                     state = s_INT;
                 } else if (loaded == '!'){  // mozny retazec
                     state = s_str0;
                 } else if (loaded == '+'){  // operacia plus
-                    t_token token = {PLUS, NULL};
-                    return token;
+                    return create_token(PLUS, data);
                 } else if (loaded == '-'){  // operacia minus
-                    t_token token = {MINUS, NULL};
-                    return token;
+                    return create_token(MINUS, data);
                 } else if (loaded == '*'){  // operacia krat
-                    t_token token = {KRAT, NULL};
-                    return token;
+                    return create_token(KRAT, data);
                 } else if (loaded == '\\'){ // operacia modulo
-                    t_token token = {MOD,NULL};
-                    return token;
+                    return create_token(DELENO, data);
                 } else if (loaded == '='){  // operacia zhodne
-                    t_token token = {EQ,NULL};
-                    return token;
+                    return create_token(EQ, data);
                 } else if (loaded == '>'){  // operacia porovnania moyne vysledky >= >
-                    state = s_QT;
+                    state = s_GT;
                 } else if (loaded == '<'){// operacia porovnania moyne vysledky <> <= <
                     state = s_LT;
-                } else {    // bol najdeny znak co tam nema hladat
-                    clear_all();
-                    fprintf(stderr, "%i\n",line);
-                    exit(ERR_LEXIK);
-                }//todo pre ine
+                } else if (loaded == '\n'){ //EOL
+                    return create_token(EOL, data);
+                } else if (loaded == '('){
+                    return create_token(LPAR, data);
+                } else if (loaded == ')'){
+                    return create_token(RPAR, data);
+                } else {    //narazil na necakani znak
+                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff,0);
+                    ERR_LEX(state, get_buff(scanner_buff), line);
+                }
                 break;
             case s_line_comment:    // stav sa nemeni pokial neskonci riadok
                 if (loaded == '\n'){
-                    state = s_START;
-                } else {
-                    state = s_line_comment;
+                    return create_token(EOL, data);
                 }
                 break;
             case s_block_coment_0:  // ked je dalsi znak ' tak sa jedna o blok koment inak je to deleno
@@ -150,10 +136,7 @@ t_token tget_token(char *lex){
                     state = s_block_coment_1;
                 } else {
                     old = loaded;
-                    null_buffer(scanner_buff);
-                    t_token token = {DELENO, NULL};
-                    append_buff(scanner_buff,loaded);
-                    return token;
+                    return create_token(DELENO, data);
                 }
                 break;
             case s_block_coment_1: //blokovy koment pokial nenajde ' potom sa mozno jedna o konec komentu takze dalsi stav
@@ -175,45 +158,41 @@ t_token tget_token(char *lex){
                     append_buff(scanner_buff,loaded);
                 } else {
                     // generovanie tokenu
-                    char *name;
+                    append_buff(scanner_buff,0);
                     char *buff = get_buff(scanner_buff);
-                    name = my_malloc(sizeof(char)*(buff_size(scanner_buff)+1));
+                    data.s = my_malloc(sizeof(char)*(buff_size(scanner_buff)+1));
                     //prekopirovanie str
                     for (unsigned i=0; i<buff_size(scanner_buff)+1;i++){
-                        name[i] = tolower(buff[i]);
+                        data.s[i] = tolower(buff[i]);
                     }
 
                     old = loaded;
 
-                    pom = is_key(name);
+                    pom = is_key(data.s);
                     if (pom){
-                        t_token result = {MIN_KEY_WORLD + pom - 1,NULL};
-                        return result;
+                        my_free(data.s);
+                        data.i = pom;
+                        return create_token(MIN_KEY_WORLD, data);
                     } else {
-                        t_token result = {ID, (void *) name};
-                        return result;
+                        return create_token(ID, data);
                     }
                 }
                 break;
             case s_INT: // bud je int alebo double nacitava pokial je 0..9 ak je . tak prechadza na desatinne ak e na exponent
                 if (isdigit(loaded)){
                     append_buff(scanner_buff,loaded);
-                } else if (isspace(loaded)){
-                    state = s_START;
-                }else if (loaded == '.'){
+                } else if (loaded == '.'){
                     state = s_double_0;
                     append_buff(scanner_buff,loaded);
                 } else if ((loaded == 'e') || (loaded == 'E')){
                     state = s_double_1;
+                    append_buff(scanner_buff,loaded);
                 } else {
                     //vygeneruj token
-                    int *tmp;
-                    tmp = my_malloc(sizeof(int));
-                    *tmp = strtol(get_buff(scanner_buff),NULL, 10);
-                    t_token token = {INT, tmp};
-                    null_buffer(scanner_buff);
                     old = loaded;
-                    return token;
+                    append_buff(scanner_buff,0);
+                    data.i = strtol(get_buff(scanner_buff), NULL, 10);
+                    return create_token(INT, data);
                 }
                 break;
             case s_double_0:    // desatinna cast realneho cisla
@@ -224,11 +203,9 @@ t_token tget_token(char *lex){
                     append_buff(scanner_buff,loaded);
                 } else {
                     old = loaded;
-                    double  *tmp;
-                    tmp = my_malloc(sizeof(double));
-                    *tmp = strtod(get_buff(scanner_buff),NULL);
-                    t_token token = {DOUBLE, tmp};
-                    return token;
+                    append_buff(scanner_buff,0);
+                    data.d = strtod(get_buff(scanner_buff),NULL);
+                    return create_token(DOUBLE, data);
                 }
                 break;
             case s_double_1:    // exponent prvy znak
@@ -238,9 +215,9 @@ t_token tget_token(char *lex){
                 } else if ( isdigit(loaded)){
                     state = s_double_3;
                 } else {
-                    fprintf(stderr,"CIslo nema exponenta %s na riadku %i\n", get_buff(scanner_buff), line);
-                    clear_all();
-                    exit(ERR_LEXIK);
+                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff, 0);
+                    ERR_LEX(state, get_buff(scanner_buff), line);
                 }
                 break;
             case s_double_2: // exponent 2. znak
@@ -248,51 +225,47 @@ t_token tget_token(char *lex){
                     append_buff(scanner_buff,loaded);
                     state = s_double_3;
                 } else {
-                    fprintf(stderr,"CIslo nema exponenta %s na riadku %i\n", get_buff(scanner_buff), line);
-                    clear_all();
-                    exit(ERR_LEXIK);
+                    append_buff(scanner_buff,loaded);
+
+                    append_buff(scanner_buff, 0);
+                    ERR_LEX(state, get_buff(scanner_buff), line);
                 }
                 break;
             case s_double_3:// ostavajuce cisla exponentu
                 if (isdigit(loaded)){
                     append_buff(scanner_buff,loaded);
                 } else {
+                    append_buff(scanner_buff,0);
+                    data.d = strtod(get_buff(scanner_buff), NULL);
                     old =loaded;
-                    double  *tmp;
-                    tmp = my_malloc(sizeof(double));
-                    *tmp = strtod(get_buff(scanner_buff),NULL);
-                    t_token token = {DOUBLE, tmp};
-                    return token;
+                    return create_token(DOUBLE, data);
                 }
                 break;
             case s_str0: // overuje ci sa jedna o string ci su "
                 if (loaded == '"'){
                     state = s_strL;
                 } else {
-                    fprintf(stderr,"bol zle definovany retazec na riadku %i\n",line);
-                    clear_all();
-                    exit(ERR_LEXIK);
+                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff, 0);
+                    ERR_LEX(state, get_buff(scanner_buff), line);
                 }
                 break;
             case s_strL:     // naxitava string ak najde \ dekoduje
                 if (loaded == '"'){
-                    char *ret;
                     char *buff = get_buff(scanner_buff);
-                    ret = my_malloc(sizeof(char) * (buff_size(scanner_buff) + 1));
+                    data.s = my_malloc(sizeof(char) * (buff_size(scanner_buff) + 1));
                     for (unsigned i=0; i<=buff_size(scanner_buff);i++){
-                        ret[i] = buff[i];
+                        data.s[i] = buff[i];
                     }
-                    t_token token = {STR, ret};
-                    return token;
+                    return create_token(STR, data);
                 } else if (loaded == '\\'){
                     state = s_str_spec;
                 } else if (loaded < 256){
                     append_buff(scanner_buff,loaded);
-
                 } else {
-                    fprintf(stderr,"v retazci \"%s\" na riadku %i bol pouzity znak mimo aci\n",get_buff(scanner_buff),line);
-                    clear_all();
-                    exit(ERR_LEXIK);
+                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,0);
+                    ERR_LEX(state, get_buff(scanner_buff), line);
                 }
                 break;
             case s_str_spec:    /* zistovanie o typu kodovania znaku za \ */
@@ -311,9 +284,9 @@ t_token tget_token(char *lex){
                 } else if (loaded == '\\'){
                     append_buff(scanner_buff,'\\');
                 } else {
-                    fprintf(stderr, "Vretazci bol zadany zla esc sekvencia bud 3 cisla alebo n t \\ na riadku %i\n",line );
-                    clear_all();
-                    exit(ERR_LEXIK);
+                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff,0);
+                    ERR_LEX(state, get_buff(scanner_buff), line);
                 }
                 break;
             case s_str_spec_hexa0:  // druhy znak cislenho kodovania
@@ -321,67 +294,49 @@ t_token tget_token(char *lex){
                     pom += (loaded - '0') * 10;
                     state = s_str_spec_hexa1;
                 } else {
-                    fprintf(stderr, "Vretazci bol zadany zla esc sekvencia bud 3 cisla do 255 alebo n t \\ na riadku %i\n",
-                            line);
-                    clear_all();
-                    exit(ERR_LEXIK);
+                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff,0);
+                    ERR_LEX(state, get_buff(scanner_buff), line);
                 }
                 break;
             case s_str_spec_hexa1:  // treti znak ciselneho kodovania
                 if (isdigit(loaded)){
                     pom += (loaded - '0') * 10;
                     if (pom >255){
-                        fprintf(stderr, "zla escape sekvencia na riadku %i\n sprvne su 3 cisla s hodnotou do 255\n",     line);
-                        clear_all();
-                        exit(ERR_LEXIK);
+                        append_buff(scanner_buff, loaded);
+                        append_buff(scanner_buff,0);
+                        ERR_LEX(state, get_buff(scanner_buff), line);
                     }
                     append_buff(scanner_buff,pom);
                     state = s_strL;
                 } else {
-                    fprintf(stderr, "Vretazci bol zadany zla esc sekvencia bud 3 cisla alebo n t \\ na riadku %i\n",
-                            line);
-                    clear_all();
-                    exit(ERR_LEXIK);
+                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff,0);
+                    ERR_LEX(state, get_buff(scanner_buff), line);
                 }
                 break;
             case s_LT:  // stav mensi nez
                 if (loaded == '>'){
-                    t_token token = {NEQ, NULL};
-                    return token;
+                    return create_token(NEQ, data);
                 } else if (loaded == '='){
-                    t_token token = {LE, NULL};
-                    return token;
+                    return create_token(LE, data);
                 } else {
                     old = loaded;
-                    t_token token = {LT, NULL};
-                    return token;
+                    return create_token(LT, data);
+
                 }
                 break;
-            case s_QT:  // stav vasci nez
+            case s_GT:  // stav vasci nez
                 if (loaded == '='){
-                    t_token token = {QE, NULL};
-                    return token;
+                    return  create_token(GE,data);
                 } else {
                     old = loaded;
-                    t_token token = {QT, NULL};
-                    return token;
-                }
-                break;
-            case s_asign_0: // stav priradenia
-                if (loaded == '='){
-                    t_token token = {ASSIGN, NULL};
-                    return  token;
-                } else {
-                    fprintf(stderr,"zly znak priradenia chyba = na riadku %i\n",line);
-                    clear_all();
-                    exit(ERR_LEXIK);
+                    return  create_token(GT,data);
                 }
 
                 //todo dorobit ostatne typy a doplnit
         }
-        loaded = getchar();
     }while (loaded != EOF);
-
-    t_token result = {EMPTY, NULL};
-    return result;
+    //sem by sa nikdi nemal dostat ak ano niekde je chyba
+    return NULL;
 }

@@ -7,53 +7,71 @@
 
 FILE *f;
 
+
+char key_worlds[35][10];
+unsigned key_size;
+unsigned min_key;
+
+
+
 //nemenit !!!
 // toto su stavy automatu
 // kazdy stav musi mat ine cislo !!!
-#define s_START 0
-#define s_ID 1
-#define s_block_coment_0 2
-#define s_block_coment_1 3
-#define s_block_coment_2 4
-#define s_line_comment 5
-#define s_asign_0 6
-#define s_INT 7
-#define s_double_0 8
-#define s_double_1 9
-#define s_double_2 10
-#define s_double_3 11
-#define s_str0 12
-#define s_strL 13
-#define s_str_spec 14
-#define s_str_spec_hexa0 15
-#define s_str_spec_hexa1 16
-#define s_LT 17
-#define s_QT 18
-
+typedef enum {
+    s_START = 0,
+    s_ID,
+    s_block_coment_0,
+    s_block_coment_1,
+    s_block_coment_2,
+    s_line_comment,
+    s_INT,
+    s_double_0,
+    s_double_1,
+    s_double_2,
+    s_double_3,
+    s_str0,
+    s_strL,
+    s_str_spec,
+    s_str_spec_hexa0,
+    s_str_spec_hexa1,
+    s_LT,
+    s_GT,
+} tstate;
 
 
 //zaheslovane typ tokenu    //todo zmenit tak aby sedeli s ostatnymy
 //todo skonrolovat ci su to vsetky mozne typy
-#define EMPTY 0
-#define ID 1
-#define INT 2
-#define DOUBLE 3
-#define STR 4
-#define ASSIGN 5
-#define PLUS 6
-#define MINUS 7
-#define KRAT 8
-#define DELENO 9
-#define EQ 6
-#define NEQ 7
-#define LT 8
-#define LE 9
-#define QT 10
-#define QE 11
-#define MOD 12
-//typ klucoveho slova  ked od neho odcitame 1000 tak dostaneme pointer na klucove slovo v premennej key_worlds
-#define MIN_KEY_WORLD 1000
+typedef enum {
+    EMPTY = 0,
+    ID,
+    INT,
+    DOUBLE,
+    STR,
+    PLUS,
+    MINUS,
+    KRAT,
+    DELENO,
+    EQ,
+    NEQ,
+    LT,
+    LE,
+    GT,
+    GE,
+    MOD,
+    EOL,
+    END,
+    LPAR,
+    RPAR,
+    comma,
+    MIN_KEY_WORLD
+} ttype;
 
+
+typedef union {
+    int i;
+    double d;
+    char *s;
+} tdata;
 
 /**
  * klucove slova jazyka
@@ -65,7 +83,7 @@ FILE *f;
  */
 typedef struct {
     int token_type;      // typ tokenu
-    void *data;
+    tdata data;
 } t_token;
 
 /**
