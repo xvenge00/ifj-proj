@@ -120,7 +120,11 @@ t_token *tget_token(char *lex){
                     return create_token(LPAR, data);
                 } else if (loaded == ')'){
                     return create_token(RPAR, data);
-                } else {    //narazil na necakani znak
+
+                }else if (loaded == ','){
+                    return create_token(comma, data);
+
+                }  else {    //narazil na necakani znak
                     append_buff(scanner_buff, loaded);
                     append_buff(scanner_buff,0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
