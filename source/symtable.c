@@ -2,7 +2,7 @@
 
 #include "symtable.h"
 #include "memwork.c"
-#include "str_buff.h"
+#include <string.h>
 
 #define DEFAULT_TABLE_SIZE 8;
 
@@ -36,7 +36,7 @@ TData * Var_Create(TValue value, TType type){
 }
 
 //konstruktor symbolu
-TSymbol *Sym_Create(Symbol_type type, TData *data, t_str_buff *name){
+TSymbol *Sym_Create(Symbol_type type, TData *data, char* name){
     TSymbol *symbol = NULL;
     symbol = my_malloc(sizeof(TSymbol));
     if(symbol != NULL){
@@ -48,7 +48,7 @@ TSymbol *Sym_Create(Symbol_type type, TData *data, t_str_buff *name){
 }
 
 //konstruktor elementu
-TElement * El_Create(TSymbol * data, unsigned int table_size){
+TElement * El_Create(TSymbol * data){
     TElement  *element = NULL;
     element = my_malloc(sizeof(TElement));
     if(element != NULL){
@@ -86,6 +86,8 @@ TTable * Tbl_Create(unsigned int size){
 }
 
 void Tbl_Resize(TTable* tbl){
+    printf("Resizing table\n");
+
     TTable* newTbl = NULL;
 
     if(tbl != NULL){
@@ -141,6 +143,7 @@ hodnotou. Tato vlastnost se podobá činnosti v kartotéce, kdy při existenci
 staré karty se shodným klíčem se stará karta zahodí a vloží se nová (aktualizační
  sémantika operace TInsert).*/
 int Tbl_Insert(TTable* tbl, TElement* el){
+
     //kontrola ukazatelu
 
     if(tbl == NULL || el == NULL){
@@ -152,7 +155,6 @@ int Tbl_Insert(TTable* tbl, TElement* el){
     if(tbl->list_firsts[el->hash] == NULL){
         tbl->list_firsts[el->hash] = el;
         Tbl_Increment(tbl);
-
     }
     else{
         TElement *active = tbl->list_firsts[el->hash];
@@ -165,8 +167,7 @@ int Tbl_Insert(TTable* tbl, TElement* el){
                 active->next = el->next;
                 active->hash = el->hash;
                 my_free(active->data->data);
-                my_free(active->data->name->ret);
-                my_free(active->data->name);
+                //my_free(active->data->name);
 
                 return 0;
             }
@@ -178,8 +179,7 @@ int Tbl_Insert(TTable* tbl, TElement* el){
             active->next = el->next;
             active->hash = el->hash;
             my_free(active->data->data);
-            my_free(active->data->name->ret);
-            my_free(active->data->name);
+            //my_free(active->data->name);
             return 0;
         }
         //pridani elementu na konec listu
@@ -190,7 +190,7 @@ int Tbl_Insert(TTable* tbl, TElement* el){
 
 /*Predikát, který vrací hodnotu true v případě,že v tabulce T existuje položka s klíčem K
 a hodnotu false v opačném případě. */
-bool Tbl_Search(TTable* tbl, t_str_buff *name){
+bool Tbl_Search(TTable* tbl, char *name){
     if(tbl != NULL){
         bool found = false;
         for(unsigned int i = 0; i<tbl->size; i++){
@@ -219,7 +219,6 @@ bool Tbl_Search(TTable* tbl, t_str_buff *name){
 }
 
 void El_Free(TElement* element){
-
     if(element->data->type == ST_Variable){
         my_free(element->data->data->var);
         my_free(element->data->data);
@@ -230,9 +229,6 @@ void El_Free(TElement* element){
         my_free(element->data->data->func);
         my_free(element->data->data);
     }
-    my_free(element->data->name->ret);
-    my_free(element->data->name);
-
     my_free(element->data);
 
     my_free(element);
@@ -241,7 +237,7 @@ void El_Free(TElement* element){
 /*Operace rušení prvku s klíčem name v tabulce tbl.
 V případě, že prvek neexistuje, má operace
 sémantiku prázdné operace.*/
-void El_Delete(TTable* tbl, t_str_buff *name){
+void El_Delete(TTable* tbl, char* name){
     if(tbl != NULL){
         for(unsigned int i = 0; i<tbl->size; i++){
             TElement *active = tbl->list_firsts[i];
@@ -279,7 +275,6 @@ void El_Delete(TTable* tbl, t_str_buff *name){
 }
 
 void Tbl_Delete(TTable * tbl){
-    printf("Table delete \n");
     if(tbl != NULL){
         TElement * tmp = NULL;
         TElement * tmp2 = NULL;
@@ -314,11 +309,11 @@ void Tbl_Delete(TTable * tbl){
 
 
 //Bernsteinova funkce, source https://www.strchr.com/hash_functions
-unsigned int hash(t_str_buff *str, unsigned int table_size) {
+unsigned int hash(char* str, unsigned int table_size) {
 
     unsigned int hash = 5381;
-    for (unsigned int i = 0; i < str->top; ++i)
-        hash = 33 * hash + str->ret[i];
+    for (unsigned int i = 0; i < strlen(str); ++i)
+        hash = 33 * hash + str[i];
 
     if(table_size < hash){
             hash = hash % table_size;
