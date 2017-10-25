@@ -16,7 +16,7 @@ TData *Func_Create(TType return_type, unsigned int attributes_count, TType *attr
         function->attributes = attributes_values;
     }
 
-    TData *data = my_malloc(sizeof(TData*));
+    TData *data = my_malloc(sizeof(TData));
     data->func = function;
     return data;
 }
@@ -30,7 +30,7 @@ TData * Var_Create(TValue value, TType type){
         var->type = type;
     }
 
-    TData *data = my_malloc(sizeof(TData*));
+    TData *data = my_malloc(sizeof(TData));
     data->var = var;
     return data;
 }
@@ -55,7 +55,6 @@ TElement * El_Create(TSymbol * data, unsigned int table_size){
         element->data = data;
         element->next = NULL;
         element->key = data->name;
-        element->hash = hash(element->key,table_size);
     }
     return element;
 }
@@ -73,7 +72,7 @@ TTable * Tbl_Create(unsigned int size){
         tbl->list_firsts = NULL;
 
         //alokace pole ukazatelu na prvky
-        size_t size_list = sizeof(TElement *) * tbl->size;
+        size_t size_list = sizeof(TElement) * tbl->size;
         tbl->list_firsts = my_malloc(size_list);
 
         //inicializace ukazatelu na NULL
@@ -83,7 +82,6 @@ TTable * Tbl_Create(unsigned int size){
             }
         }
     }
-
     return tbl;
 }
 
@@ -96,38 +94,42 @@ void Tbl_Resize(TTable* tbl){
 
     if(newTbl != NULL){
         for (int i = 0; i < tbl->size; i++) {
-            if(tbl->list_firsts[i] != NULL){
-                tbl->list_firsts[i]->hash = hash(tbl->list_firsts[i]->key,newTbl->size);
-                Tbl_Insert(newTbl, tbl->list_firsts[i]); //vlozim prvni prvek do nove table
-                TElement * temp = NULL;
+            TElement * tmp = NULL;
+            TElement * temp = NULL;
 
-                if(tbl->list_firsts[i]->next != NULL){
-                    temp = tbl->list_firsts[i]->next; //posune ukazatel na dalsi element
-                    temp->hash = hash(temp->key,newTbl->size);
+            if(tbl->list_firsts[i] != NULL){ //ve stare tabulce na prvni pozici neco je
+                tbl->list_firsts[i]->hash = hash(tbl->list_firsts[i]->key,newTbl->size); //prehashujem
+                tmp = tbl->list_firsts[i]->next; //naslednik v tmp
+                tbl->list_firsts[i]->next = NULL; //vynulovani nextu prvniho prvku
+                Tbl_Insert(newTbl, tbl->list_firsts[i]); //vlozim prvni prvek do nove table
+
+                if(tmp != NULL){ //v nextu neco bylo
+                    temp = tmp; //schovam si ukazatel dal
+                    temp->hash = hash(temp->key,newTbl->size); //prehashuju temp
                 }
 
                 while(temp != NULL){ //vlozeni vsech dalsich el do nove tably
-                    Tbl_Insert(newTbl, temp);
-                    temp = temp->next;
-                    if(temp != NULL){
-                        temp->hash = hash(temp->key, newTbl->size);
+                    tmp = temp->next; //posunu ukazatel dal
+                    temp->next = NULL; //vynuluju next
+                    Tbl_Insert(newTbl, temp); //vlozim do nove s vynulovanym nextem
+                    if(tmp != NULL){ //pokud neco bylo dal
+                        temp = tmp; //aby sedela podminka cyklu
+                        temp->hash = hash(temp->key, newTbl->size); //prehashovat
                     }
+                    temp = tmp; //aby sedela podminka cyklu
+
                 }
             }
         }
-        TTable * tmp = tbl;
-        //Tbl_Delete(tmp)
         my_free(tbl->list_firsts);
-        //my_free(tbl);
         *tbl = *newTbl;
+        my_free(newTbl);
     }
 }
 
 /* Inkrementuje velikost tabulky, popripade vola resize. */
 void Tbl_Increment(TTable* tbl){
     tbl->count++;
-    printf("Table count %d\n",tbl->count);
-
     if(tbl->count >= tbl->size*0.75){
         Tbl_Resize(tbl);
     }
@@ -140,11 +142,12 @@ staré karty se shodným klíčem se stará karta zahodí a vloží se nová (ak
  sémantika operace TInsert).*/
 int Tbl_Insert(TTable* tbl, TElement* el){
     //kontrola ukazatelu
-    printf("Element %s hash %d size %d count %d\n",el->key->ret, el->hash, tbl->size, tbl->count);
 
     if(tbl == NULL || el == NULL){
         return ERR_INTER;
     }
+    el->hash = hash(el->key,tbl->size);
+
     //vkladame na prvni misto
     if(tbl->list_firsts[el->hash] == NULL){
         tbl->list_firsts[el->hash] = el;
@@ -153,30 +156,34 @@ int Tbl_Insert(TTable* tbl, TElement* el){
     }
     else{
         TElement *active = tbl->list_firsts[el->hash];
+
         //cyklime pres prvky se stejnym hashem
         while(active->next != NULL){
             //stejny key - premazeme data
             if (active->key == el->key){
-                //my_free(active->data);
                 active->data = el->data;
+                active->next = el->next;
+                active->hash = el->hash;
+                my_free(active->data->data);
+                my_free(active->data->name->ret);
+                my_free(active->data->name);
 
-                //Tbl_Increment(tbl);
                 return 0;
             }
             active = active->next;
         }
         //k poslednimu se pres while nedostanu
         if (active->key == el->key){
-            //my_free(active->data);
             active->data = el->data;
-
-            //Tbl_Increment(tbl);
+            active->next = el->next;
+            active->hash = el->hash;
+            my_free(active->data->data);
+            my_free(active->data->name->ret);
+            my_free(active->data->name);
             return 0;
         }
         //pridani elementu na konec listu
-        active->next=my_malloc(sizeof(TElement));
         active->next = el;
-        //Tbl_Increment(tbl);
         return 0;
     }
 }
@@ -212,20 +219,22 @@ bool Tbl_Search(TTable* tbl, t_str_buff *name){
 }
 
 void El_Free(TElement* element){
-    static int i = 0;
-    printf("Deleting element %s %d \n",element->key->ret, ++i);
+
     if(element->data->type == ST_Variable){
         my_free(element->data->data->var);
+        my_free(element->data->data);
+
     }
     else {
         my_free(element->data->data->func->attributes);
         my_free(element->data->data->func);
+        my_free(element->data->data);
     }
+    my_free(element->data->name->ret);
+    my_free(element->data->name);
 
-    my_free(element->data->data);
     my_free(element->data);
-    my_free(element->key->ret);
-    my_free(element->key);
+
     my_free(element);
 }
 
@@ -278,23 +287,25 @@ void Tbl_Delete(TTable * tbl){
             if(tbl->list_firsts[i] != NULL) { //neco v tom seznamu je
                 if(tbl->list_firsts[i]->next != NULL){ //je tam vic nez jeden
                     tmp = tbl->list_firsts[i]->next;
-                    //El_Free(tbl->list_firsts[i]);
+                    El_Free(tbl->list_firsts[i]);
+
                     while (tmp != NULL) //cyklime do konce seznamu
                     {
                         tmp2 = tmp;
                         tmp = tmp->next;
-                        //El_Free(tmp2);
-                        //tbl->count--;
+
+                        El_Free(tmp2);
                     }
                 }
                 //je jen jeden
                 else {
-                    //El_Free(tbl->list_firsts[i]);
+                    El_Free(tbl->list_firsts[i]);
                     tbl->count--;
                 }
 
             } //if neni radek null
         }//for pres radky
+        my_free(tbl->list_firsts);
         my_free(tbl);
 
     }

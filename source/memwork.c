@@ -8,11 +8,14 @@
 #include "memwork.h"
 #include "main.h"
 
+
+
 void **pole = NULL;
 unsigned max = 0;
 unsigned top = 0;
 
 void clear_all(){
+    static int m = 0;
     for (unsigned i=0; i<top; i++){
         free(pole[i]);
     }
@@ -59,9 +62,12 @@ void replace(void *ptr, void *new){
 }
 
 void delete(void *ptr){
+    static int f = 0;
     for (unsigned i=0; i<top; i++){
         if (pole[i] == ptr){
             free(pole[i]);
+            printf("delete %p \n", ptr);
+
             pole[i] = NULL;
             break;
         }
@@ -76,6 +82,7 @@ void *my_malloc(size_t size){
         exit(ERR_INTER);
     }
     append(tmp);
+    printf("malloc %p \n", tmp);
     return tmp;
 }
 
@@ -90,5 +97,7 @@ void *my_realloc(void *ptr,size_t new_size){
 }
 
 void my_free(void *ptr){
+    static int f = 0;
     delete(ptr);
+    printf("free   %p \n", ptr);
 }
