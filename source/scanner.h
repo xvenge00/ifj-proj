@@ -8,7 +8,7 @@
 FILE *f;
 
 
-char key_worlds[35][10];
+const char key_worlds[35][20];
 unsigned key_size;
 unsigned min_key;
 
@@ -36,6 +36,7 @@ typedef enum {
     s_str_spec_hexa1,
     s_LT,
     s_GT,
+    s_OP
 } tstate;
 
 
@@ -63,6 +64,7 @@ typedef enum {
     LPAR,
     RPAR,
     comma,
+    COMMA,
     MIN_KEY_WORLD
 } ttype;
 
@@ -90,6 +92,6 @@ typedef struct {
  * vrati token tvaru predchadzajucej struktury nacitava zo stdin
  * @return
  */
-t_token get_token();
+t_token *get_token();
 
 #endif //IFJ_PROJ_SCANNER_H
