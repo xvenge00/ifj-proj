@@ -49,6 +49,7 @@ typedef struct {
 typedef struct TElement{
     char* key; //identifikator
     unsigned int hash; //hash identifikatoru
+
     TSymbol* data; //pointer na symbol obsahujici data a datovy typ
     struct TElement * next; // link na dalsi prvek seznamu
 } TElement; //prvek seznamu elementu se stejnym key (hashle jmeno)
