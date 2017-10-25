@@ -16,7 +16,8 @@
 typedef enum {
     E_integer = 0,
     E_double,
-    E_String
+    E_string,
+    E_void
 } TType;
 
 typedef union {
@@ -39,6 +40,7 @@ typedef struct {
 typedef union {
     TVariable *var; //var ma jine atributy nez function
     TFunction *func;
+
 } TData;
 
 typedef enum {
@@ -60,8 +62,8 @@ typedef struct TElement{
 } TElement; //prvek seznamu elementu se stejnym key (hashle jmeno)
 
 typedef struct {
-    unsigned int size;
-    unsigned int count;
+    unsigned int size; //na kolik je naalokovano
+    unsigned int count; //obsazenych ukazatelu
     TElement **list_firsts; //pole ukazatelu na prvni TElement v seznamu
 } TTable; //samotna tabulka
 
@@ -70,15 +72,17 @@ TData *Var_Create(TValue value, TType type);
 TData *Func_Create(TType return_typ, unsigned int attributes_count, TType * attributes_values);
 TSymbol *Sym_Create(Symbol_type type, TData *data,t_str_buff *name);
 TElement *El_Create(TSymbol *data, unsigned int table_size); //element init
-TTable *Tbl_Create(); //table constructor
+TTable *Tbl_Create(unsigned int size); //table constructor
 
 //operace nad tabulkou viz IA
 
 void El_Free(TElement* element); //uvolni postupne vsechny soucasti elementu az do nejnizsi urovne
 int Tbl_Insert(TTable* tbl, TElement* el); //vlozi do tabulky tbl element el
 bool Tbl_Search(TTable* tbl, t_str_buff *name); //vraci true, pokud v tbl existuje element s name
-void Tbl_Delete(TTable* tbl, t_str_buff *name); //smaze z tabulky element s name
+void El_Delete(TTable* tbl, t_str_buff *name); //smaze z tabulky element s name
 void Tbl_Copy(TTable* tbl, t_str_buff *name, TElement* el); //vraci v el to co je v tbl s name
+void Tbl_Resize(TTable* tbl);
+void Tbl_Delete(TTable *tbl);
 
 unsigned int hash(t_str_buff* str, unsigned int table_size);
 #endif //IFJ_PROJ_SYMTABLE_H

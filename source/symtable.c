@@ -2,6 +2,7 @@
 
 #include "symtable.h"
 #include "memwork.c"
+#include "str_buff.h"
 
 #define DEFAULT_TABLE_SIZE 8;
 
@@ -60,19 +61,19 @@ TElement * El_Create(TSymbol * data, unsigned int table_size){
 }
 
 //konstruktor tabulky na defaultni velikost
-TTable * Tbl_Create(){
+TTable * Tbl_Create(unsigned int size){
     //alokace samotne tabulky
     TTable *tbl = NULL;
     size_t size_table = sizeof(TTable);
     tbl = my_malloc(size_table);
 
     if(tbl!=NULL){
-        tbl->size = DEFAULT_TABLE_SIZE;
+        tbl->size = size;
         tbl->count = 0;
         tbl->list_firsts = NULL;
 
         //alokace pole ukazatelu na prvky
-        size_t size_list = sizeof(struct TElement *) * DEFAULT_TABLE_SIZE;
+        size_t size_list = sizeof(TElement *) * tbl->size;
         tbl->list_firsts = my_malloc(size_list);
 
         //inicializace ukazatelu na NULL
@@ -86,6 +87,51 @@ TTable * Tbl_Create(){
     return tbl;
 }
 
+void Tbl_Resize(TTable* tbl){
+    TTable* newTbl = NULL;
+
+    if(tbl != NULL){
+        newTbl = Tbl_Create(tbl->size * 2);
+    }
+
+    if(newTbl != NULL){
+        for (int i = 0; i < tbl->size; i++) {
+            if(tbl->list_firsts[i] != NULL){
+                tbl->list_firsts[i]->hash = hash(tbl->list_firsts[i]->key,newTbl->size);
+                Tbl_Insert(newTbl, tbl->list_firsts[i]); //vlozim prvni prvek do nove table
+                TElement * temp = NULL;
+
+                if(tbl->list_firsts[i]->next != NULL){
+                    temp = tbl->list_firsts[i]->next; //posune ukazatel na dalsi element
+                    temp->hash = hash(temp->key,newTbl->size);
+                }
+
+                while(temp != NULL){ //vlozeni vsech dalsich el do nove tably
+                    Tbl_Insert(newTbl, temp);
+                    temp = temp->next;
+                    if(temp != NULL){
+                        temp->hash = hash(temp->key, newTbl->size);
+                    }
+                }
+            }
+        }
+        TTable * tmp = tbl;
+        //Tbl_Delete(tmp)
+        my_free(tbl->list_firsts);
+        //my_free(tbl);
+        *tbl = *newTbl;
+    }
+}
+
+/* Inkrementuje velikost tabulky, popripade vola resize. */
+void Tbl_Increment(TTable* tbl){
+    tbl->count++;
+    printf("Table count %d\n",tbl->count);
+
+    if(tbl->count >= tbl->size*0.75){
+        Tbl_Resize(tbl);
+    }
+}
 
 /*Vložení položky se složkami K a Data do tabulky T. Pokud tabulka T již
 obsahuje položku s klíčem K dojde k přepisu datové složky Data novou
@@ -94,13 +140,16 @@ staré karty se shodným klíčem se stará karta zahodí a vloží se nová (ak
  sémantika operace TInsert).*/
 int Tbl_Insert(TTable* tbl, TElement* el){
     //kontrola ukazatelu
+    printf("Element %s hash %d size %d count %d\n",el->key->ret, el->hash, tbl->size, tbl->count);
+
     if(tbl == NULL || el == NULL){
         return ERR_INTER;
     }
     //vkladame na prvni misto
     if(tbl->list_firsts[el->hash] == NULL){
         tbl->list_firsts[el->hash] = el;
-        tbl->count++;
+        Tbl_Increment(tbl);
+
     }
     else{
         TElement *active = tbl->list_firsts[el->hash];
@@ -108,26 +157,26 @@ int Tbl_Insert(TTable* tbl, TElement* el){
         while(active->next != NULL){
             //stejny key - premazeme data
             if (active->key == el->key){
-                my_free(active->data);
+                //my_free(active->data);
                 active->data = el->data;
 
-                tbl->count++;
+                //Tbl_Increment(tbl);
                 return 0;
             }
             active = active->next;
         }
         //k poslednimu se pres while nedostanu
         if (active->key == el->key){
-            my_free(active->data);
+            //my_free(active->data);
             active->data = el->data;
 
-            tbl->count++;
+            //Tbl_Increment(tbl);
             return 0;
         }
         //pridani elementu na konec listu
         active->next=my_malloc(sizeof(TElement));
         active->next = el;
-        tbl->count++;
+        //Tbl_Increment(tbl);
         return 0;
     }
 }
@@ -163,6 +212,8 @@ bool Tbl_Search(TTable* tbl, t_str_buff *name){
 }
 
 void El_Free(TElement* element){
+    static int i = 0;
+    printf("Deleting element %s %d \n",element->key->ret, ++i);
     if(element->data->type == ST_Variable){
         my_free(element->data->data->var);
     }
@@ -173,14 +224,15 @@ void El_Free(TElement* element){
 
     my_free(element->data->data);
     my_free(element->data);
+    my_free(element->key->ret);
     my_free(element->key);
     my_free(element);
 }
 
-/*Operace rušení prvku s klíčem K v tabulce T.
+/*Operace rušení prvku s klíčem name v tabulce tbl.
 V případě, že prvek neexistuje, má operace
 sémantiku prázdné operace.*/
-void Tbl_Delete(TTable* tbl, t_str_buff *name){
+void El_Delete(TTable* tbl, t_str_buff *name){
     if(tbl != NULL){
         for(unsigned int i = 0; i<tbl->size; i++){
             TElement *active = tbl->list_firsts[i];
@@ -213,11 +265,41 @@ void Tbl_Delete(TTable* tbl, t_str_buff *name){
                     return;
                 }
             }
-
-
         }
     }
 }
+
+void Tbl_Delete(TTable * tbl){
+    printf("Table delete \n");
+    if(tbl != NULL){
+        TElement * tmp = NULL;
+        TElement * tmp2 = NULL;
+        for(int i = 0; i < tbl->size; i++){
+            if(tbl->list_firsts[i] != NULL) { //neco v tom seznamu je
+                if(tbl->list_firsts[i]->next != NULL){ //je tam vic nez jeden
+                    tmp = tbl->list_firsts[i]->next;
+                    //El_Free(tbl->list_firsts[i]);
+                    while (tmp != NULL) //cyklime do konce seznamu
+                    {
+                        tmp2 = tmp;
+                        tmp = tmp->next;
+                        //El_Free(tmp2);
+                        //tbl->count--;
+                    }
+                }
+                //je jen jeden
+                else {
+                    //El_Free(tbl->list_firsts[i]);
+                    tbl->count--;
+                }
+
+            } //if neni radek null
+        }//for pres radky
+        my_free(tbl);
+
+    }
+}
+
 
 
 //Bernsteinova funkce, source https://www.strchr.com/hash_functions
