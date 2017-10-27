@@ -47,7 +47,7 @@ enum keyWorld{
 };
 
 
-const char key_worlds[35][20];
+//const char key_worlds[35][20];
 unsigned key_size;
 unsigned min_key;
 
