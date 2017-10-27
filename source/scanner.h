@@ -47,7 +47,7 @@ enum keyWorld{
 };
 
 
-//const char key_worlds[35][20];
+//const char key_world[35][20];
 unsigned key_size;
 unsigned min_key;
 
@@ -117,7 +117,7 @@ typedef union {
 /**
  * klucove slova jazyka
  */
-//const char *key_worlds[]; //todo vyhadzuje warning
+//const char *key_world[]; //todo vyhadzuje warning
 /**
  * struktura tokeny prve je typ na ktore su definovane vyzsie makra a druhe je ukazovatel na data ktoreho typ urcime z cisla
  * napriklad ak je typ int tak tam bude int ak bude double tak desatinne cislo ak retazec tak to bude pointer na char atd

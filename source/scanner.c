@@ -9,7 +9,7 @@
 
 #define key_size 35
 
-const char key_worlds[35][20] = {
+const char key_world[35][20] = {
                 "as",       //0
                 "asc",
                 "declare",
@@ -75,7 +75,7 @@ void ERR_LEX(tstate state, char *loaded, int line){
  */
 int is_key(char *ret){
     for (unsigned i=0; i<key_size; i++){
-        if (strcmp(ret, key_worlds[i]) == 0){
+        if (strcmp(ret, key_world[i]) == 0){
             return i+1;
         }
     }
