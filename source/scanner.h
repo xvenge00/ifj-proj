@@ -7,8 +7,47 @@
 
 FILE *f;
 
+enum keyWorld{
+    k_as = 0,       //0
+    k_asc,
+    k_declare,
+    k_dim,
+    k_do,
+    k_double,   //5
+    k_else,
+    k_end,
+    k_chr,
+    k_function,
+    k_if,       //10
+    k_input,
+    k_integer,
+    k_length,
+    k_loop,
+    k_print,    //15
+    k_return,
+    k_scope,
+    k_string,
+    k_subStr,
+    k_then,     //20
+    k_while,
+    k_and,
+    k_boolean,
+    k_continue,
+    k_elseif,   //25
+    k_exit,
+    k_false,
+    k_for,
+    k_next,
+    k_not,      //30
+    k_or,
+    k_shared,
+    k_static,
+    k_true      //34
 
-const char key_worlds[35][20];
+};
+
+
+//const char key_worlds[35][20];
 unsigned key_size;
 unsigned min_key;
 
