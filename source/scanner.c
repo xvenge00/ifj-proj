@@ -463,5 +463,8 @@ t_token *get_token(){
         }
     }while (loaded != EOF);
     //sem by sa nikdi nemal dostat ak ano niekde je chyba
+    my_free(scanner_buff->ret);
+    my_free(scanner_buff);
+    fprintf(stderr,"ERROR -- lex skoncil zle\n");
     return NULL;
 }

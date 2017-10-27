@@ -6,7 +6,7 @@
 #define empty_token 0
 
 FILE *f;
-
+///klucove slova
 enum keyWorld{
     k_as = 0,       //0
     k_asc,
@@ -48,14 +48,15 @@ enum keyWorld{
 
 
 //const char key_world[35][20];
-unsigned key_size;
-unsigned min_key;
+//unsigned key_size;
+//unsigned min_key;
 
 
 
 //nemenit !!!
 // toto su stavy automatu
 // kazdy stav musi mat ine cislo !!!
+///stavy automatu
 typedef enum {
     s_START = 0,
     s_ID,
@@ -81,6 +82,7 @@ typedef enum {
 
 //zaheslovane typ tokenu    //todo zmenit tak aby sedeli s ostatnymy
 //todo skonrolovat ci su to vsetky mozne typy
+/// navratove typy
 typedef enum {
     EMPTY = 0,
     ID,
@@ -114,21 +116,20 @@ typedef union {
     char *s;
 } tdata;
 
-/**
- * klucove slova jazyka
- */
+
 //const char *key_world[]; //todo vyhadzuje warning
 /**
- * struktura tokeny prve je typ na ktore su definovane vyzsie makra a druhe je ukazovatel na data ktoreho typ urcime z cisla
- * napriklad ak je typ int tak tam bude int ak bude double tak desatinne cislo ak retazec tak to bude pointer na char atd
+ * N -> cele cislo
+ * R -> realne cislo
  */
 typedef struct {
-    int token_type;      // typ tokenu
-    tdata data;
+    int token_type;      ///typ tokenu ktory bol nacitany
+    tdata data;         /// hodnota tokenu ak typ INT = N | DOUBLE = R | STR = retazec | KEY_WORLD = N  (toto N urcuje typ a konkretne sa da urcit z enum keyWorld)| ostatne NULL
 } t_token;
 
 /**
- * vrati token tvaru predchadzajucej struktury nacitava zo stdin
+ * cita z f
+ * vrati token tvaru t_token
  * @return
  */
 t_token *get_token();
