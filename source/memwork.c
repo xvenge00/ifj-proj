@@ -87,6 +87,7 @@ void *my_realloc(void *ptr,size_t new_size){
         exit(ERR_INTER);
     }
     replace(ptr, tmp);
+    return tmp;
 }
 
 void my_free(void *ptr){
