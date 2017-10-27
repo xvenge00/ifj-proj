@@ -1,3 +1,16 @@
+/*
+ * t_token =
+ * {EMPTY, NULL}    -> konec suboru
+ * {ID, char *}     -> ID a v tdata je ako bol pomenovany v subore              -> pristup k hodnote data.s
+ * {INT, int}       -> INT a v data je cislo ktore bolo nacitane uz v tvare int -> pristup k hodnote data.i
+ * {DOUBLE, double} -> DOUBLE a v data je nacitane desatiine cislo              -> pristup k hodnote data.d7
+ * {MIN_KEY_WORLD, int}
+ *                  -> nacitalo sa klucove slovo a v data je cislo a podla tohto cisla a enum keyWorld ide zistit ake
+ *                  klucove slovo bolo najdene
+ * {ELSE, NULL}     -> pre ostatne navratove typy sa do data neaklada ziadna hodnota
+ */
+
+
 #ifndef IFJ_PROJ_SCANNER_H
 #define IFJ_PROJ_SCANNER_H
 
@@ -126,6 +139,8 @@ typedef struct {
     int token_type;      ///typ tokenu ktory bol nacitany
     tdata data;         /// hodnota tokenu ak typ INT = N | DOUBLE = R | STR = retazec | KEY_WORLD = N  (toto N urcuje typ a konkretne sa da urcit z enum keyWorld)| ostatne NULL
 } t_token;
+
+
 
 /**
  * cita z f
