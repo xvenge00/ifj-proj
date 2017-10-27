@@ -1,0 +1,26 @@
+'koment1
+''koment2
+'' 'koment3
+
+'
+'koment'
+
+/' blokovy koment '/
+/''/
+
+/'
+blokovy koment
+'/
+
+/'
+'
+koment
+'/
+
+'/' normalny koment
+string
+'/' normalny koment
+
+scope
+dim a as string = !""
+end scope

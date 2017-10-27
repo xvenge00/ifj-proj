@@ -1,6 +1,4 @@
 #include "gtest/gtest.h"
-#include "../source/symtable.h"
-//#include "../source/symtable.h"
 
 extern "C" {
 #include "../source/symtable.h"
