@@ -208,10 +208,10 @@ t_token *get_token(){
                     state = s_OP;
 
                 }else if (loaded == ','){
-                    return create_token(comma, data);
+                    return create_token(COMMA, data);
 
                 }else if (loaded == ';'){
-                    return create_token(COMMA, data);
+                    return create_token(SEMICOLLON, data);
 
                 } else if (loaded == EOF){
                     return create_token(EMPTY, data);
