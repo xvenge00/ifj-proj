@@ -94,7 +94,7 @@ int isOpSp(int loaded){
             '-'
     };
     const int size = 8;
-    if (isspace(loaded)){
+    if (isspace(loaded)|| loaded == EOF){
         return 1;
     }
     for (int i = 0; i < size; ++i) {
@@ -110,7 +110,7 @@ int isVaSp(int loaded){
             '_',
             '!'
     }; int size = 2;
-    if (isspace(loaded) || isalnum(loaded)){
+    if (isspace(loaded) || isalnum(loaded)|| loaded == EOF){
         return 1;
     }
     for (int i = 0; i < size; ++i) {
@@ -364,7 +364,6 @@ t_token *get_token(){
                 break;
             case s_strL:     // naxitava string ak najde \ dekoduje
                 if (loaded == '"'){
-                    loaded = fgetc(f);
                     char *buff = get_buff(scanner_buff);
                     data.s = my_malloc(sizeof(char) * (buff_size(scanner_buff) + 1));
                     for (int i=0; i<=buff_size(scanner_buff);i++){

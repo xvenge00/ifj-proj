@@ -97,27 +97,27 @@ typedef enum {
 //todo skonrolovat ci su to vsetky mozne typy
 /// navratove typy
 typedef enum {
-    EMPTY = 0,
+    EMPTY = 0,      //0
     ID,
     INT,
     DOUBLE,
     STR,
-    PLUS,
+    PLUS,           //5
     MINUS,
     KRAT,
     DELENO,
     EQ,
-    NEQ,
+    NEQ,            //10
     LT,
     LE,
     GT,
     GE,
-    MOD,
+    MOD,            //15
     EOL,
     LPAR,
     RPAR,
     comma,
-    COMMA,
+    COMMA,          //20
     MIN_KEY_WORLD
 } ttype;
 
