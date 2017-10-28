@@ -152,5 +152,200 @@ int params() {
 }
 
 int commandsAndVariables(){
+    t_token * input = get_token();
+    if(input == NULL){
+        return ERR_LEXIK;
+    }
+
+    tdata value = input->data;
+    bool isCorrect = input->token_type == MIN_KEY_WORLD;
+
+    if(input->token_type == ID){
+        input = get_token();
+        if(input == NULL){
+            return ERR_LEXIK;
+        }
+        if(input->token_type == EQ){
+            //ID -> funkce
+            //nebo vyraz
+            input = get_token(); //EOL
+            if(input == NULL){
+                return ERR_LEXIK;
+            }
+            if(input->token_type == EOL){
+                commandsAndVariables();
+            }
+            else
+            {
+                return ERR_LEXIK;
+
+            }
+        }
+        else
+        {
+            return ERR_LEXIK;
+        }
+
+    }
+    else if (isCorrect) {
+        switch (value.i){
+            case 11: //input
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                if(input->token_type == ID){
+                    input = get_token();
+                    if(input == NULL){
+                        return ERR_LEXIK;
+                    }
+                    if(input->token_type == EOL){
+                        commandsAndVariables();
+                    }
+                }
+            case 15: //print
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                if(input->token_type == ID){
+                    expression();
+                    if
+                }
+                else
+                {
+                    return ERR_LEXIK;
+                }
+                //vyraz
+                //, vyraz
+                //EOL a konec
+            case 10: //if
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                if (input->token_type == ID){
+                    expression();
+                    input = get_token();
+                    if(input == NULL){
+                        return ERR_LEXIK;
+                    }
+                    if (input->token_type == MIN_KEY_WORLD){
+                        if(input->data.i == 20){ //then
+                            input = get_token();
+                            if(input == NULL){
+                                return ERR_LEXIK;
+                            }
+                            if (input->token_type == EOL){
+                                commandsAndVariables();
+                            }
+                            else
+                            {
+                                return ERR_LEXIK;
+                            }
+                        }
+                        else
+                        {
+                            return ERR_LEXIK;
+                        }
+
+                    }
+                    else
+                    {
+                        return ERR_LEXIK;
+                    }
+                }
+                else
+                {
+                    return ERR_LEXIK;
+                }
+            case 6: //else
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                if (input->token_type == EOL){
+                    commandsAndVariables();
+                }
+                else
+                {
+                    return ERR_LEXIK;
+                }
+            case 7: //end
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                if (input->token_type == MIN_KEY_WORLD && input->data.i == 10){ //if
+                    input = get_token();
+                    if(input == NULL){
+                        return ERR_LEXIK;
+                    }
+                    if (input->token_type == EOL){
+                        commandsAndVariables();
+                    }
+                    else
+                    {
+                        return ERR_LEXIK;
+                    }
+                }
+                else
+                {
+                    return ERR_LEXIK;
+                }
+
+            case 4: //do
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                if (input->token_type == MIN_KEY_WORLD && input->data.i == 21){ //while
+                    input = get_token();
+                    if(input == NULL){
+                        return ERR_LEXIK;
+                    }
+                    if (input->token_type == ID){
+                        expression();
+                        input = get_token();
+                        if(input == NULL){
+                            return ERR_LEXIK;
+                        }
+                        if (input->token_type == EOL){
+                            commandsAndVariables();
+                        }
+                        else
+                        {
+                            return ERR_LEXIK;
+                        }
+                    }
+                    else
+                    {
+                        return ERR_LEXIK;
+                    }
+                }
+                else
+                {
+                    return ERR_LEXIK;
+                }
+            case 14: //loop
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                if (input->token_type == EOL){
+                    commandsAndVariables();
+                }
+                else
+                {
+                    return ERR_LEXIK;
+                }
+
+            default:
+                return ERR_LEXIK;
+        }
+    }
+}
+
+int expression(){
     return SUCCESS;
 }

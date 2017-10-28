@@ -6,7 +6,7 @@ int parse();
 int function();
 int params();
 int commandsAndVariables();
-int expressions();
+int expression();
 int scope();
 
 #endif //IFJ_PROJ_PARSER_H
