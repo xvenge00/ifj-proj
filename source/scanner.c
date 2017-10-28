@@ -9,7 +9,7 @@
 
 #define key_size 35
 
-const char key_world[35][20] = {
+const char key_word_str[35][20] = {
                 "as",       //0
                 "asc",
                 "declare",
@@ -71,11 +71,11 @@ void ERR_LEX(tstate state, char *loaded, int line){
 /**
  * skusa ci ret je klucove slovo
  * @param ret porovnacany retazec
- * @return index +1 klucoveho slova v premennej key_worlds alebo 0 pokial to nieje klucove slovo
+ * @return index +1 klucoveho slova v premennej key_word_strs alebo 0 pokial to nieje klucove slovo
  */
 int is_key(char *ret){
     for (unsigned i=0; i<key_size; i++){
-        if (strcmp(ret, key_world[i]) == 0){
+        if (strcmp(ret, key_word_str[i]) == 0){
             return i+1;
         }
     }
@@ -189,7 +189,7 @@ t_token *get_token(){
                     result = create_token(KRAT, data);
                     state = s_OP;
                 } else if (loaded == '\\'){ // operacia modulo
-                    result =  create_token(DELENO, data);
+                    result =  create_token(MOD, data);
                     state = s_OP;
                 } else if (loaded == '='){  // operacia zhodne
                     result = create_token(EQ, data);

@@ -20,7 +20,7 @@
 
 FILE *f;
 ///klucove slova
-enum keyWorld{
+enum keyWords{
     k_as = 0,       //0
     k_asc,
     k_declare,
@@ -60,7 +60,7 @@ enum keyWorld{
 };
 
 
-//const char key_world[35][20];
+//const char key_word_str[35][20];
 //unsigned key_size;
 //unsigned min_key;
 
@@ -114,7 +114,6 @@ typedef enum {
     GE,
     MOD,
     EOL,
-    END,
     LPAR,
     RPAR,
     comma,
