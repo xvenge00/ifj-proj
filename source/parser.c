@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 
-#define SUCCESS 0;
+#define SUCCESS 0
 
 int parse(){
     t_token * input = get_token();
@@ -32,13 +32,27 @@ int parse(){
                 }
                 break;
             case 9: //function
-                function();
-                commandsAndVariables();
-                break;
+                function(); //parametry, konci tokenem EOL
+                if(commandsAndVariables()==9){
+                    return SUCCESS;
+                }
+                else{
+                    return ERR_LEXIK;
+                }
             case 17: //scope
-                commandsAndVariables();
-                //pridat END SCOPE
-                break;
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                if(input->token_type == EOL){
+                    if(commandsAndVariables() == 17){
+                        return SUCCESS;
+                    }
+                    else{
+                        return ERR_LEXIK;
+                    }
+                }
+
             default:
                 return ERR_LEXIK;
         }
@@ -166,26 +180,12 @@ int commandsAndVariables(){
             return ERR_LEXIK;
         }
         if(input->token_type == EQ){
-            //ID -> funkce
-            //nebo vyraz
-            input = get_token(); //EOL
-            if(input == NULL){
-                return ERR_LEXIK;
-            }
-            if(input->token_type == EOL){
-                commandsAndVariables();
-            }
-            else
-            {
-                return ERR_LEXIK;
-
-            }
+            expression();
         }
         else
         {
             return ERR_LEXIK;
         }
-
     }
     else if (isCorrect) {
         switch (value.i){
@@ -200,7 +200,7 @@ int commandsAndVariables(){
                         return ERR_LEXIK;
                     }
                     if(input->token_type == EOL){
-                        commandsAndVariables();
+                        return commandsAndVariables();
                     }
                 }
             case 15: //print
@@ -209,15 +209,40 @@ int commandsAndVariables(){
                     return ERR_LEXIK;
                 }
                 if(input->token_type == ID){
-                    expression();
-                    if
+                    while(input->token_type == ID){
+                        expression();
+
+                        input = get_token();
+                        if(input == NULL){
+                            return ERR_LEXIK;
+                        }
+
+                        if(input->token_type == comma) //zmenit na semicolon!
+                        {
+                            input = get_token(); //posuneme se na dalsi token a znova vyhodnoti vyraz
+                            if(input == NULL){
+                                return ERR_LEXIK;
+                            }
+                        }
+                        else
+                        {
+                            return ERR_LEXIK;
+                        }
+                    }
+                    if(input->token_type == EOL){
+                        return commandsAndVariables();
+                    }
+                    else
+                    {
+                        return ERR_LEXIK;
+                    }
                 }
                 else
                 {
                     return ERR_LEXIK;
                 }
                 //vyraz
-                //, vyraz
+                //; vyraz
                 //EOL a konec
             case 10: //if
                 input = get_token();
@@ -237,7 +262,7 @@ int commandsAndVariables(){
                                 return ERR_LEXIK;
                             }
                             if (input->token_type == EOL){
-                                commandsAndVariables();
+                                return commandsAndVariables();
                             }
                             else
                             {
@@ -265,7 +290,7 @@ int commandsAndVariables(){
                     return ERR_LEXIK;
                 }
                 if (input->token_type == EOL){
-                    commandsAndVariables();
+                    return commandsAndVariables();
                 }
                 else
                 {
@@ -282,7 +307,31 @@ int commandsAndVariables(){
                         return ERR_LEXIK;
                     }
                     if (input->token_type == EOL){
-                        commandsAndVariables();
+                        return commandsAndVariables();
+                    }
+                    else
+                    {
+                        return ERR_LEXIK;
+                    }
+                } else if (input->token_type == MIN_KEY_WORLD && input->data.i == 17){ //Scope
+                    input = get_token();
+                    if(input == NULL){
+                        return ERR_LEXIK;
+                    }
+                    if (input->token_type == EOL){
+                        return 17;
+                    }
+                    else
+                    {
+                        return ERR_LEXIK;
+                    }
+                } else if (input->token_type == MIN_KEY_WORLD && input->data.i == 9){ //Function
+                    input = get_token();
+                    if(input == NULL){
+                        return ERR_LEXIK;
+                    }
+                    if (input->token_type == EOL){
+                        return 9;
                     }
                     else
                     {
@@ -305,13 +354,13 @@ int commandsAndVariables(){
                         return ERR_LEXIK;
                     }
                     if (input->token_type == ID){
-                        expression();
+                        expression(); //tohle asi nepojede
                         input = get_token();
                         if(input == NULL){
                             return ERR_LEXIK;
                         }
                         if (input->token_type == EOL){
-                            commandsAndVariables();
+                            return commandsAndVariables();
                         }
                         else
                         {
@@ -333,13 +382,19 @@ int commandsAndVariables(){
                     return ERR_LEXIK;
                 }
                 if (input->token_type == EOL){
-                    commandsAndVariables();
+                    return commandsAndVariables();
                 }
                 else
                 {
                     return ERR_LEXIK;
                 }
-
+            case 16:
+                input = get_token();
+                if(input == NULL){
+                    return ERR_LEXIK;
+                }
+                expression();
+                return SUCCESS;
             default:
                 return ERR_LEXIK;
         }
