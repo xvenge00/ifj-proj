@@ -1,10 +1,9 @@
 //Author: xrandy00 14.10.2017
 
 #include "symtable.h"
-#include "memwork.c"
+#include "memwork.h"
 #include <string.h>
-
-#define DEFAULT_TABLE_SIZE 8;
+#include "main.h"
 
 //konstruktor funkce
 TData *Func_Create(TType return_type, unsigned int attributes_count, TType *attributes_values){
@@ -86,7 +85,6 @@ TTable * Tbl_Create(unsigned int size){
 }
 
 void Tbl_Resize(TTable* tbl){
-    printf("Resizing table\n");
 
     TTable* newTbl = NULL;
 
@@ -292,7 +290,7 @@ void Tbl_Delete(TTable * tbl){
                         El_Free(tmp2);
                     }
                 }
-                //je jen jeden
+                    //je jen jeden
                 else {
                     El_Free(tbl->list_firsts[i]);
                     tbl->count--;
@@ -316,8 +314,8 @@ unsigned int hash(char* str, unsigned int table_size) {
         hash = 33 * hash + str[i];
 
     if(table_size < hash){
-            hash = hash % table_size;
-        }
+        hash = hash % table_size;
+    }
 
     return hash;
 }
