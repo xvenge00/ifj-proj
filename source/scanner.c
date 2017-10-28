@@ -91,9 +91,11 @@ int isOpSp(int loaded){
             '/',
             '\\',
             '+',
-            '-'
+            '-',
+            '(',
+            ')'
     };
-    const int size = 8;
+    const int size = 10;
     if (isspace(loaded)|| loaded == EOF){
         return 1;
     }
@@ -234,6 +236,8 @@ t_token *get_token(){
                     if (isVaSp(loaded)){
                         return create_token(DELENO, data);
                     } else {
+                        append_buff(scanner_buff,loaded);
+                        append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff),line);
                     }
                 }
@@ -257,6 +261,8 @@ t_token *get_token(){
                     append_buff(scanner_buff,loaded);
                 } else {
                     if (!isOpSp(loaded)){
+                        append_buff(scanner_buff,loaded);
+                        append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff),line);
                     }
                     // generovanie tokenu
@@ -294,6 +300,8 @@ t_token *get_token(){
                     //vygeneruj token
                     old = loaded;
                     if (!isVaSp(old)){
+                        append_buff(scanner_buff,loaded);
+                        append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
                     append_buff(scanner_buff,0);
@@ -310,6 +318,8 @@ t_token *get_token(){
                 } else {
                     old = loaded;
                     if (!isVaSp(old)){
+                        append_buff(scanner_buff,loaded);
+                        append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
                     append_buff(scanner_buff,0);
@@ -345,6 +355,9 @@ t_token *get_token(){
                     append_buff(scanner_buff,loaded);
                 } else {
                     if (!isVaSp(old)){
+                        append_buff(scanner_buff,old);
+                        append_buff(scanner_buff,0);
+
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
                     append_buff(scanner_buff,0);
@@ -453,8 +466,12 @@ t_token *get_token(){
                 break;
             case s_OP:
                 if (isVaSp(loaded)){
+                    old = loaded;
                     return result;
                 } else{
+                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff, 0);
+
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
 
