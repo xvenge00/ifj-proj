@@ -22,7 +22,12 @@ void null_buffer(t_str_buff *buffer){
 void append_buff(t_str_buff *buffer, char c){
     // ak maly buffer zvacsi ho
     if (buffer->top >= buffer->max - 1){
-        buffer->ret = my_realloc(buffer->ret,sizeof(char) * (buffer->top + 50));
+        buffer->max += 50;
+        buffer->ret = my_realloc(buffer->ret,sizeof(char) * buffer->max);
+
+        for (int i = buffer->top + 1; i < buffer->max; ++i) {
+            buffer->ret[i] = 0;
+        }
     }
     buffer->ret[buffer->top] = c;
     buffer->top++;
