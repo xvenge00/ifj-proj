@@ -281,7 +281,7 @@ t_token *get_token(){
                     if (pom){
                         my_free(data.s);
                         data.i = pom - 1;
-                        return create_token(MIN_KEY_WORLD, data);
+                        return create_token(KEY_WORD, data);
                     } else {
                         return create_token(ID, data);
                     }

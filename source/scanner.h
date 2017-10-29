@@ -118,7 +118,7 @@ typedef enum {
     RPAR,
     COMMA,
     SEMICOLLON,          //20
-    MIN_KEY_WORLD
+    KEY_WORD
 } ttype;
 
 

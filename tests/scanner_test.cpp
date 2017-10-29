@@ -63,7 +63,7 @@ TEST_F(scanner_fixture_basic_1, basic_test1){
 
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
     tmp = get_token();
@@ -71,11 +71,11 @@ TEST_F(scanner_fixture_basic_1, basic_test1){
     EXPECT_TRUE(tmp->data.s == NULL);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_end);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
     tmp = get_token();
@@ -103,7 +103,7 @@ TEST_F(scanner_fixture_basic_2, basic_test2){
 
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
     tmp = get_token();
@@ -116,7 +116,7 @@ TEST_F(scanner_fixture_basic_2, basic_test2){
 
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_dim);
 
     tmp = get_token();
@@ -124,12 +124,12 @@ TEST_F(scanner_fixture_basic_2, basic_test2){
     EXPECT_STREQ(tmp->data.s, "a");
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_as);
 
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_string);
 
     tmp = get_token();
@@ -149,11 +149,11 @@ TEST_F(scanner_fixture_basic_2, basic_test2){
     EXPECT_TRUE(tmp->data.s == NULL);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_end);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
     tmp = get_token();
@@ -233,7 +233,7 @@ TEST_F(scanner_fixture_comment, comment_test){
     EXPECT_TRUE(tmp->data.s == NULL);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_string);
 
     tmp = get_token();
@@ -249,7 +249,7 @@ TEST_F(scanner_fixture_comment, comment_test){
     EXPECT_TRUE(tmp->data.s == NULL);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
     tmp = get_token();
@@ -257,7 +257,7 @@ TEST_F(scanner_fixture_comment, comment_test){
     EXPECT_TRUE(tmp->data.s == NULL);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_dim);
 
     tmp = get_token();
@@ -265,11 +265,11 @@ TEST_F(scanner_fixture_comment, comment_test){
     EXPECT_STREQ(tmp->data.s, "a");
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_as);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_string);
 
     tmp = get_token();
@@ -285,11 +285,11 @@ TEST_F(scanner_fixture_comment, comment_test){
     EXPECT_TRUE(tmp->data.s == NULL);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_end);
 
     tmp = get_token();
-    EXPECT_EQ(tmp->token_type, MIN_KEY_WORLD);
+    EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
     tmp = get_token();
