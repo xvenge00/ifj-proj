@@ -12,6 +12,13 @@ void **pole = NULL;
 unsigned max = 0;
 unsigned top = 0;
 
+void ERR_ALLOC(){
+    clear_all();
+    fprintf(stderr, "ERR 99 -- chyba v alokacii pamety\n");
+    exit(ERR_INTER);
+
+}
+
 void clear_all(){
     for (unsigned i=0; i<top; i++){
         free(pole[i]);
@@ -24,9 +31,7 @@ void change_size(unsigned new){
         void **tmp;
         tmp = malloc(sizeof(void *)*new);
         if (tmp == NULL){
-            clear_all();
-            fprintf(stderr, "ERR 99 -- malloc\n");
-            exit(ERR_INTER); //interna chyba
+            ERR_ALLOC();
         }
         for (unsigned i=0;i<top;i++){
             tmp[i] = pole[i];
@@ -62,18 +67,17 @@ void delete(void *ptr){
     for (unsigned i=0; i<top; i++){
         if (pole[i] == ptr){
             free(pole[i]);
-            pole[i] = NULL;
+            top--;
+            pole[i] = pole[top];
             break;
         }
     }
 }
 
 void *my_malloc(size_t size){
-    void *tmp;
-    tmp = malloc(size);
+    void *tmp = malloc(size);
     if (tmp == NULL){
-        clear_all();
-        exit(ERR_INTER);
+        ERR_ALLOC();
     }
     append(tmp);
     return tmp;
@@ -83,8 +87,7 @@ void *my_realloc(void *ptr,size_t new_size){
     void *tmp;
     tmp = realloc(ptr, new_size);
     if (tmp == NULL){
-        clear_all();
-        exit(ERR_INTER);
+        ERR_ALLOC();
     }
     replace(ptr, tmp);
     return tmp;
