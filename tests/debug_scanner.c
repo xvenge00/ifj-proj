@@ -28,8 +28,8 @@ int main() {
             "EOL",
             "LPAR",
             "RPAR",
-            "comma",
             "COMMA",
+            "SEMICOLLON",
             "KEY_WORLD"
     };
 
@@ -72,11 +72,11 @@ int main() {
             "true"      //34
     };
 
-    const int load_tok = 50; //konsatnta kolko tokenov sa ma nacitat
+    const int load_tok = 100; //konsatnta kolko tokenov sa ma nacitat
     t_token *tmp = NULL;
     f = fopen("../tests/test.txt","r");
 
-    for (int i = 0; i < load_tok; ++i) {
+    do  {
 
         tmp = get_token();
         printf("%-15s :",op[tmp->token_type]);
@@ -92,7 +92,7 @@ int main() {
             printf("\n");
         }
 
-    }
+    }while (tmp->token_type != EMPTY);
     return 0;
 
 }
