@@ -9,6 +9,13 @@
 
 #define key_size 35
 
+void discard_token(t_token *token){
+    if (token->token_type == ID || token->token_type == STR) {
+        my_free(token->data.s);
+    }
+    my_free(token);
+}
+
 const char key_word_str[35][20] = {
                 "as",       //0
                 "asc",

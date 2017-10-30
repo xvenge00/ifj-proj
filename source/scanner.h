@@ -139,6 +139,13 @@ typedef struct {
     tdata data;         /// hodnota tokenu ak typ INT = N | DOUBLE = R | STR = retazec | KEY_WORLD = N  (toto N urcuje typ a konkretne sa da urcit z enum keyWorld)| ostatne NULL
 } t_token;
 
+/**
+ * uvolni pamet ktora bola naalokovana pre token
+ * @param token
+ */
+void discard_token(t_token *token);
+
+
 
 
 /**

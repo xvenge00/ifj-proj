@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../source/scanner.h"
+#include "../source/memwork.h"
 
 /*
  * DEBUGOVANIE SCANNER
@@ -72,12 +73,11 @@ int main() {
             "true"      //34
     };
 
-    const int load_tok = 100; //konsatnta kolko tokenov sa ma nacitat
+    int loaded = 0;
     t_token *tmp = NULL;
     f = fopen("../tests/test.txt","r");
 
     do  {
-
         tmp = get_token();
         printf("%-15s :",op[tmp->token_type]);
         if (tmp->token_type == ID || tmp->token_type == STR) {
@@ -91,8 +91,11 @@ int main() {
         } else {
             printf("\n");
         }
-
-    }while (tmp->token_type != EMPTY);
+        loaded = tmp->token_type;
+        discard_token(tmp);
+    }while (loaded != EMPTY);
+    fclose(f);
+    clear_all();
     return 0;
 
 }
