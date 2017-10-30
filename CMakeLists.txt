@@ -31,3 +31,5 @@ target_link_libraries(symtable gtest)
 set(SOURCE_FILES_SCANNER source/scanner.h source/scanner.c ${SOURCE_FILES_STR_BUFF} ${SOURCE_FILES_MEMWORK})
 add_executable(scanner ${SOURCE_FILES_SCANNER} tests/scanner_test.cpp)
 target_link_libraries(scanner gtest)
+
+add_executable(debug ${SOURCE_FILES_SCANNER} tests/debug_scanner.c)
