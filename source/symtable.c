@@ -153,6 +153,7 @@ int Tbl_Insert(TTable* tbl, TElement* el){
     if(tbl->list_firsts[el->hash] == NULL){
         tbl->list_firsts[el->hash] = el;
         Tbl_Increment(tbl);
+        return 0;
     }
     else{
         TElement *active = tbl->list_firsts[el->hash];
@@ -189,8 +190,8 @@ int Tbl_Insert(TTable* tbl, TElement* el){
 /*Predikát, který vrací hodnotu true v případě,že v tabulce T existuje položka s klíčem K
 a hodnotu false v opačném případě. */
 bool Tbl_Search(TTable* tbl, char *name){
+    bool found = false;
     if(tbl != NULL){
-        bool found = false;
         for(unsigned int i = 0; i<tbl->size; i++){
             TElement *active = tbl->list_firsts[i];
             if(active != NULL){ //je tam prvni
@@ -214,6 +215,7 @@ bool Tbl_Search(TTable* tbl, char *name){
         }
         return found;
     }
+    return found;
 }
 
 void El_Free(TElement* element){

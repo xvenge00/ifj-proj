@@ -7,6 +7,8 @@ int function();
 int params();
 int commandsAndVariables();
 int expression();
+int expressionOrFunction();
+int idList();
 int scope();
 
 #endif //IFJ_PROJ_PARSER_H

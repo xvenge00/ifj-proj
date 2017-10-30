@@ -180,7 +180,7 @@ int commandsAndVariables(){
             return ERR_LEXIK;
         }
         if(input->token_type == EQ){
-            expression();
+            expressionOrFunction();
         }
         else
         {
@@ -250,7 +250,7 @@ int commandsAndVariables(){
                     return ERR_LEXIK;
                 }
                 if (input->token_type == ID){
-                    expression();
+                    expression();//taky je tu asi token navic
                     input = get_token();
                     if(input == NULL){
                         return ERR_LEXIK;
@@ -400,6 +400,76 @@ int commandsAndVariables(){
         }
     }
 }
+
+int expressionOrFunction(){
+    t_token * input = get_token();
+    if(input == NULL){
+        return ERR_LEXIK;
+    }
+    input = get_token();
+    if(input == NULL){
+        return ERR_LEXIK;
+    }
+    if (input->token_type == ID){
+        input = get_token();
+        if(input == NULL){
+            return ERR_LEXIK;
+        }
+        if (input->token_type == LPAR){ //function
+            return idList();
+        } else if(input->token_type >= 5 && input->token_type <= 15){ //operator, takze to neni funkce ale vyraz
+            expression();
+        } else {
+            return ERR_LEXIK;
+        }
+
+    } else
+    {
+        return ERR_LEXIK;
+    }
+}
+
+int idList(){
+    t_token * input = get_token();
+    if(input == NULL){
+        return ERR_LEXIK;
+    }
+
+    input = get_token();
+    if(input == NULL){
+        return ERR_LEXIK;
+    }
+    if(input->token_type == ID){
+        input = get_token();
+        if(input == NULL){
+            return ERR_LEXIK;
+        }
+        if(input->token_type == COMMA){
+            return idList();
+        }
+        else if(input->token_type == RPAR){
+            input = get_token();
+            if(input == NULL){
+                return ERR_LEXIK;
+            }
+            if(input->token_type == EOL){
+                return SUCCESS;
+            }
+            return ERR_LEXIK;
+        }
+    }
+    else if(input->token_type == RPAR){
+        input = get_token();
+        if(input == NULL){
+            return ERR_LEXIK;
+        }
+        if(input->token_type == EOL){
+            return SUCCESS;
+        }
+    }
+    return ERR_LEXIK;
+}
+
 
 int expression(){
     return SUCCESS;
