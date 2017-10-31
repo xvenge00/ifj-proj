@@ -17,3 +17,16 @@ Rozdělení úkolů na další týden:
 - Adam - testy, CMake, kostra - hotovo   
 - Vojta - symtable - změna velikosti při zaplnění, přidat is_defined k funkci, typ void
 - Ondra + Adam - rozvržení projektu do jednotlivých tasků (co nejnižší úroveň), časový plán
+
+## Scrum 2 - 25.10.2017
+Overview:
+  - Symtable ready to test, symtable větev zrušena, další hotfixy v aktivních větvích
+  - Scanner ready to test, nedodělky pořád ve větvi scanner-test
+
+Rozdělení úkolů na další týden:
+- Petr, Adam - scanner - doladění scanneru
+- Adam - testy
+- Vojta - parser - nová větev, lexikální analýza formou konečného automatu
+- Ondra - zásobník - implementovat buď do nové větve, nebo do větve k parseru
+
+
