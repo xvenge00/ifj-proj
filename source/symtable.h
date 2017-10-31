@@ -32,7 +32,6 @@ typedef struct {
 typedef union {
     TVariable *var; //var ma jine atributy nez function
     TFunction *func;
-
 } TData;
 
 typedef enum {
@@ -63,7 +62,7 @@ typedef struct {
 //konstruktory vsech struktur nadeklarovanych vyse
 TData *Var_Create(TValue value, TType type);
 TData *Func_Create(TType return_typ, unsigned int attributes_count, TType * attributes_values);
-TSymbol *Sym_Create(Symbol_type type, TData *data, char*name);
+TSymbol *Sym_Create(Symbol_type type, TData *data, char *name);
 TElement *El_Create(TSymbol *data); //element init
 TTable *Tbl_Create(unsigned int size); //table constructor
 

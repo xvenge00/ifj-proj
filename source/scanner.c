@@ -65,7 +65,7 @@ const char key_word_str[35][20] = {
 void ERR_LEX(tstate state, char *loaded, int line){
     fprintf(stderr,"ERR_LEX : na riadku %d je nespravne dany prvok %s\n", line, loaded);
     if (state == s_START){
-        printf("pouzivate znak mimo asci\n");
+        printf("pouzivate znak mimo ascii\n");
     } else {
         fprintf(stderr, "neznama chyba\n"); // todo dorobit pre ostatne stavy
     }
@@ -80,16 +80,18 @@ void ERR_LEX(tstate state, char *loaded, int line){
  * @param ret porovnacany retazec
  * @return index +1 klucoveho slova v premennej key_word_strs alebo 0 pokial to nieje klucove slovo
  */
-int is_key(char *ret){
+int is_keyword(char *ret){
     for (unsigned i=0; i<key_size; i++){
         if (strcmp(ret, key_word_str[i]) == 0){
             return i+1;
         }
     }
+
     return 0;
 }
 
-int isOpSp(int loaded){
+int isOperatorOrSpace(int loaded){
+    const int size = 10;
     const char oper[] = {
             '>',
             '<',
@@ -102,32 +104,22 @@ int isOpSp(int loaded){
             '(',
             ')'
     };
-    const int size = 10;
+
     if (isspace(loaded)|| loaded == EOF){
         return 1;
     }
+
     for (int i = 0; i < size; ++i) {
         if (oper[i] == loaded){
             return 1;
         }
     }
+
     return 0;
 }
 
-int isVaSp(int loaded){
-    const char val[] = {
-            '_',
-            '!'
-    }; int size = 2;
-    if (isspace(loaded) || isalnum(loaded)|| loaded == EOF){
-        return 1;
-    }
-    for (int i = 0; i < size; ++i) {
-        if (loaded == val[i]){
-            return 1;
-        }
-    }
-    return 0;
+int isValueOrSpace(int loaded){
+    return (isspace(loaded) || isalnum(loaded)|| loaded == EOF || loaded == '_' || loaded == '!');
 }
 
 t_str_buff *scanner_buff = NULL;
@@ -135,30 +127,32 @@ t_str_buff *scanner_buff = NULL;
 
 t_token *create_token(ttype typ, tdata data){
     t_token *tmp = my_malloc(sizeof(t_token));
+
     tmp->token_type = typ;
     tmp->data = data;
+
     //vymaz buffer
     my_free(scanner_buff->ret);
     my_free(scanner_buff);
+
     return tmp;
 }
+
 static int old = 0;
+
 t_token *get_token(){
     t_token *result = NULL;
     tdata data;
     data.s = NULL;
-    //priprava bufferu
-    scanner_buff = init_buff(scanner_buff);
-    //inicializacia znaku
-    static int loaded = 0;
-    //riadok ktory je spracovavany
-    static unsigned line = 0;
+
+    scanner_buff = init_buff(scanner_buff);     //priprava bufferu
+    static int loaded = 0;                      //inicializacia znaku
+    static unsigned line = 0;                   //riadok ktory je spracovavany
     //zistenie ci neostalo po predchodzom hladany znak
 
-    //inicializovanie stavu na stav STRAT
-    tstate state = s_START;
-    //pomocna premmena pre stavy
-    int pom = 0;
+    tstate state = s_START;                     //inicializovanie stavu na stav STRAT
+
+    int pom = 0;                                //pomocna premmena pre stavy
 /**********************************************
  *  stavovy automat
  ***********************************************/
@@ -171,10 +165,12 @@ t_token *get_token(){
         } else {
             loaded = fgetc(f);
         }
+
         line += (loaded == '\n')? 1 : 0;    //ak je znak \n tak sa je dalsi riadok
+
         switch (state){
             case s_START: //stav START
-                if (isspace(loaded) && (loaded != '\n')){   //nic sa nemeni
+                if (isspace(loaded) && (loaded != '\n')){
                     //state = s_START; nerob nic
                 } else if (isalpha(loaded) || (loaded == '_')){ // nasiel sa zaciatok ID
                     append_buff(scanner_buff,loaded);
@@ -215,16 +211,13 @@ t_token *get_token(){
                 } else if (loaded == ')'){
                     result = create_token(RPAR, data);
                     state = s_OP;
-
                 }else if (loaded == ','){
                     return create_token(COMMA, data);
-
                 }else if (loaded == ';'){
                     return create_token(SEMICOLLON, data);
-
                 } else if (loaded == EOF){
                     return create_token(EMPTY, data);
-                }  else {    //narazil na necakani znak
+                }  else {    //narazil na necakany znak
                     append_buff(scanner_buff, loaded);
                     append_buff(scanner_buff,0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
@@ -235,12 +228,12 @@ t_token *get_token(){
                     return create_token(EOL, data);
                 }
                 break;
-            case s_block_coment_0:  // ked je dalsi znak ' tak sa jedna o blok koment inak je to deleno
+            case s_block_coment_0:  // ked je dalsi znak ' tak sa jedna o blok koment, inak je to deleno
                 if (loaded == '\''){
                     state = s_block_coment_1;
                 } else {
                     old = loaded;
-                    if (isVaSp(loaded)){
+                    if (isValueOrSpace(loaded)){
                         return create_token(DELENO, data);
                     } else {
                         append_buff(scanner_buff,loaded);
@@ -263,11 +256,11 @@ t_token *get_token(){
                     state = s_block_coment_1;
                 }
                 break;
-            case s_ID:  // ostava pokial nenajde iny znak ako 0..9 a..z A..Z ak ano vrati token s menom
+            case s_ID:  // ostava pokial nenajde iny znak ako 0..9, a..z, A..Z, _ ak ano vrati token s menom
                 if (isalnum(loaded)||(loaded == '_')){
                     append_buff(scanner_buff,loaded);
                 } else {
-                    if (!isOpSp(loaded)){
+                    if (!isOperatorOrSpace(loaded)){
                         append_buff(scanner_buff,loaded);
                         append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff),line);
@@ -284,7 +277,7 @@ t_token *get_token(){
                     old = loaded;
 
 
-                    pom = is_key(data.s);
+                    pom = is_keyword(data.s);
                     if (pom){
                         my_free(data.s);
                         data.i = pom - 1;
@@ -306,7 +299,7 @@ t_token *get_token(){
                 } else {
                     //vygeneruj token
                     old = loaded;
-                    if (!isVaSp(old)){
+                    if (!isValueOrSpace(old)){
                         append_buff(scanner_buff,loaded);
                         append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
@@ -324,7 +317,7 @@ t_token *get_token(){
                     append_buff(scanner_buff,loaded);
                 } else {
                     old = loaded;
-                    if (!isVaSp(old)){
+                    if (!isValueOrSpace(old)){
                         append_buff(scanner_buff,loaded);
                         append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
@@ -361,7 +354,7 @@ t_token *get_token(){
                 if (isdigit(loaded)){
                     append_buff(scanner_buff,loaded);
                 } else {
-                    if (!isVaSp(old)){
+                    if (!isValueOrSpace(old)){
                         append_buff(scanner_buff,old);
                         append_buff(scanner_buff,0);
 
@@ -472,7 +465,7 @@ t_token *get_token(){
                 }
                 break;
             case s_OP:
-                if (isVaSp(loaded)){
+                if (isValueOrSpace(loaded)){
                     old = loaded;
                     return result;
                 } else{
@@ -485,9 +478,9 @@ t_token *get_token(){
                 //todo dorobit ostatne typy a doplnit
         }
     }while (loaded != EOF);
-    //sem by sa nikdi nemal dostat ak ano niekde je chyba
+    //sem by sa nikdy nemal dostat ak ano niekde je chyba
     my_free(scanner_buff->ret);
     my_free(scanner_buff);
-    fprintf(stderr,"ERROR -- lex skoncil zle\n");
+    fprintf(stderr,"ERROR -- lexikalna analyza skoncila zle\n");
     return NULL;
 }
