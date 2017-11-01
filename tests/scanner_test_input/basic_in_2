@@ -1,0 +1,5 @@
+scope
+
+dim a as string = !""
+
+end scope

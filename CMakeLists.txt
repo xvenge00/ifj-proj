@@ -1,18 +1,14 @@
 cmake_minimum_required(VERSION 3.6)
 project(ifj_proj)
+set(CMAKE_CXX_STANDARD 11)
 
 include(tests/CMakeLists.txt)
 enable_testing()
 
 
-set(CMAKE_CXX_STANDARD 11)
-
-
 set(SOURCE_FILES  source/codegen.c source/main.c source/symtable.c
         source/str_buff.c source/memwork.c  source/parser.c source/scanner.c)
 add_executable(ifj_proj ${SOURCE_FILES})
-
-add_test(NAME test COMMAND tmp)
 
 #testy memwork
 set(SOURCE_FILES_MEMWORK source/memwork.h source/memwork.c)
@@ -31,9 +27,9 @@ set(SOURCE_FILES_SYMTABLE source/symtable.h source/symtable.c ${SOURCE_FILES_STR
 add_executable(symtable ${SOURCE_FILES_SYMTABLE} tests/symtable_test.cpp)
 target_link_libraries(symtable gtest)
 
-
-
 #testy scanner
 set(SOURCE_FILES_SCANNER source/scanner.h source/scanner.c ${SOURCE_FILES_STR_BUFF} ${SOURCE_FILES_MEMWORK})
 add_executable(scanner ${SOURCE_FILES_SCANNER} tests/scanner_test.cpp)
 target_link_libraries(scanner gtest)
+
+add_executable(debug ${SOURCE_FILES_SCANNER} tests/debug_scanner.c)

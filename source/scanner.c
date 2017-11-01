@@ -9,7 +9,14 @@
 
 #define key_size 35
 
-const char key_world[35][20] = {
+void discard_token(t_token *token){
+    if (token->token_type == ID || token->token_type == STR) {
+        my_free(token->data.s);
+    }
+    my_free(token);
+}
+
+const char key_word_str[35][20] = {
                 "as",       //0
                 "asc",
                 "declare",
@@ -71,11 +78,11 @@ void ERR_LEX(tstate state, char *loaded, int line){
 /**
  * skusa ci ret je klucove slovo
  * @param ret porovnacany retazec
- * @return index +1 klucoveho slova v premennej key_worlds alebo 0 pokial to nieje klucove slovo
+ * @return index +1 klucoveho slova v premennej key_word_strs alebo 0 pokial to nieje klucove slovo
  */
 int is_key(char *ret){
     for (unsigned i=0; i<key_size; i++){
-        if (strcmp(ret, key_world[i]) == 0){
+        if (strcmp(ret, key_word_str[i]) == 0){
             return i+1;
         }
     }
@@ -91,10 +98,12 @@ int isOpSp(int loaded){
             '/',
             '\\',
             '+',
-            '-'
+            '-',
+            '(',
+            ')'
     };
-    const int size = 8;
-    if (isspace(loaded)){
+    const int size = 10;
+    if (isspace(loaded)|| loaded == EOF){
         return 1;
     }
     for (int i = 0; i < size; ++i) {
@@ -110,7 +119,7 @@ int isVaSp(int loaded){
             '_',
             '!'
     }; int size = 2;
-    if (isspace(loaded) || isalnum(loaded)){
+    if (isspace(loaded) || isalnum(loaded)|| loaded == EOF){
         return 1;
     }
     for (int i = 0; i < size; ++i) {
@@ -189,7 +198,7 @@ t_token *get_token(){
                     result = create_token(KRAT, data);
                     state = s_OP;
                 } else if (loaded == '\\'){ // operacia modulo
-                    result =  create_token(DELENO, data);
+                    result =  create_token(MOD, data);
                     state = s_OP;
                 } else if (loaded == '='){  // operacia zhodne
                     result = create_token(EQ, data);
@@ -208,10 +217,10 @@ t_token *get_token(){
                     state = s_OP;
 
                 }else if (loaded == ','){
-                    return create_token(comma, data);
+                    return create_token(COMMA, data);
 
                 }else if (loaded == ';'){
-                    return create_token(COMMA, data);
+                    return create_token(SEMICOLLON, data);
 
                 } else if (loaded == EOF){
                     return create_token(EMPTY, data);
@@ -234,6 +243,8 @@ t_token *get_token(){
                     if (isVaSp(loaded)){
                         return create_token(DELENO, data);
                     } else {
+                        append_buff(scanner_buff,loaded);
+                        append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff),line);
                     }
                 }
@@ -257,6 +268,8 @@ t_token *get_token(){
                     append_buff(scanner_buff,loaded);
                 } else {
                     if (!isOpSp(loaded)){
+                        append_buff(scanner_buff,loaded);
+                        append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff),line);
                     }
                     // generovanie tokenu
@@ -275,7 +288,7 @@ t_token *get_token(){
                     if (pom){
                         my_free(data.s);
                         data.i = pom - 1;
-                        return create_token(MIN_KEY_WORLD, data);
+                        return create_token(KEY_WORD, data);
                     } else {
                         return create_token(ID, data);
                     }
@@ -294,6 +307,8 @@ t_token *get_token(){
                     //vygeneruj token
                     old = loaded;
                     if (!isVaSp(old)){
+                        append_buff(scanner_buff,loaded);
+                        append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
                     append_buff(scanner_buff,0);
@@ -310,6 +325,8 @@ t_token *get_token(){
                 } else {
                     old = loaded;
                     if (!isVaSp(old)){
+                        append_buff(scanner_buff,loaded);
+                        append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
                     append_buff(scanner_buff,0);
@@ -345,6 +362,9 @@ t_token *get_token(){
                     append_buff(scanner_buff,loaded);
                 } else {
                     if (!isVaSp(old)){
+                        append_buff(scanner_buff,old);
+                        append_buff(scanner_buff,0);
+
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
                     append_buff(scanner_buff,0);
@@ -364,7 +384,6 @@ t_token *get_token(){
                 break;
             case s_strL:     // naxitava string ak najde \ dekoduje
                 if (loaded == '"'){
-                    loaded = fgetc(f);
                     char *buff = get_buff(scanner_buff);
                     data.s = my_malloc(sizeof(char) * (buff_size(scanner_buff) + 1));
                     for (int i=0; i<=buff_size(scanner_buff);i++){
@@ -454,8 +473,12 @@ t_token *get_token(){
                 break;
             case s_OP:
                 if (isVaSp(loaded)){
+                    old = loaded;
                     return result;
                 } else{
+                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff, 0);
+
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
 
