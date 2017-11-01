@@ -1,476 +1,272 @@
 #include "parser.h"
 #include "scanner.h"
 #include "main.h"
+#include <stdlib.h>
 #include <stdbool.h>
 
 
-#define SUCCESS 0
+#define SUCCESS 1
+
+t_token* check_next_token_type(int type){
+    t_token * input = get_token();
+    if(input == NULL){
+        fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
+        exit(ERR_SYNTA);
+    }
+    if(input->token_type != type){
+        fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
+        exit(ERR_SYNTA);
+    }
+    return input;
+}
+bool check_token_int_value(t_token * input, int value){
+    if(input == NULL){
+        fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
+        exit(ERR_SYNTA);
+    }
+    if(input->data.i != value){
+        return false;
+    }
+    return true;
+}
+
+bool check_pointer(t_token* input) {
+    if(input == NULL){
+        fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
+        exit(ERR_SYNTA);
+    }
+    return true;
+}
+
+void error(int code, int line){
+    fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu, line %d.\n", line);
+    exit(code);
+}
 
 int parse(){
     t_token * input = get_token();
-    if(input == NULL){
-        return ERR_LEXIK;
-    }
+    check_pointer(input);
 
     //prvni token musi byt Declare nebo Function nebo SCOPE
     bool isCorrect = input->token_type == KEY_WORD;
     tdata value = input->data;
     if (isCorrect) {
         switch (value.i) {
-
             case 2: //declare
-                input = get_token();
-                if (input == NULL) {
-                    return ERR_LEXIK;
-                }
-                isCorrect = input->token_type == KEY_WORD && input->data.i == 9;
-                if (isCorrect) {
-                        function();
-                }
-                else{
-                        return ERR_LEXIK;
-                }
-                break;
+                input = check_next_token_type(KEY_WORD);
+                check_token_int_value(input,9);
+                function();
+                return parse();
             case 9: //function
                 function(); //parametry, konci tokenem EOL
-                if(commandsAndVariables()==9){
-                    return SUCCESS;
+                if(commandsAndVariables()==9){ //function
+                    return parse();
                 }
                 else{
-                    return ERR_LEXIK;
+                    error(ERR_SYNTA,0);
                 }
             case 17: //scope
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
+                if(scope() == SUCCESS){
+                    return SUCCESS;
                 }
-                if(input->token_type == EOL){
-                    if(commandsAndVariables() == 17){
-                        return SUCCESS;
-                    }
-                    else{
-                        return ERR_LEXIK;
-                    }
-                }
-
             default:
-                return ERR_LEXIK;
+                error(ERR_SYNTA,0);
         }
     }
     else {
-            return ERR_LEXIK;
+        error(ERR_SYNTA,0);
     }
     return SUCCESS;
 }
 
 int function(){
-    t_token * input = get_token();
-    if(input == NULL){
-        return ERR_LEXIK;
-    }
-
-    bool isCorrect = input->token_type == ID;
-
-    if (isCorrect) {
-        input = get_token();
-        if (input == NULL) {
-            return ERR_LEXIK;
-        }
-        if (input->token_type == LPAR) {
+    t_token * input;
+    check_next_token_type(ID);
+        check_next_token_type(LPAR);
             input = get_token();
-            if (input == NULL) {
-                return ERR_LEXIK;
-            }
+            check_pointer(input);
             if (input->token_type == ID) {
-                params();
+                params(); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
             }
             else if (input->token_type == RPAR) {}
             else {
-                return ERR_LEXIK;
+                error(ERR_SYNTA,93);
             }
-        }
-        else {
-            return ERR_LEXIK;
-        }
-    }
-    else{
-        return ERR_LEXIK;
-    } //byla nactena posledni zavorka, zbyva return typ
 
-    input = get_token();
-    if(input == NULL){
-        return ERR_LEXIK;
-    }
+    input = check_next_token_type(KEY_WORD);
+    check_token_int_value(input, 0); //as
 
-    if(input->token_type == KEY_WORD && input->data.i == 0){ //AS
-        input = get_token();
-        if(input == NULL){
-            return ERR_LEXIK;
-        }
-        if(input->token_type == 2 || input->token_type == 3 || input->token_type == 4) //return_type je datovy typ
-        {
-            input = get_token();
-            if(input == NULL){
-                return ERR_LEXIK;
-            }
-            if(input->token_type == EOL){
-                return SUCCESS;
-            }
-        }
-    }
-    else {
-        return ERR_LEXIK;
+    input = check_next_token_type(KEY_WORD);
+    if(check_token_int_value(input, 5) || check_token_int_value(input, 12) || check_token_int_value(input, 18)) //return_type je datovy typ
+    {
+        check_next_token_type(EOL);
+        return SUCCESS;
+    } else {
+        error(ERR_SYNTA,105);
     }
 }
 
 int params() {
-    t_token *input = get_token();
-    if (input == NULL) {
-        return ERR_LEXIK;
-    }
+    t_token *input = check_next_token_type(KEY_WORD);
+    if (check_token_int_value(input, 0)) { //as
+        input = check_next_token_type(KEY_WORD);
 
-    bool isCorrect = input->token_type == KEY_WORD && input->data.i == 0; //AS
-    if (isCorrect) {
-        input = get_token();
-        if(input == NULL){
-            return ERR_LEXIK;
-        }
-        if(input->token_type == 2 || input->token_type == 3 || input->token_type == 4) //typ
+        if (check_token_int_value(input, 5) || check_token_int_value(input, 12) ||
+            check_token_int_value(input, 18)) //return_type je datovy typ
         {
             input = get_token();
-            if(input == NULL){
-                return ERR_LEXIK;
-            }
-            if(input->token_type == COMMA){
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
-                if(input->token_type == ID){
-                    params();
-                } else {
-                    return ERR_LEXIK;
-                }
-            }
-        }
-        else if(input->token_type == RPAR){
-            return SUCCESS;
-        } else {
-            return ERR_LEXIK;
-        }
-    }
-    else {
-        return ERR_LEXIK;
-    }
+            check_pointer(input);
 
+            if (input->token_type == COMMA) {
+                input = get_token();
+                if (input == NULL) {
+                    error(ERR_SYNTA,123);
+                }
+                check_next_token_type(ID);
+                return params();
+            } else if (input->token_type == RPAR) {
+                return SUCCESS;
+            } else {
+                error(ERR_SYNTA,130);
+            }
+        }
+    }
 }
 
 int commandsAndVariables(){
     t_token * input = get_token();
-    if(input == NULL){
-        return ERR_LEXIK;
-    }
+    check_pointer(input);
 
     tdata value = input->data;
     bool isCorrect = input->token_type == KEY_WORD;
 
     if(input->token_type == ID){
-        input = get_token();
-        if(input == NULL){
-            return ERR_LEXIK;
-        }
-        if(input->token_type == EQ){
+        check_next_token_type(EQ);
             expressionOrFunction();
-        }
-        else
-        {
-            return ERR_LEXIK;
-        }
     }
     else if (isCorrect) {
         switch (value.i){
-            case 11: //input
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
-                if(input->token_type == ID){
-                    input = get_token();
-                    if(input == NULL){
-                        return ERR_LEXIK;
-                    }
-                    if(input->token_type == EOL){
-                        return commandsAndVariables();
-                    }
-                }
-            case 15: //print
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
-                if(input->token_type == ID){
-                    while(input->token_type == ID){
-                        expression();
-
-                        input = get_token();
-                        if(input == NULL){
-                            return ERR_LEXIK;
-                        }
-
-                        if(input->token_type == SEMICOLLON)
-                        {
-                            input = get_token(); //posuneme se na dalsi token a znova vyhodnoti vyraz
-                            if(input == NULL){
-                                return ERR_LEXIK;
-                            }
-                        }
-                        else
-                        {
-                            return ERR_LEXIK;
-                        }
-                    }
-                    if(input->token_type == EOL){
-                        return commandsAndVariables();
-                    }
-                    else
-                    {
-                        return ERR_LEXIK;
-                    }
-                }
-                else
-                {
-                    return ERR_LEXIK;
-                }
-                //vyraz
-                //; vyraz
-                //EOL a konec
-            case 10: //if
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
-                if (input->token_type == ID){
-                    expression();//taky je tu asi token navic
-                    input = get_token();
-                    if(input == NULL){
-                        return ERR_LEXIK;
-                    }
-                    if (input->token_type == KEY_WORD){
-                        if(input->data.i == 20){ //then
-                            input = get_token();
-                            if(input == NULL){
-                                return ERR_LEXIK;
-                            }
-                            if (input->token_type == EOL){
-                                return commandsAndVariables();
-                            }
-                            else
-                            {
-                                return ERR_LEXIK;
-                            }
-                        }
-                        else
-                        {
-                            return ERR_LEXIK;
-                        }
-
-                    }
-                    else
-                    {
-                        return ERR_LEXIK;
-                    }
-                }
-                else
-                {
-                    return ERR_LEXIK;
-                }
-            case 6: //else
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
-                if (input->token_type == EOL){
-                    return commandsAndVariables();
-                }
-                else
-                {
-                    return ERR_LEXIK;
-                }
-            case 7: //end
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
-                if (input->token_type == KEY_WORD && input->data.i == 10){ //if
-                    input = get_token();
-                    if(input == NULL){
-                        return ERR_LEXIK;
-                    }
-                    if (input->token_type == EOL){
-                        return commandsAndVariables();
-                    }
-                    else
-                    {
-                        return ERR_LEXIK;
-                    }
-                } else if (input->token_type == KEY_WORD && input->data.i == 17){ //Scope
-                    input = get_token();
-                    if(input == NULL){
-                        return ERR_LEXIK;
-                    }
-                    if (input->token_type == EOL){
-                        return 17;
-                    }
-                    else
-                    {
-                        return ERR_LEXIK;
-                    }
-                } else if (input->token_type == KEY_WORD && input->data.i == 9){ //Function
-                    input = get_token();
-                    if(input == NULL){
-                        return ERR_LEXIK;
-                    }
-                    if (input->token_type == EOL){
-                        return 9;
-                    }
-                    else
-                    {
-                        return ERR_LEXIK;
-                    }
-                }
-                else
-                {
-                    return ERR_LEXIK;
-                }
-
-            case 4: //do
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
-                if (input->token_type == KEY_WORD && input->data.i == 21){ //while
-                    input = get_token();
-                    if(input == NULL){
-                        return ERR_LEXIK;
-                    }
-                    if (input->token_type == ID){
-                        expression(); //tohle asi nepojede
-                        input = get_token();
-                        if(input == NULL){
-                            return ERR_LEXIK;
-                        }
-                        if (input->token_type == EOL){
+            case 3: //dim
+                check_next_token_type(ID);
+                    input = check_next_token_type(KEY_WORD);
+                    if (check_token_int_value(input, 0)) { //AS
+                        input = check_next_token_type(KEY_WORD);
+                        if (check_token_int_value(input, 5) || check_token_int_value(input, 12) || check_token_int_value(input, 18)) { //typ
+                            check_next_token_type(EOL);
                             return commandsAndVariables();
                         }
-                        else
-                        {
-                            return ERR_LEXIK;
+                    }
+                error(ERR_SYNTA,159);
+            case 11: //input
+                check_next_token_type(ID);
+                check_next_token_type(EOL);
+                return commandsAndVariables();
+            case 15: //print
+                print_params(); //skonci vcetne EOL
+                commandsAndVariables();
+            case 10: //if
+                    expression();//taky je tu asi token navic
+                    input =check_next_token_type(KEY_WORD);
+                        if(check_token_int_value(input,20)){ //then
+                            check_next_token_type(EOL);
+                                if(commandsAndVariables() == 10){//skoncilo to end if
+                                    return SUCCESS;
+                                }
                         }
-                    }
-                    else
-                    {
-                        return ERR_LEXIK;
-                    }
-                }
-                else
-                {
-                    return ERR_LEXIK;
-                }
-            case 14: //loop
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
-                if (input->token_type == EOL){
+                error(ERR_SYNTA,176);
+            case 6: //else
+                check_next_token_type(EOL);
                     return commandsAndVariables();
+            case 7: //end
+                input = check_next_token_type(KEY_WORD);
+                if (check_token_int_value(input,10)){ //if
+                    check_next_token_type(EOL);
+                        return 10;
+                } else if (check_token_int_value(input,17)){ //Scope
+                        return 17;
+                } else if (check_token_int_value(input,9)){ //Function
+                    check_next_token_type(EOL);
+                        return 9;
                 }
-                else
-                {
-                    return ERR_LEXIK;
+                error(ERR_SYNTA,192);
+            case 4: //do
+                input = check_next_token_type(KEY_WORD);
+                if (check_token_int_value(input,21)){ //while
+                    expression(); //tohle asi nepojede
+                    check_next_token_type(EOL);
+                        if(commandsAndVariables() == 14){ //skoncilo to loop
+                            return SUCCESS;
+                        }
+                    error(ERR_SYNTA,201);
                 }
-            case 16:
-                input = get_token();
-                if(input == NULL){
-                    return ERR_LEXIK;
-                }
+                error(ERR_SYNTA,203);
+            case 14: //loop
+                check_next_token_type(EOL);
+                return 14;
+            case 16: //return
                 expression();
-                return SUCCESS;
+                return 16;
+            case 9: //function - jen ve scope
+                return 9+17; //function+scope
             default:
-                return ERR_LEXIK;
+                error(ERR_SYNTA,213);
         }
     }
+}
+
+int print_params(){
+    expression();
+    check_next_token_type(SEMICOLLON);
+    t_token * input = get_token();
+    check_pointer(input);
+
+    if(input->token_type == EOL){
+        return SUCCESS;
+    }
+    return print_params();
 }
 
 int expressionOrFunction(){
-    t_token * input = get_token();
-    if(input == NULL){
-        return ERR_LEXIK;
-    }
-    input = get_token();
-    if(input == NULL){
-        return ERR_LEXIK;
-    }
-    if (input->token_type == ID){
-        input = get_token();
-        if(input == NULL){
-            return ERR_LEXIK;
-        }
-        if (input->token_type == LPAR){ //function
-            return idList();
-        } else if(input->token_type >= 5 && input->token_type <= 15){ //operator, takze to neni funkce ale vyraz
-            expression();
-        } else {
-            return ERR_LEXIK;
-        }
-
-    } else
-    {
-        return ERR_LEXIK;
-    }
+    return SUCCESS; //az s vyrazy, mozna tahle funkce nebude vubec potreba
 }
 
+/*parametry funkce, mozna to k necemu bude, mozna ne, zatim se to nidke nepouziva*/
 int idList(){
     t_token * input = get_token();
-    if(input == NULL){
-        return ERR_LEXIK;
-    }
+    check_pointer(input);
 
-    input = get_token();
-    if(input == NULL){
-        return ERR_LEXIK;
-    }
     if(input->token_type == ID){
         input = get_token();
-        if(input == NULL){
-            return ERR_LEXIK;
-        }
+        check_pointer(input);
+
         if(input->token_type == COMMA){
             return idList();
         }
         else if(input->token_type == RPAR){
-            input = get_token();
-            if(input == NULL){
-                return ERR_LEXIK;
-            }
-            if(input->token_type == EOL){
-                return SUCCESS;
-            }
-            return ERR_LEXIK;
-        }
-    }
-    else if(input->token_type == RPAR){
-        input = get_token();
-        if(input == NULL){
-            return ERR_LEXIK;
-        }
-        if(input->token_type == EOL){
+            check_next_token_type(EOL);
             return SUCCESS;
         }
+        error(ERR_SYNTA,250);
     }
-    return ERR_LEXIK;
+    else if(input->token_type == RPAR){
+        check_next_token_type(EOL);
+        return SUCCESS;
+    }
+    error(ERR_SYNTA,256);
 }
 
-
+int scope(){
+    check_next_token_type(EOL);
+    int res = commandsAndVariables();
+    if(res == 26){ //byla tam definice funkce
+        function();
+        scope();
+    } else if(res == 17){ //skoncil uspesne SCOPE
+        return SUCCESS;
+    } else { //vsechny ostatni returny jsou blbe
+        error(ERR_SYNTA,267);
+    }
+}
 int expression(){
     return SUCCESS;
 }
