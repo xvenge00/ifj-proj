@@ -13,7 +13,7 @@ int parse(){
     }
 
     //prvni token musi byt Declare nebo Function nebo SCOPE
-    bool isCorrect = input->token_type == MIN_KEY_WORLD;
+    bool isCorrect = input->token_type == KEY_WORD;
     tdata value = input->data;
     if (isCorrect) {
         switch (value.i) {
@@ -23,7 +23,7 @@ int parse(){
                 if (input == NULL) {
                     return ERR_LEXIK;
                 }
-                isCorrect = input->token_type == MIN_KEY_WORLD && input->data.i == 9;
+                isCorrect = input->token_type == KEY_WORD && input->data.i == 9;
                 if (isCorrect) {
                         function();
                 }
@@ -102,7 +102,7 @@ int function(){
         return ERR_LEXIK;
     }
 
-    if(input->token_type == MIN_KEY_WORLD && input->data.i == 0){ //AS
+    if(input->token_type == KEY_WORD && input->data.i == 0){ //AS
         input = get_token();
         if(input == NULL){
             return ERR_LEXIK;
@@ -129,7 +129,7 @@ int params() {
         return ERR_LEXIK;
     }
 
-    bool isCorrect = input->token_type == MIN_KEY_WORLD && input->data.i == 0; //AS
+    bool isCorrect = input->token_type == KEY_WORD && input->data.i == 0; //AS
     if (isCorrect) {
         input = get_token();
         if(input == NULL){
@@ -172,7 +172,7 @@ int commandsAndVariables(){
     }
 
     tdata value = input->data;
-    bool isCorrect = input->token_type == MIN_KEY_WORLD;
+    bool isCorrect = input->token_type == KEY_WORD;
 
     if(input->token_type == ID){
         input = get_token();
@@ -217,7 +217,7 @@ int commandsAndVariables(){
                             return ERR_LEXIK;
                         }
 
-                        if(input->token_type == comma) //zmenit na semicolon!
+                        if(input->token_type == SEMICOLLON)
                         {
                             input = get_token(); //posuneme se na dalsi token a znova vyhodnoti vyraz
                             if(input == NULL){
@@ -255,7 +255,7 @@ int commandsAndVariables(){
                     if(input == NULL){
                         return ERR_LEXIK;
                     }
-                    if (input->token_type == MIN_KEY_WORLD){
+                    if (input->token_type == KEY_WORD){
                         if(input->data.i == 20){ //then
                             input = get_token();
                             if(input == NULL){
@@ -301,7 +301,7 @@ int commandsAndVariables(){
                 if(input == NULL){
                     return ERR_LEXIK;
                 }
-                if (input->token_type == MIN_KEY_WORLD && input->data.i == 10){ //if
+                if (input->token_type == KEY_WORD && input->data.i == 10){ //if
                     input = get_token();
                     if(input == NULL){
                         return ERR_LEXIK;
@@ -313,7 +313,7 @@ int commandsAndVariables(){
                     {
                         return ERR_LEXIK;
                     }
-                } else if (input->token_type == MIN_KEY_WORLD && input->data.i == 17){ //Scope
+                } else if (input->token_type == KEY_WORD && input->data.i == 17){ //Scope
                     input = get_token();
                     if(input == NULL){
                         return ERR_LEXIK;
@@ -325,7 +325,7 @@ int commandsAndVariables(){
                     {
                         return ERR_LEXIK;
                     }
-                } else if (input->token_type == MIN_KEY_WORLD && input->data.i == 9){ //Function
+                } else if (input->token_type == KEY_WORD && input->data.i == 9){ //Function
                     input = get_token();
                     if(input == NULL){
                         return ERR_LEXIK;
@@ -348,7 +348,7 @@ int commandsAndVariables(){
                 if(input == NULL){
                     return ERR_LEXIK;
                 }
-                if (input->token_type == MIN_KEY_WORLD && input->data.i == 21){ //while
+                if (input->token_type == KEY_WORD && input->data.i == 21){ //while
                     input = get_token();
                     if(input == NULL){
                         return ERR_LEXIK;
