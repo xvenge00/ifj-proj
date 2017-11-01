@@ -174,7 +174,7 @@ TEST_F(element_fixture, element_create) {
 
 TEST_F(element_fixture, element_create_null) {
     //ked mu dam NULL aby vratil NULL
-    //EXPECT_NO_FATAL_FAILURE(element = El_Create(NULL));
+    EXPECT_NO_FATAL_FAILURE(element = El_Create(NULL));
     EXPECT_EQ(element, nullptr);
 }
 
@@ -292,7 +292,7 @@ TEST_F(symtable_insert, insert_again) {
 
     //vloz znova
     EXPECT_NO_FATAL_FAILURE(success = Tbl_Insert(table, element[0]));
-    EXPECT_FALSE(success);
+    EXPECT_TRUE(success);
 }
 
 namespace {
