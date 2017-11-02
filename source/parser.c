@@ -1,8 +1,6 @@
 #include "parser.h"
-#include "scanner.h"
 #include "main.h"
 #include <stdlib.h>
-#include <stdbool.h>
 
 
 #define SUCCESS 1
@@ -38,8 +36,8 @@ bool check_pointer(t_token* input) {
     return true;
 }
 
-void error(int code, int line){
-    fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu, line %d.\n", line);
+void error(int code){
+    fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
     exit(code);
 }
 
@@ -63,18 +61,18 @@ int parse(){
                     return parse();
                 }
                 else{
-                    error(ERR_SYNTA,0);
+                    error(ERR_SYNTA);
                 }
             case 17: //scope
                 if(scope() == SUCCESS){
                     return SUCCESS;
                 }
             default:
-                error(ERR_SYNTA,0);
+                error(ERR_SYNTA);
         }
     }
     else {
-        error(ERR_SYNTA,0);
+        error(ERR_SYNTA);
     }
     return SUCCESS;
 }
@@ -90,7 +88,7 @@ int function(){
             }
             else if (input->token_type == RPAR) {}
             else {
-                error(ERR_SYNTA,93);
+                error(ERR_SYNTA);
             }
 
     input = check_next_token_type(KEY_WORD);
@@ -102,7 +100,7 @@ int function(){
         check_next_token_type(EOL);
         return SUCCESS;
     } else {
-        error(ERR_SYNTA,105);
+        error(ERR_SYNTA);
     }
 }
 
@@ -120,14 +118,14 @@ int params() {
             if (input->token_type == COMMA) {
                 input = get_token();
                 if (input == NULL) {
-                    error(ERR_SYNTA,123);
+                    error(ERR_SYNTA);
                 }
                 check_next_token_type(ID);
                 return params();
             } else if (input->token_type == RPAR) {
                 return SUCCESS;
             } else {
-                error(ERR_SYNTA,130);
+                error(ERR_SYNTA);
             }
         }
     }
@@ -156,7 +154,7 @@ int commandsAndVariables(){
                             return commandsAndVariables();
                         }
                     }
-                error(ERR_SYNTA,159);
+                error(ERR_SYNTA);
             case 11: //input
                 check_next_token_type(ID);
                 check_next_token_type(EOL);
@@ -173,7 +171,7 @@ int commandsAndVariables(){
                                     return SUCCESS;
                                 }
                         }
-                error(ERR_SYNTA,176);
+                error(ERR_SYNTA);
             case 6: //else
                 check_next_token_type(EOL);
                     return commandsAndVariables();
@@ -188,7 +186,7 @@ int commandsAndVariables(){
                     check_next_token_type(EOL);
                         return 9;
                 }
-                error(ERR_SYNTA,192);
+                error(ERR_SYNTA);
             case 4: //do
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input,21)){ //while
@@ -197,9 +195,9 @@ int commandsAndVariables(){
                         if(commandsAndVariables() == 14){ //skoncilo to loop
                             return SUCCESS;
                         }
-                    error(ERR_SYNTA,201);
+                    error(ERR_SYNTA);
                 }
-                error(ERR_SYNTA,203);
+                error(ERR_SYNTA);
             case 14: //loop
                 check_next_token_type(EOL);
                 return 14;
@@ -209,7 +207,7 @@ int commandsAndVariables(){
             case 9: //function - jen ve scope
                 return 9+17; //function+scope
             default:
-                error(ERR_SYNTA,213);
+                error(ERR_SYNTA);
         }
     }
 }
@@ -246,13 +244,13 @@ int idList(){
             check_next_token_type(EOL);
             return SUCCESS;
         }
-        error(ERR_SYNTA,250);
+        error(ERR_SYNTA);
     }
     else if(input->token_type == RPAR){
         check_next_token_type(EOL);
         return SUCCESS;
     }
-    error(ERR_SYNTA,256);
+    error(ERR_SYNTA);
 }
 
 int scope(){
@@ -264,9 +262,6 @@ int scope(){
     } else if(res == 17){ //skoncil uspesne SCOPE
         return SUCCESS;
     } else { //vsechny ostatni returny jsou blbe
-        error(ERR_SYNTA,267);
+        error(ERR_SYNTA);
     }
-}
-int expression(){
-    return SUCCESS;
 }
