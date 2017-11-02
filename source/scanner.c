@@ -91,7 +91,7 @@ int is_keyword(char *ret){
 }
 
 int isOperatorOrSpace(int loaded){
-    const int size = 10;
+    const int size = 11;
     const char oper[] = {
             '>',
             '<',
@@ -102,7 +102,8 @@ int isOperatorOrSpace(int loaded){
             '+',
             '-',
             '(',
-            ')'
+            ')',
+            ','
     };
 
     if (isspace(loaded)|| loaded == EOF){
