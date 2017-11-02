@@ -184,8 +184,9 @@ int commandsAndVariables(){
             case k_do: //do
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input,k_while)){ //while
-                    expression(); //tohle asi nepojede
-                    check_next_token_type(EOL);
+                    if(expression() != EOL){
+                        error(ERR_SYNTA);
+                    } //tohle asi nepojede
                         if(commandsAndVariables() == k_loop){ //skoncilo to loop
                             return commandsAndVariables();
                         }
@@ -194,12 +195,10 @@ int commandsAndVariables(){
                 error(ERR_SYNTA);
             case k_loop: //loop
                 check_next_token_type(EOL);
-                return commandsAndVariables();
+                return k_loop; //tady to ma asi vracet k_loop
             case k_return: //return
                 expression();
                 return commandsAndVariables();
-            case k_function: //function
-                return k_function;
             default:
                 error(ERR_SYNTA);
         }
@@ -207,16 +206,14 @@ int commandsAndVariables(){
 }
 
 int print_params(){
-    if(expression() != SEMICOLLON){
-        error(ERR_SYNTA);
+    int result = expression();
+    while(result == SEMICOLLON){
+        result = expression();
     }
-    t_token * input = get_token();
-    check_pointer(input);
-
-    if(input->token_type == EOL){
+    if(result == EOL){
         return SUCCESS;
     }
-    return print_params();
+    error(ERR_SYNTA);
 }
 
 /*parametry funkce, mozna to k necemu bude, mozna ne, zatim se to nidke nepouziva*/

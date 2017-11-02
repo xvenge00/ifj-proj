@@ -333,7 +333,10 @@ int expression(){
     int b;
     int dollar_source = 0;
     b = code_type(&dollar_source); //prekodovani typu tokenu na index do tabulky
-
+    if(b==E_DOLLAR && dollar_source == EOL) {
+        Stack_dispose(&stack);
+        return dollar_source;
+    }
     do{
         a = Stack_top(&stack)->type;
         int ruleNumber = 0;
