@@ -2,7 +2,6 @@
 #include "parser.h"
 #include "main.h"
 #include "memwork.h"
-#include "scanner.h"
 
 enum{
     xx
@@ -23,8 +22,10 @@ enum{
     E_GE,
     E_EQ,
     E_NEQ,
-    E_DOLLAR,
-    E_E //15
+    E_DOLLAR, //15
+    E_FUNC,
+    E_COMMA,
+    E_E //18
 }types;
 
 typedef struct element{
@@ -192,35 +193,74 @@ int rule(Stack *stack){
             }
         case E_RPAR:
             check_next_element_type(E_E,stack);
-            check_next_element_type(LPAR,stack);
-            check_next_element_type(E_LT,stack);
-            Stack_push(stack,E_E);
-            return 12;
+
+            input = Stack_pop(stack);
+            check_pointer(input);
+
+            switch(input->type){
+                case E_LPAR:
+                    input = Stack_pop(stack);
+                    check_pointer(input);
+
+                    switch(input->type){
+                        case E_LT:
+                            Stack_push(stack,E_E);
+                            return 12;
+                        case E_ID: //zmenit pak nejspis na E_FUNCT
+                            check_next_element_type(E_LT,stack);
+                            Stack_push(stack,E_E);
+                            return 13;
+                        default:
+                            error(ERR_SYNTA);
+                    }
+                case COMMA:
+                    check_next_element_type(E_E,stack);
+                    input = Stack_pop(stack);
+                    check_pointer(input);
+                    while(input->type == COMMA){
+                        check_next_element_type(E_E,stack);
+                        input = Stack_pop(stack);
+                    }
+                    if(input->type == LPAR){
+                        check_next_element_type(E_ID,stack);
+                        check_next_element_type(E_LT,stack);
+                        Stack_push(stack,E_E);
+                        return 14;
+                    }
+                    error(ERR_SYNTA);
+
+                default:
+                    error(ERR_SYNTA);
+            }
+
         case E_ID:
             check_next_element_type(E_LT,stack);
             Stack_push(stack,E_E);
-            return 13;
+            return 15;
         default: error(ERR_SYNTA);
     }
 }
-// Precedencni tabulka
-const int precedence_table[15][15] = {
-        /*    +   -   *   /   \   (   )  id   <  <=   >  >=   =  <>   $  */
-/* +    */ { GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, },
-/* -    */ { GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, },
-/* *    */ { GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, },
-/* /    */ { GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, },
-/* \    */ { GT, GT, LT, LT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, },
-/* (    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, xx, },
-/* )    */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, },
-/* id   */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, },
-/* <    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, },
-/* <=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, },
-/* >    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, },
-/* >=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, },
-/* =    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, },
-/* <>   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, },
-/* $    */ { LT, LT, LT, LT, LT, LT, xx, LT, LT, LT, LT, LT, LT, LT, xx, },
+
+// Precedencni tabulka, rozsirena pro FUNEXP
+const int precedence_table[17][17] = {
+        /*    +   -   *   /   \   (   )  id   <  <=   >  >=   =  <>   $   f   ,  */
+/* +    */ { GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* -    */ { GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* *    */ { GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* /    */ { GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* \    */ { GT, GT, LT, LT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* (    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, xx, LT, EQ, },
+/* )    */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, },
+/* id   */ { GT, GT, GT, GT, GT, EQ, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, }, //ID x ( ma byt xx, tohle je kvuli debugu funkci
+/* <    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* <=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* >    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* >=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* =    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* <>   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* $    */ { LT, LT, LT, LT, LT, LT, xx, LT, LT, LT, LT, LT, LT, LT, xx, LT, xx, },
+/* f    */ { xx, xx, xx, xx, xx, EQ, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, },
+/* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
 };
 
 int code_type(int *dollar_source){
@@ -242,9 +282,9 @@ int code_type(int *dollar_source){
             return E_LPAR;
         case RPAR:
             return E_RPAR;
-        case ID:
+        case ID: //nutno rozlisit ID funkce a ID promenne, ale zatim je to jedno, ID i F maji stejne hodnoty v tabulce
             return E_ID;
-        case INT:
+        case INT: //mozna budeme muset mapovat jinak kvuli semanticke
             return E_ID;
         case DOUBLE:
             return E_ID;
@@ -262,6 +302,8 @@ int code_type(int *dollar_source){
             return E_EQ;
         case NEQ:
             return E_NEQ;
+        case COMMA:
+            return E_COMMA;
         case EOL:
             *dollar_source = EOL;
             return E_DOLLAR;
@@ -269,7 +311,7 @@ int code_type(int *dollar_source){
             *dollar_source = SEMICOLLON;
             return E_DOLLAR;
         case KEY_WORD:
-            *dollar_source = input->data.i + 100;
+            *dollar_source = input->data.i;
             return E_DOLLAR;
         default:
             return result;

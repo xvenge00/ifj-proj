@@ -41,20 +41,21 @@ int parse(){
     tdata value = input->data;
     if (isCorrect) {
         switch (value.i) {
-            case 2: //declare
+            case k_declare: //declare
                 input = check_next_token_type(KEY_WORD);
-                check_token_int_value(input,9);
+                check_token_int_value(input,k_function);
                 function();
                 return parse();
-            case 9: //function
+            case k_function: //function
                 function(); //parametry, konci tokenem EOL
-                if(commandsAndVariables()==9){ //function
+                int correct = commandsAndVariables();
+                if(correct == k_function){ //function
                     return parse();
                 }
                 else{
                     error(ERR_SYNTA);
                 }
-            case 17: //scope
+            case k_scope: //scope
                 if(scope() == SUCCESS){
                     return SUCCESS;
                 }
@@ -83,10 +84,10 @@ int function(){
             }
 
     input = check_next_token_type(KEY_WORD);
-    check_token_int_value(input, 0); //as
+    check_token_int_value(input, k_as); //as
 
     input = check_next_token_type(KEY_WORD);
-    if(check_token_int_value(input, 5) || check_token_int_value(input, 12) || check_token_int_value(input, 18)) //return_type je datovy typ
+    if(check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) || check_token_int_value(input, k_string)) //return_type je datovy typ
     {
         check_next_token_type(EOL);
         return SUCCESS;
@@ -97,11 +98,11 @@ int function(){
 
 int params() {
     t_token *input = check_next_token_type(KEY_WORD);
-    if (check_token_int_value(input, 0)) { //as
+    if (check_token_int_value(input, k_as)) { //as
         input = check_next_token_type(KEY_WORD);
 
-        if (check_token_int_value(input, 5) || check_token_int_value(input, 12) ||
-            check_token_int_value(input, 18)) //return_type je datovy typ
+        if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
+            check_token_int_value(input, k_string)) //return_type je datovy typ
         {
             input = get_token();
             check_pointer(input);
@@ -131,72 +132,74 @@ int commandsAndVariables(){
 
     if(input->token_type == ID){
         check_next_token_type(EQ);
-            expressionOrFunction();
+        expression();
+        return commandsAndVariables();
     }
     else if (isCorrect) {
-        switch (value.i){
-            case 3: //dim
+        switch (value.i) {
+            case k_dim: //dim
                 check_next_token_type(ID);
+                input = check_next_token_type(KEY_WORD);
+                if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
-                    if (check_token_int_value(input, 0)) { //AS
-                        input = check_next_token_type(KEY_WORD);
-                        if (check_token_int_value(input, 5) || check_token_int_value(input, 12) || check_token_int_value(input, 18)) { //typ
-                            check_next_token_type(EOL);
-                            return commandsAndVariables();
-                        }
+                    if (check_token_int_value(input, 5) || check_token_int_value(input, 12) ||
+                        check_token_int_value(input, 18)) { //typ
+                        check_next_token_type(EOL);
+                        return commandsAndVariables();
                     }
+                }
                 error(ERR_SYNTA);
-            case 11: //input
+            case k_input: //input
                 check_next_token_type(ID);
                 check_next_token_type(EOL);
                 return commandsAndVariables();
-            case 15: //print
+            case k_print: //print
                 print_params(); //skonci vcetne EOL
-                commandsAndVariables();
-            case 10: //if
-                    expression();//taky je tu asi token navic
-                    input =check_next_token_type(KEY_WORD);
-                        if(check_token_int_value(input,20)){ //then
-                            check_next_token_type(EOL);
-                                if(commandsAndVariables() == 10){//skoncilo to end if
-                                    return SUCCESS;
-                                }
-                        }
-                error(ERR_SYNTA);
-            case 6: //else
+                return commandsAndVariables();
+            case k_if: //if
+                if(expression()!=k_then){
+                    error(ERR_SYNTA);
+                }
                 check_next_token_type(EOL);
+                int correct = commandsAndVariables();
+                if (correct == k_if) {//skoncilo to end if
                     return commandsAndVariables();
-            case 7: //end
-                input = check_next_token_type(KEY_WORD);
-                if (check_token_int_value(input,10)){ //if
-                    check_next_token_type(EOL);
-                        return 10;
-                } else if (check_token_int_value(input,17)){ //Scope
-                        return 17;
-                } else if (check_token_int_value(input,9)){ //Function
-                    check_next_token_type(EOL);
-                        return 9;
                 }
                 error(ERR_SYNTA);
-            case 4: //do
+            case k_else: //else
+                check_next_token_type(EOL);
+                    return commandsAndVariables();
+            case k_end: //end
                 input = check_next_token_type(KEY_WORD);
-                if (check_token_int_value(input,21)){ //while
+                if (check_token_int_value(input,k_if)){ //if
+                    check_next_token_type(EOL);
+                        return k_if;
+                } else if (check_token_int_value(input,k_scope)){ //Scope
+                        return k_scope;
+                } else if (check_token_int_value(input,k_function)){ //Function
+                    check_next_token_type(EOL);
+                        return k_function;
+                }
+                error(ERR_SYNTA);
+            case k_do: //do
+                input = check_next_token_type(KEY_WORD);
+                if (check_token_int_value(input,k_while)){ //while
                     expression(); //tohle asi nepojede
                     check_next_token_type(EOL);
-                        if(commandsAndVariables() == 14){ //skoncilo to loop
-                            return SUCCESS;
+                        if(commandsAndVariables() == k_loop){ //skoncilo to loop
+                            return commandsAndVariables();
                         }
                     error(ERR_SYNTA);
                 }
                 error(ERR_SYNTA);
-            case 14: //loop
+            case k_loop: //loop
                 check_next_token_type(EOL);
-                return 14;
-            case 16: //return
+                return commandsAndVariables();
+            case k_return: //return
                 expression();
-                return 16;
-            case 9: //function - jen ve scope
-                return 9+17; //function+scope
+                return commandsAndVariables();
+            case k_function: //function
+                return k_function;
             default:
                 error(ERR_SYNTA);
         }
@@ -204,8 +207,9 @@ int commandsAndVariables(){
 }
 
 int print_params(){
-    expression();
-    check_next_token_type(SEMICOLLON);
+    if(expression() != SEMICOLLON){
+        error(ERR_SYNTA);
+    }
     t_token * input = get_token();
     check_pointer(input);
 
@@ -213,10 +217,6 @@ int print_params(){
         return SUCCESS;
     }
     return print_params();
-}
-
-int expressionOrFunction(){
-    return SUCCESS; //az s vyrazy, mozna tahle funkce nebude vubec potreba
 }
 
 /*parametry funkce, mozna to k necemu bude, mozna ne, zatim se to nidke nepouziva*/
@@ -247,12 +247,8 @@ int idList(){
 int scope(){
     check_next_token_type(EOL);
     int res = commandsAndVariables();
-    if(res == 26){ //byla tam definice funkce
-        function();
-        scope();
-    } else if(res == 17){ //skoncil uspesne SCOPE
+    if(res == k_scope){
         return SUCCESS;
-    } else { //vsechny ostatni returny jsou blbe
-        error(ERR_SYNTA);
     }
+    error(ERR_SYNTA);
 }
