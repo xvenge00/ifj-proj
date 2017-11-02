@@ -2,36 +2,27 @@
 #include "main.h"
 #include <stdlib.h>
 
-
-#define SUCCESS 1
-
 t_token* check_next_token_type(int type){
     t_token * input = get_token();
-    if(input == NULL){
-        fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
-        exit(ERR_SYNTA);
-    }
+    check_pointer(input);
+
     if(input->token_type != type){
-        fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
-        exit(ERR_SYNTA);
+        error(ERR_SYNTA);
     }
     return input;
 }
 bool check_token_int_value(t_token * input, int value){
-    if(input == NULL){
-        fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
-        exit(ERR_SYNTA);
-    }
+    check_pointer(input);
+
     if(input->data.i != value){
         return false;
     }
     return true;
 }
 
-bool check_pointer(t_token* input) {
+bool check_pointer(void * input) {
     if(input == NULL){
-        fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
-        exit(ERR_SYNTA);
+        error(ERR_SYNTA);
     }
     return true;
 }

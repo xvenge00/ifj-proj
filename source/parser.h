@@ -4,6 +4,8 @@
 #ifndef IFJ_PROJ_PARSER_H
 #define IFJ_PROJ_PARSER_H
 
+#define SUCCESS 1
+
 int parse();
 int function();
 int params();
@@ -15,7 +17,7 @@ int scope();
 int print_params();
 t_token* check_next_token_type(int type);
 bool check_token_int_value(t_token * input, int value);
-bool check_pointer(t_token* input);
+bool check_pointer(void* input);
 void error(int code);
 
 
