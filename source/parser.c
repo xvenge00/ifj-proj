@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "main.h"
+#include "scanner.h"
 #include <stdlib.h>
 
 t_token* check_next_token_type(int type){
@@ -35,6 +36,11 @@ void error(int code){
 int parse(){
     t_token * input = get_token();
     check_pointer(input);
+
+    while(input->token_type == EOL){
+        input = get_token();
+        check_pointer(input);
+    }
 
     //prvni token musi byt Declare nebo Function nebo SCOPE
     bool isCorrect = input->token_type == KEY_WORD;
@@ -72,16 +78,16 @@ int parse(){
 int function(){
     t_token * input;
     check_next_token_type(ID);
-        check_next_token_type(LPAR);
-            input = get_token();
-            check_pointer(input);
-            if (input->token_type == ID) {
-                params(); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
-            }
-            else if (input->token_type == RPAR) {}
-            else {
-                error(ERR_SYNTA);
-            }
+    check_next_token_type(LPAR);
+        input = get_token();
+        check_pointer(input);
+        if (input->token_type == ID) {
+            params(); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
+        }
+        else if (input->token_type == RPAR) {}
+        else {
+            error(ERR_SYNTA);
+        }
 
     input = check_next_token_type(KEY_WORD);
     check_token_int_value(input, k_as); //as
@@ -116,16 +122,21 @@ int params() {
                 return params();
             } else if (input->token_type == RPAR) {
                 return SUCCESS;
-            } else {
-                error(ERR_SYNTA);
             }
+            error(ERR_SYNTA);
         }
+        error(ERR_SYNTA);
     }
+    error(ERR_SYNTA);
 }
 
 int commandsAndVariables(){
     t_token * input = get_token();
     check_pointer(input);
+
+    while (input->token_type == EOL){
+        input = get_token();
+    }
 
     tdata value = input->data;
     bool isCorrect = input->token_type == KEY_WORD;
@@ -135,15 +146,16 @@ int commandsAndVariables(){
         expression();
         return commandsAndVariables();
     }
-    else if (isCorrect) {
+
+    if (isCorrect) {
         switch (value.i) {
             case k_dim: //dim
                 check_next_token_type(ID);
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
-                    if (check_token_int_value(input, 5) || check_token_int_value(input, 12) ||
-                        check_token_int_value(input, 18)) { //typ
+                    if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
+                        check_token_int_value(input, k_string)) { //typ
                         check_next_token_type(EOL);
                         return commandsAndVariables();
                     }
@@ -217,7 +229,7 @@ int print_params(){
 }
 
 /*parametry funkce, mozna to k necemu bude, mozna ne, zatim se to nidke nepouziva*/
-int idList(){
+/*int idList(){
     t_token * input = get_token();
     check_pointer(input);
 
@@ -239,13 +251,21 @@ int idList(){
         return SUCCESS;
     }
     error(ERR_SYNTA);
-}
+}*/
 
 int scope(){
     check_next_token_type(EOL);
     int res = commandsAndVariables();
     if(res == k_scope){
-        return SUCCESS;
+        t_token * input = get_token();
+        check_pointer(input);
+        while(input->token_type == EOL){
+            input = get_token();
+            check_pointer(input);
+        }
+        if(input->token_type == EMPTY){
+            return SUCCESS;
+        }
     }
     error(ERR_SYNTA);
 }
