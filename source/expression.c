@@ -282,7 +282,14 @@ int code_type(int *dollar_source){
             return E_LPAR;
         case RPAR:
             return E_RPAR;
-        case ID: //nutno rozlisit ID funkce a ID promenne, ale zatim je to jedno, ID i F maji stejne hodnoty v tabulce
+        case ID: //nutno rozlisit ID funkce a ID promenne, ted neprochazi vyrazy jako ID = ID(ID)
+            /*if(isFunction(ID))
+            {
+                if(isDefined(ID))
+                {
+                    return E_FUNC;
+                }
+            }*/
             return E_ID;
         case INT: //mozna budeme muset mapovat jinak kvuli semanticke
             return E_ID;

@@ -17,42 +17,42 @@ void discard_token(t_token *token){
 }
 
 const char key_word_str[35][20] = {
-                "as",       //0
-                "asc",
-                "declare",
-                "dim",
-                "do",
-                "double",   //5
-                "else",
-                "end",
-                "chr",
-                "function",
-                "if",       //10
-                "input",
-                "integer",
-                "length",
-                "loop",
-                "print",    //15
-                "return",
-                "scope",
-                "string",
-                "subStr",
-                "then",     //20
-                "while",
-                "and",
-                "boolean",
-                "continue",
-                "elseif",   //25
-                "exit",
-                "false",
-                "for",
-                "next",
-                "not",      //30
-                "or",
-                "shared",
-                "static",
-                "true"      //34
-        };
+        "as",       //0
+        "asc",
+        "declare",
+        "dim",
+        "do",
+        "double",   //5
+        "else",
+        "end",
+        "chr",
+        "function",
+        "if",       //10
+        "input",
+        "integer",
+        "length",
+        "loop",
+        "print",    //15
+        "return",
+        "scope",
+        "string",
+        "subStr",
+        "then",     //20
+        "while",
+        "and",
+        "boolean",
+        "continue",
+        "elseif",   //25
+        "exit",
+        "false",
+        "for",
+        "next",
+        "not",      //30
+        "or",
+        "shared",
+        "static",
+        "true"      //34
+};
 
 
 
