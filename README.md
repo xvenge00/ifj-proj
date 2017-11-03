@@ -29,4 +29,16 @@ Rozdělení úkolů na další týden:
 - Vojta - parser - nová větev, lexikální analýza formou konečného automatu
 - Ondra - zásobník - implementovat buď do nové větve, nebo do větve k parseru
 
+## Scrum 3 - 1.11.2017
+Overview:
+  - Petr dokončil scanner
+  - Adam udělal testy pro symtable, odhalil bugy
+  - Ondra došel k závěru, že zásobník nejspíš nepotřebujeme, takže dělal kachničku
+  - Vojta napsal základní syntaktickou analýzu bez výrazů
 
+Rozdělení úkolů na další týden:
+- Petr - generování kódu
+- Adam - pokračování testů
+- Vojta - syntaktická analýza výrazů - precedenční tabulka, napsat zásobník, vyhodnotit výrazy
+        - opravit bugy v symtable
+- Ondra - sémantická analýza
