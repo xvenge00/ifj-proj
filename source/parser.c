@@ -14,7 +14,7 @@ t_token* check_next_token_type(int type){
 }
 bool check_token_int_value(t_token * input, int value){
     check_pointer(input);
-
+//
     if(input->data.i != value){
         return false;
     }
