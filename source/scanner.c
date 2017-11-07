@@ -148,7 +148,7 @@ int isOperatorOrSpace(int loaded){
 }
 
 int isValueOrSpace(int loaded){
-    return (isspace(loaded) || isalnum(loaded)|| loaded == EOF || loaded == '_' || loaded == '!');
+    return (isspace(loaded) || isalnum(loaded)|| loaded == EOF || loaded == '_' || loaded == '!' || loaded == '(' || loaded == ')');
 }
 
 t_str_buff *scanner_buff = NULL;
