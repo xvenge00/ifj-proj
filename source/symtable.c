@@ -6,13 +6,15 @@
 #include "main.h"
 
 //konstruktor funkce
-TData *Func_Create(TType return_type, unsigned int attributes_count, TType *attributes_values){
+TData *Func_Create(TType return_type, unsigned int attributes_count, TType *attributes_values,bool isDeclared,bool isDefined){
     TFunction *function = NULL;
     function = my_malloc(sizeof(TFunction));
     if(function != NULL){
         function->return_type = return_type;
         function->attr_count = attributes_count;
         function->attributes = attributes_values;
+        function->isDeclared = isDeclared;
+        function->isDefined = isDefined;
     }
 
     TData *data = my_malloc(sizeof(TData));

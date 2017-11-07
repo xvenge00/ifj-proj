@@ -7,7 +7,7 @@
 #define SUCCESS 1
 
 int parse();
-int function();
+int function(char style[3]);
 int params();
 int commandsAndVariables();
 int expression();

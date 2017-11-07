@@ -1,6 +1,8 @@
 #include "parser.h"
 #include "main.h"
+#include "ast.h"
 #include "scanner.h"
+#include "symtable.h"
 #include <stdlib.h>
 
 t_token* check_next_token_type(int type){
@@ -14,7 +16,7 @@ t_token* check_next_token_type(int type){
 }
 bool check_token_int_value(t_token * input, int value){
     check_pointer(input);
-//
+
     if(input->data.i != value){
         return false;
     }
@@ -34,9 +36,9 @@ void error(int code){
 }
 
 int parse(){
+    Tbl_Create(8);
     t_token * input = get_token();
     check_pointer(input);
-
     while(input->token_type == EOL){
         input = get_token();
         check_pointer(input);
@@ -50,10 +52,11 @@ int parse(){
             case k_declare: //declare
                 input = check_next_token_type(KEY_WORD);
                 check_token_int_value(input,k_function);
-                function();
+                function("Dr");
+
                 return parse();
             case k_function: //function
-                function(); //parametry, konci tokenem EOL
+                function("Df"); //parametry, konci tokenem EOL
                 int correct = commandsAndVariables();
                 if(correct == k_function){ //function
                     return parse();
@@ -75,9 +78,10 @@ int parse(){
     return SUCCESS;
 }
 
-int function(){
+int function(char style[3]){
+
     t_token * input;
-    check_next_token_type(ID);
+    input = check_next_token_type(ID);
     check_next_token_type(LPAR);
         input = get_token();
         check_pointer(input);

@@ -27,6 +27,8 @@ typedef struct {
     TType return_type; //to co vraci ma nejaky typ
     unsigned int attr_count;
     TType *attributes;
+    bool isDeclared;
+    bool isDefined;
 } TFunction;
 
 typedef union {
@@ -61,7 +63,7 @@ typedef struct {
 
 //konstruktory vsech struktur nadeklarovanych vyse
 TData *Var_Create(TValue value, TType type);
-TData *Func_Create(TType return_typ, unsigned int attributes_count, TType * attributes_values);
+TData *Func_Create(TType return_typ, unsigned int attributes_count, TType * attributes_values,bool isDeclared,bool isDefined);
 TSymbol *Sym_Create(Symbol_type type, TData *data, char *name);
 TElement *El_Create(TSymbol *data); //element init
 TTable *Tbl_Create(unsigned int size); //table constructor
