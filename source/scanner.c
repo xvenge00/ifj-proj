@@ -154,15 +154,19 @@ int isValueOrSpace(int loaded){
 t_str_buff *scanner_buff = NULL;
 
 
-t_token *create_token(ttype typ, tdata data){
+t_token *create_token(ttype typ, tdata data, int *line){
     t_token *tmp = my_malloc(sizeof(t_token));
+
 
     tmp->token_type = typ;
     tmp->data = data;
-
+    tmp->line = *line;
     //vymaz buffer
     my_free(scanner_buff->ret);
     my_free(scanner_buff);
+    if (typ == EOL){
+        (*line)++;
+    }
 
     return tmp;
 }
@@ -176,7 +180,7 @@ t_token *get_token(){
 
     scanner_buff = init_buff();     //priprava bufferu
     static int loaded = 0;                      //inicializacia znaku
-    static unsigned line = 0;                   //riadok ktory je spracovavany
+    static unsigned line = 1;                   //riadok ktory je spracovavany
     //zistenie ci neostalo po predchodzom hladany znak
 
     tstate state = s_START;                     //inicializovanie stavu na stav STRAT
@@ -195,8 +199,6 @@ t_token *get_token(){
             loaded = fgetc(f);
         }
 
-        line += (loaded == '\n')? 1 : 0;    //ak je znak \n tak sa je dalsi riadok
-
         switch (state){
             case s_START: //stav START
                 if (isspace(loaded) && (loaded != '\n')){
@@ -214,38 +216,38 @@ t_token *get_token(){
                 } else if (loaded == '!'){  // mozny retazec
                     state = s_str0;
                 } else if (loaded == '+'){  // operacia plus
-                    result = create_token(PLUS, data);
+                    result = create_token(PLUS, data,&line);
                     state = s_OP;
                 } else if (loaded == '-'){  // operacia minus
-                    result = create_token(MINUS, data);
+                    result = create_token(MINUS, data,&line);
                     state = s_OP;
                 } else if (loaded == '*'){  // operacia krat
-                    result = create_token(KRAT, data);
+                    result = create_token(KRAT, data,&line);
                     state = s_OP;
                 } else if (loaded == '\\'){ // operacia modulo
-                    result =  create_token(MOD, data);
+                    result =  create_token(MOD, data,&line);
                     state = s_OP;
                 } else if (loaded == '='){  // operacia zhodne
-                    result = create_token(EQ, data);
+                    result = create_token(EQ, data,&line);
                     state = s_OP;
                 } else if (loaded == '>'){  // operacia porovnania moyne vysledky >= >
                     state = s_GT;
                 } else if (loaded == '<'){// operacia porovnania moyne vysledky <> <= <
                     state = s_LT;
                 } else if (loaded == '\n'){ //EOL
-                    return create_token(EOL, data);
+                    return create_token(EOL, data,&line);
                 } else if (loaded == '('){
-                    result = create_token(LPAR, data);
+                    result = create_token(LPAR, data,&line);
                     state = s_OP;
                 } else if (loaded == ')'){
-                    result = create_token(RPAR, data);
+                    result = create_token(RPAR, data,&line);
                     state = s_OP;
                 }else if (loaded == ','){
-                    return create_token(COMMA, data);
+                    return create_token(COMMA, data,&line);
                 }else if (loaded == ';'){
-                    return create_token(SEMICOLLON, data);
+                    return create_token(SEMICOLLON, data,&line);
                 } else if (loaded == EOF){
-                    return create_token(EMPTY, data);
+                    return create_token(EMPTY, data,&line);
                 }  else {    //narazil na necakany znak
                     append_buff(scanner_buff, loaded);
                     append_buff(scanner_buff,0);
@@ -254,9 +256,10 @@ t_token *get_token(){
                 break;
             case s_line_comment:    // stav sa nemeni pokial neskonci riadok
                 if (loaded == '\n'){
-                    return create_token(EOL, data);
+                    line++;
+                    return create_token(EOL, data,&line);
                 } else if (loaded == EOF){
-                    return create_token(EMPTY, data);
+                    return create_token(EMPTY, data,&line);
                 }
                 break;
             case s_block_coment_0:  // ked je dalsi znak ' tak sa jedna o blok koment, inak je to deleno
@@ -265,7 +268,7 @@ t_token *get_token(){
                 } else {
                     old = loaded;
                     if (isValueOrSpace(loaded)){
-                        return create_token(DELENO, data);
+                        return create_token(DELENO, data,&line);
                     } else {
                         append_buff(scanner_buff,loaded);
                         append_buff(scanner_buff, 0);
@@ -316,9 +319,9 @@ t_token *get_token(){
                     if (pom){
                         my_free(data.s);
                         data.i = pom - 1;
-                        return create_token(KEY_WORD, data);
+                        return create_token(KEY_WORD, data,&line);
                     } else {
-                        return create_token(ID, data);
+                        return create_token(ID, data,&line);
                     }
                 }
                 break;
@@ -341,7 +344,7 @@ t_token *get_token(){
                     }
                     append_buff(scanner_buff,0);
                     data.i = strtol(get_buff(scanner_buff), NULL, 10);
-                    return create_token(INT, data);
+                    return create_token(INT, data,&line);
                 }
                 break;
             case s_double_0:    // desatinna cast realneho cisla
@@ -359,7 +362,7 @@ t_token *get_token(){
                     }
                     append_buff(scanner_buff,0);
                     data.d = strtod(get_buff(scanner_buff),NULL);
-                    return create_token(DOUBLE, data);
+                    return create_token(DOUBLE, data,&line);
                 }
                 break;
             case s_double_1:    // exponent prvy znak
@@ -398,7 +401,7 @@ t_token *get_token(){
                     append_buff(scanner_buff,0);
                     data.d = strtod(get_buff(scanner_buff), NULL);
                     old =loaded;
-                    return create_token(DOUBLE, data);
+                    return create_token(DOUBLE, data,&line);
                 }
                 break;
             case s_str0: // overuje ci sa jedna o string ci su "
@@ -418,7 +421,7 @@ t_token *get_token(){
                     for (int i=0; i<=buff_size(scanner_buff);i++){
                         data.s[i] = buff[i];
                     }
-                    return create_token(STR, data);
+                    return create_token(STR, data,&line);
                 } else if (loaded == '\\'){
                     state = s_str_spec;
                 } else if (loaded > 31 && isascii(loaded)){
@@ -478,25 +481,25 @@ t_token *get_token(){
                 break;
             case s_LT:  // stav mensi nez
                 if (loaded == '>'){
-                    result = create_token(NEQ, data);
+                    result = create_token(NEQ, data,&line);
                     state = s_OP;
                 } else if (loaded == '='){
-                    result = create_token(LE, data);
+                    result = create_token(LE, data,&line);
                     state = s_OP;
                 } else {
                     old = loaded;
-                    result = create_token(LT, data);
+                    result = create_token(LT, data,&line);
                     state = s_OP;
 
                 }
                 break;
             case s_GT:  // stav vasci nez
                 if (loaded == '='){
-                    result =  create_token(GE,data);
+                    result =  create_token(GE,data,&line);
                     state = s_OP;
                 } else {
                     old = loaded;
-                    result =  create_token(GT,data);
+                    result =  create_token(GT,data,&line);
                     state = s_OP;
                 }
                 break;
