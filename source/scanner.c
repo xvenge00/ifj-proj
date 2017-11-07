@@ -84,19 +84,11 @@ void ERR_LEX(tstate state, char *loaded, int line){
     }  else {
         fprintf(stderr, " mozno ste mysleli ");
         for (int i = 0; i < strlen(loaded) - 1; ++i) {
-            putchar(loaded[i]);
+            fputc(loaded[i], stderr);
         }
         putchar('\n');
     }
-        /*
 
-    fprintf(stderr,"ERR_LEX : na riadku %d je nespravne dany prvok %s\n", line, loaded);
-    if (state == s_START){
-        printf("pouzivate znak mimo ascii\n");
-    } else {
-        fprintf(stderr, "neznama chyba\n"); // todo dorobit pre ostatne stavy
-    }
-*/
     clear_all();
     exit(ERR_LEXIK);
 }
@@ -154,7 +146,7 @@ int isValueOrSpace(int loaded){
 t_str_buff *scanner_buff = NULL;
 
 
-t_token *create_token(ttype typ, tdata data, int *line){
+t_token *create_token(ttype typ, tdata data, unsigned *line){
     t_token *tmp = my_malloc(sizeof(t_token));
 
 
@@ -164,6 +156,8 @@ t_token *create_token(ttype typ, tdata data, int *line){
     //vymaz buffer
     my_free(scanner_buff->ret);
     my_free(scanner_buff);
+    scanner_buff->top = 0;
+    scanner_buff->max = 0;
     if (typ == EOL){
         (*line)++;
     }
@@ -309,7 +303,7 @@ t_token *get_token(){
                     data.s = my_malloc(sizeof(char)*(buff_size(scanner_buff)));
                     //prekopirovanie str
                     for (int i=0; i<buff_size(scanner_buff);i++){
-                        data.s[i] = tolower(buff[i]);
+                        data.s[i] = (char)tolower(buff[i]);
                     }
 
                     old = loaded;
@@ -343,7 +337,7 @@ t_token *get_token(){
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
                     append_buff(scanner_buff,0);
-                    data.i = strtol(get_buff(scanner_buff), NULL, 10);
+                    data.i = (int)strtol(get_buff(scanner_buff), NULL, 10);
                     return create_token(INT, data,&line);
                 }
                 break;
@@ -508,13 +502,8 @@ t_token *get_token(){
                     old = loaded;
                     return result;
                 } else{
-                    append_buff(scanner_buff, loaded);
-                    append_buff(scanner_buff, 0);
-
-                    ERR_LEX(state, get_buff(scanner_buff), line);
+                   ERR_LEX(state, "operacia", line);
                 }
-
-                //todo dorobit ostatne typy a doplnit
         }
     }while (loaded != EOF);
     //sem by sa nikdy nemal dostat ak ano niekde je chyba
