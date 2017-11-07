@@ -236,7 +236,7 @@ TElement * Tbl_GetDirect(TTable* tbl, char* name){
         for(unsigned int i = 0; i<tbl->size; i++){
             TElement *active = tbl->list_firsts[i];
             if(active != NULL){ //je tam prvni
-                if(active->key == name){
+                if(*(active->key) == *name){
                     found = active;
                     return found;
                 }

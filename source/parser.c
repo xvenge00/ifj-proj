@@ -1,9 +1,12 @@
 #include "parser.h"
 #include "main.h"
-#include "ast.h"
-#include "scanner.h"
+
+
 #include "symtable.h"
+#include "memwork.h"
 #include <stdlib.h>
+#include <stdbool.h>
+
 
 t_token* check_next_token_type(int type){
     t_token * input = get_token();
@@ -35,8 +38,13 @@ void error(int code){
     exit(code);
 }
 
-int parse(){
-    Tbl_Create(8);
+void semerror(int code){
+    fprintf(stderr,"Error v semanticke analyze.\n");
+    exit(code);
+}
+
+int parse(TTable* Table){
+  //  TTable* Table = Tbl_Create(8);
     t_token * input = get_token();
     check_pointer(input);
     while(input->token_type == EOL){
@@ -52,14 +60,14 @@ int parse(){
             case k_declare: //declare
                 input = check_next_token_type(KEY_WORD);
                 check_token_int_value(input,k_function);
-                function("Dr");
+                function(k_declare, Table);
 
-                return parse();
+                return parse(Table);
             case k_function: //function
-                function("Df"); //parametry, konci tokenem EOL
+                function(k_function, Table); //parametry, konci tokenem EOL
                 int correct = commandsAndVariables();
                 if(correct == k_function){ //function
-                    return parse();
+                    return parse(Table);
                 }
                 else{
                     error(ERR_SYNTA);
@@ -78,42 +86,94 @@ int parse(){
     return SUCCESS;
 }
 
-int function(char style[3]){
-
-    t_token * input;
+int function(int decDef ,TTable* Table) {
+    t_token *input;
     input = check_next_token_type(ID);
+    TElement *getElement = Tbl_GetDirect(Table, input->data.s);
+    TFunction *func = NULL;
+    TFunction *tempfunc = NULL;
+    TSymbol *sym = NULL;
+    if (getElement == NULL) {
+        func = my_malloc(sizeof(TFunction));
+        sym = my_malloc(sizeof(TSymbol));
+        sym->isDeclared = false;
+        sym->isDefined = false;
+        func->attr_count = 0;
+        func->attributes = my_malloc(sizeof(TType));
+        if (decDef == k_declare) {
+            sym->isDeclared = true;
+        } else if (decDef == k_function) {
+            sym->isDefined = true;
+        }
+        sym->name = input->data.s;
+        sym->type = ST_Function;
+        sym->data->func = func;
+    } else {
+        if (getElement->data->isDefined == true && decDef == k_function) {
+            semerror(ERR_SEM_P);
+        } else if (getElement->data->isDeclared == true && decDef == k_declare) {
+            semerror(ERR_SEM_P);
+        } else if (getElement->data->isDefined == true && decDef == k_declare) {
+            semerror(ERR_SEM_P);
+        }
+        func = my_malloc(sizeof(TFunction));
+       // func = getElement->data->data->func;
+        func->attr_count = 0;
+        func->attributes = my_malloc(sizeof(TType));
+        sym = getElement->data;
+
+    }
     check_next_token_type(LPAR);
-        input = get_token();
-        check_pointer(input);
-        if (input->token_type == ID) {
-            params(); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
-        }
-        else if (input->token_type == RPAR) {}
-        else {
-            error(ERR_SYNTA);
-        }
+    input = get_token();
+    check_pointer(input);
+    if (input->token_type == ID) {
+
+        params(func); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
+    } else if (input->token_type == RPAR) {}
+    else {
+        error(ERR_SYNTA);
+    }
 
     input = check_next_token_type(KEY_WORD);
     check_token_int_value(input, k_as); //as
 
     input = check_next_token_type(KEY_WORD);
-    if(check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) || check_token_int_value(input, k_string)) //return_type je datovy typ
+    if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
+        check_token_int_value(input, k_string)) //return_type je datovy typ
     {
+        func->return_type = input->data.i;
         check_next_token_type(EOL);
+        if (getElement != NULL) {
+            if (func->attr_count == sym->data->func->attr_count
+                && *(func->attributes) == *(sym->data->func->attributes)
+                && func->return_type == sym->data->func->return_type) {
+                sym->isDefined = true;
+            } else{
+                semerror(ERR_SEM_P);
+            }
+        } else {
+            Tbl_Insert(Table,El_Create(sym));
+        }
         return SUCCESS;
     } else {
         error(ERR_SYNTA);
     }
+
+
 }
 
-int params() {
+
+int params(TFunction *functions) {
     t_token *input = check_next_token_type(KEY_WORD);
     if (check_token_int_value(input, k_as)) { //as
+        functions->attr_count++;
+        functions->attributes = my_realloc(functions->attributes,sizeof(TType)*functions->attr_count);
         input = check_next_token_type(KEY_WORD);
 
         if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
             check_token_int_value(input, k_string)) //return_type je datovy typ
         {
+            functions->attributes[functions->attr_count-1]=input->data.i;
             input = get_token();
             check_pointer(input);
 
@@ -123,7 +183,7 @@ int params() {
                     error(ERR_SYNTA);
                 }
                 check_next_token_type(ID);
-                return params();
+                return params(functions);
             } else if (input->token_type == RPAR) {
                 return SUCCESS;
             }

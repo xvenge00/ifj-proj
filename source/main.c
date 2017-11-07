@@ -25,7 +25,8 @@ int main(int argc, char** argv) {
     //if (result = init()){   //inicializacia struktur
     //    //osetrenie chyb
     //}
-    if (result = parse()){
+    TTable* Table = Tbl_Create(8);
+    if (result = parse(Table)){
         //osetrenie chyb
     }
     if(result=generate_code()){
