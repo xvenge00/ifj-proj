@@ -83,7 +83,7 @@ void ERR_LEX(tstate state, char *loaded, int line){
         fprintf(stderr, "escape sekvenia potrebuje 3 cisla\n");
     }  else {
         fprintf(stderr, " mozno ste mysleli ");
-        for (int i = 0; i < strlen(loaded) - 1; ++i) {
+        for (unsigned i = 0; i < strlen(loaded) - 1; ++i) {
             fputc(loaded[i], stderr);
         }
         putchar('\n');
