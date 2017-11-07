@@ -228,6 +228,8 @@ t_token *get_token(){
             case s_line_comment:    // stav sa nemeni pokial neskonci riadok
                 if (loaded == '\n'){
                     return create_token(EOL, data);
+                } else if (loaded == EOF){
+                    return create_token(EMPTY, data);
                 }
                 break;
             case s_block_coment_0:  // ked je dalsi znak ' tak sa jedna o blok koment, inak je to deleno
@@ -247,6 +249,8 @@ t_token *get_token(){
             case s_block_coment_1: //blokovy koment pokial nenajde ' potom sa mozno jedna o konec komentu takze dalsi stav
                 if (loaded == '\''){
                     state = s_block_coment_2;
+                } else if (loaded == EOF) {
+                    ERR_LEX(state, get_buff(scanner_buff),line);
                 } else {
                     state = s_block_coment_1;
                 }
@@ -254,6 +258,8 @@ t_token *get_token(){
             case s_block_coment_2:  // pokial sa naslo / tak konci blokovy koment inak sa vrati do predosleho stavu
                 if (loaded == '/'){
                     state = s_START;
+                } else if (loaded == EOF){
+                    ERR_LEX(state, get_buff(scanner_buff),line);
                 } else {
                     state = s_block_coment_1;
                 }
