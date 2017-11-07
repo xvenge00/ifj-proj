@@ -82,7 +82,7 @@ void ERR_LEX(tstate state, char *loaded, int line){
     }else if (state == s_str_spec_hexa0 || state == s_str_spec_hexa1){
         fprintf(stderr, "escape sekvenia potrebuje 3 cisla\n");
     }  else {
-        fprintf(stderr, " mozno ste mysleli ", line, loaded);
+        fprintf(stderr, " mozno ste mysleli ");
         for (int i = 0; i < strlen(loaded) - 1; ++i) {
             putchar(loaded[i]);
         }
