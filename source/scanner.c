@@ -174,7 +174,7 @@ t_token *get_token(){
     tdata data;
     data.s = NULL;
 
-    scanner_buff = init_buff(scanner_buff);     //priprava bufferu
+    scanner_buff = init_buff();     //priprava bufferu
     static int loaded = 0;                      //inicializacia znaku
     static unsigned line = 0;                   //riadok ktory je spracovavany
     //zistenie ci neostalo po predchodzom hladany znak
