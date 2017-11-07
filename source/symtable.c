@@ -6,24 +6,32 @@
 #include "main.h"
 
 //konstruktor funkce
-TData *Func_Create(TType return_type, unsigned int attributes_count, TType *attributes_values,bool isDeclared,bool isDefined){
+TData *Func_Create(int return_type, unsigned int attributes_count, int *attributes_values) {
     TFunction *function = NULL;
     function = my_malloc(sizeof(TFunction));
-    if(function != NULL){
+    if (function != NULL) {
         function->return_type = return_type;
         function->attr_count = attributes_count;
-        function->attributes = attributes_values;
-        function->isDeclared = isDeclared;
-        function->isDefined = isDefined;
+        if (attributes_count == 0) {
+            if (attributes_values == NULL) {
+                function->attributes = NULL;
+            } else {
+                my_free(function);
+                return NULL;
+            }
+        } else {
+            if (attributes_values != NULL) {
+                function->attributes = attributes_values;
+            } else {
+                my_free(function);
+                return NULL;
+            }
+        }
     }
-
-    TData *data = my_malloc(sizeof(TData));
-    data->func = function;
-    return data;
 }
 
 //konstruktor promenne
-TData * Var_Create(TValue value, TType type){
+TData * Var_Create(TValue value, int type){
     TVariable *var = NULL;
     var = my_malloc(sizeof(TVariable));
     if(var != NULL){

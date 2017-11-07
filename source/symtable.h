@@ -1,15 +1,16 @@
 //Author: xrandy00 14.10.2017
 
 #include <stdbool.h>
+#include "scanner.h"
 
 #ifndef IFJ_PROJ_SYMTABLE_H
 #define IFJ_PROJ_SYMTABLE_H
 
 typedef enum {
-    E_integer = 0,
-    E_double,
-    E_string,
-    E_void
+    E_integer = k_integer,
+    E_double = k_double,
+    E_string = k_string,
+    E_void = 42
 } TType;
 
 typedef union {
@@ -20,13 +21,13 @@ typedef union {
 
 typedef struct {
     TValue value; //obsah
-    TType type; //datovy typ - enum
+    int type; //viz enum TType
 } TVariable;
 
 typedef struct {
-    TType return_type; //to co vraci ma nejaky typ
+    int return_type; //to co vraci ma nejaky typ
     unsigned int attr_count;
-    TType *attributes;
+    int *attributes; //pole integeru z TType
     bool isDeclared;
     bool isDefined;
 } TFunction;
@@ -62,8 +63,8 @@ typedef struct {
 } TTable; //samotna tabulka
 
 //konstruktory vsech struktur nadeklarovanych vyse
-TData *Var_Create(TValue value, TType type);
-TData *Func_Create(TType return_typ, unsigned int attributes_count, TType * attributes_values,bool isDeclared,bool isDefined);
+TData *Var_Create(TValue value, int type);
+TData *Func_Create(int return_typ, unsigned int attributes_count, int * attribute_types);
 TSymbol *Sym_Create(Symbol_type type, TData *data, char *name);
 TElement *El_Create(TSymbol *data); //element init
 TTable *Tbl_Create(unsigned int size); //table constructor

@@ -16,7 +16,7 @@ namespace {
         int i;
         double d;
         char *s;
-        TType type;
+        int type;
         TValue val;
         TData *variable;
 
@@ -62,7 +62,6 @@ TEST_F(variable_fixture, var_create_double) {
 
 TEST_F(variable_fixture, var_create_string) {
     type = E_string;
-
     s = "ahoj";
     val.s = s;
     EXPECT_NO_FATAL_FAILURE(variable = Var_Create(val, type));
@@ -75,9 +74,9 @@ namespace {
     class function_fixture : public ::testing::Test {
     protected:
         TData *function;
-        TType retType;
+        int retType;
         unsigned int count;
-        TType attr[10];
+        int attr[10];
     };
 }
 
