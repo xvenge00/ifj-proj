@@ -73,6 +73,7 @@ TTable *Tbl_Create(unsigned int size); //table constructor
 void El_Free(TElement* element); //uvolni postupne vsechny soucasti elementu az do nejnizsi urovne
 int Tbl_Insert(TTable* tbl, TElement* el); //vlozi do tabulky tbl element el
 bool Tbl_Search(TTable* tbl, char* name); //vraci true, pokud v tbl existuje element s name
+TElement * Tbl_GetDirect(TTable* tbl, char* name);
 void El_Delete(TTable* tbl, char* name); //smaze z tabulky element s name
 void Tbl_Copy(TTable* tbl, char* name, TElement* el); //vraci v el to co je v tbl s name
 void Tbl_Resize(TTable* tbl);

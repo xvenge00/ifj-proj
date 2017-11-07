@@ -219,6 +219,37 @@ bool Tbl_Search(TTable* tbl, char *name){
     }
     return found;
 }
+/* Vrací ukazatel na prvek tabulky, umožňuje přímý přístup k datům, funguje na stejném principu jako Search.
+ * Vrací NULL pokud element s keky name není nalezen.
+ * */
+TElement * Tbl_GetDirect(TTable* tbl, char* name){
+    TElement * found = NULL;
+    if(tbl != NULL){
+        for(unsigned int i = 0; i<tbl->size; i++){
+            TElement *active = tbl->list_firsts[i];
+            if(active != NULL){ //je tam prvni
+                if(active->key == name){
+                    found = active;
+                    return found;
+                }
+                while (active->next != NULL){ //je jich vic
+                    active = active->next;
+                    if(active->key == name){
+                        found = active;
+                        return found;
+                    }
+                }
+                if(active->key == name){
+                    found = active;
+                    return found;
+                }
+            }
+        }
+        return found;
+    }
+    return found;
+}
+
 
 void El_Free(TElement* element){
     if(element->data->type == ST_Variable){
