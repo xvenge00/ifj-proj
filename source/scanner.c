@@ -63,13 +63,40 @@ const char key_word_str[35][20] = {
  * @param line
  */
 void ERR_LEX(tstate state, char *loaded, int line){
+
+    fprintf(stderr,"ERR_LEX : neplatna lexema na riadku :%i  -- %s\n", line, loaded);
+    if (state == s_block_coment_1 || state == s_block_coment_2){
+        fprintf(stderr, "neukonceny blokovy koment\n");
+    } else if (state == s_START){
+        fprintf(stderr, "neplatny znak\n");
+    } else if (state == s_double_1){
+        fprintf(stderr, "po e musi nasledovat cislo alebo +/-\n");
+    }else if (state == s_double_2){
+        fprintf(stderr, "po e+/- musi nasledovat cislo\n");
+    } else if (state == s_str0){
+        fprintf(stderr, "mozno ste mysleli !\"\"\n");
+    } else if (state == s_strL){
+        fprintf(stderr, "retazec moze obsahovat znaky z ASCII vysie ako 31 !\"\"\n");
+    } else if (state == s_str_spec){
+        fprintf(stderr, "po znaku \\ moye nasledovat cislo 000 - 255 n t ...\n");
+    }else if (state == s_str_spec_hexa0 || state == s_str_spec_hexa1){
+        fprintf(stderr, "escape sekvenia potrebuje 3 cisla\n");
+    }  else {
+        fprintf(stderr, " mozno ste mysleli ", line, loaded);
+        for (int i = 0; i < strlen(loaded) - 1; ++i) {
+            putchar(loaded[i]);
+        }
+        putchar('\n');
+    }
+        /*
+
     fprintf(stderr,"ERR_LEX : na riadku %d je nespravne dany prvok %s\n", line, loaded);
     if (state == s_START){
         printf("pouzivate znak mimo ascii\n");
     } else {
         fprintf(stderr, "neznama chyba\n"); // todo dorobit pre ostatne stavy
     }
-
+*/
     clear_all();
     exit(ERR_LEXIK);
 }
@@ -378,6 +405,7 @@ t_token *get_token(){
                 if (loaded == '"'){
                     state = s_strL;
                 } else {
+                    append_buff(scanner_buff,'!');
                     append_buff(scanner_buff,loaded);
                     append_buff(scanner_buff, 0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
@@ -393,7 +421,7 @@ t_token *get_token(){
                     return create_token(STR, data);
                 } else if (loaded == '\\'){
                     state = s_str_spec;
-                } else if (loaded < 256){
+                } else if (loaded > 31 && isascii(loaded)){
                     append_buff(scanner_buff,loaded);
                 } else {
                     append_buff(scanner_buff,loaded);
