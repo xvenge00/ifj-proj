@@ -28,8 +28,6 @@ typedef struct {
     int return_type; //to co vraci ma nejaky typ
     unsigned int attr_count;
     int *attributes; //pole integeru z TType
-    bool isDeclared;
-    bool isDefined;
 } TFunction;
 
 typedef union {
@@ -46,12 +44,13 @@ typedef struct {
     Symbol_type type; //enum var/func
     TData *data;
     char* name;
+    bool isDeclared;
+    bool isDefined;
 } TSymbol;
 
 typedef struct TElement{
     char* key; //identifikator
     unsigned int hash; //hash identifikatoru
-
     TSymbol* data; //pointer na symbol obsahujici data a datovy typ
     struct TElement * next; // link na dalsi prvek seznamu
 } TElement; //prvek seznamu elementu se stejnym key (hashle jmeno)
@@ -65,7 +64,7 @@ typedef struct {
 //konstruktory vsech struktur nadeklarovanych vyse
 TData *Var_Create(TValue value, int type);
 TData *Func_Create(int return_typ, unsigned int attributes_count, int * attribute_types);
-TSymbol *Sym_Create(Symbol_type type, TData *data, char *name);
+TSymbol *Sym_Create(Symbol_type type, TData *data, char *name); //možná přidat isDeclared a isDefined i do konstruktoru?
 TElement *El_Create(TSymbol *data); //element init
 TTable *Tbl_Create(unsigned int size); //table constructor
 

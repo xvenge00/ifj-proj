@@ -2,6 +2,8 @@
 #include "parser.h"
 #include "main.h"
 #include "memwork.h"
+#include "symtable.h"
+#include "scanner.h"
 
 enum{
     xx
@@ -251,7 +253,7 @@ const int precedence_table[17][17] = {
 /* \    */ { GT, GT, LT, LT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
 /* (    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, xx, LT, EQ, },
 /* )    */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, },
-/* id   */ { GT, GT, GT, GT, GT, EQ, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, }, //ID x ( ma byt xx, tohle je kvuli debugu funkci
+/* id   */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, }, //ID x ( ma byt xx, tohle je kvuli debugu funkci
 /* <    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
 /* <=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
 /* >    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
@@ -266,7 +268,6 @@ const int precedence_table[17][17] = {
 int code_type(int *dollar_source){
     t_token * input = get_token();
     int i = input->token_type;
-    int result = -1;
     switch(i) {
         case PLUS:
             return E_PLUS;
@@ -283,14 +284,20 @@ int code_type(int *dollar_source){
         case RPAR:
             return E_RPAR;
         case ID: //nutno rozlisit ID funkce a ID promenne, ted neprochazi vyrazy jako ID = ID(ID)
-            /*if(isFunction(ID))
+        /*{
+            TElement* found = Tbl_GetDirect(global_table, input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
+            if(found != NULL)
             {
-                if(isDefined(ID))
-                {
+                if(found->data->type == ST_Function && found->data->isDefined) {
                     return E_FUNC;
+                } else if(found->data->type == ST_Variable && found->data->isDefined){
+                    return ID;
+                } else {
+                    return -1; //ERR_SEMANTIC
                 }
-            }*/
-            return E_ID;
+            }
+        }*/
+            return -1;
         case INT: //mozna budeme muset mapovat jinak kvuli semanticke
             return E_ID;
         case DOUBLE:
@@ -321,7 +328,7 @@ int code_type(int *dollar_source){
             *dollar_source = input->data.i;
             return E_DOLLAR;
         default:
-            return result;
+            return -1;
     }
 }
 
@@ -332,6 +339,7 @@ int code_type(int *dollar_source){
  * Priklady takovych tokenu - EOL, Then, Semicolon
  * Pro Then je navratova hodnota tedy 120
  * */
+
 int expression(){
     Stack stack;
     Stack_init(&stack);
