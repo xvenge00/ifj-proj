@@ -4,47 +4,14 @@
 #include "memwork.h"
 #include "symtable.h"
 #include "scanner.h"
-
-enum{
-    xx
-}table_values;
-
-enum{
-    E_PLUS = 0,
-    E_MINUS,
-    E_MUL,
-    E_DIV,
-    E_MOD,
-    E_LPAR, //5
-    E_RPAR,
-    E_ID,
-    E_LT,
-    E_LE,
-    E_GT, //10
-    E_GE,
-    E_EQ,
-    E_NEQ,
-    E_DOLLAR, //15
-    E_FUNC,
-    E_COMMA,
-    E_E //18
-}types;
-
-typedef struct element{
-    int type;
-    struct element *next;
-} Element; //prvek zásobníku - type bude zakodovany typ symbolu, next ukazatel na dalsi
-
-typedef struct stack{
-    Element *active; //ukazuje na nejvrchnejsi terminal
-    Element *top; //ukazuje na vrchol zasobniku
-}Stack;
-
+#include "expression.h"
+#include "stack_token.h"
 
 void Stack_init(Stack * stack){
     stack->top = NULL;
     stack->active = NULL;
 }
+
 //smaze zasobnik, uvolni pamet
 int Stack_dispose(Stack * stack){
     check_pointer(stack);
@@ -265,9 +232,17 @@ const int precedence_table[17][17] = {
 /* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
 };
 
-int code_type(int *dollar_source){
+int code_type(int *dollar_source, TSymbol *ret_sym){
     t_token * input = get_token();
+    ret_sym = input;
+    static int was_funct = 0;
     int i = input->token_type;
+
+    if (!was_funct && i != LPAR){
+        clear_all();
+        exit(ERR_SEM_P);
+    }
+
     switch(i) {
         case PLUS:
             return E_PLUS;
@@ -284,11 +259,12 @@ int code_type(int *dollar_source){
         case RPAR:
             return E_RPAR;
         case ID: //nutno rozlisit ID funkce a ID promenne, ted neprochazi vyrazy jako ID = ID(ID)
-        /*{
-            TElement* found = Tbl_GetDirect(global_table, input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
+        {
+            TElement* found = Tbl_GetDirect(Table, input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
             if(found != NULL)
             {
                 if(found->data->type == ST_Function && found->data->isDefined) {
+                    was_funct = 1;
                     return E_FUNC;
                 } else if(found->data->type == ST_Variable && found->data->isDefined){
                     return ID;
@@ -296,7 +272,8 @@ int code_type(int *dollar_source){
                     return -1; //ERR_SEMANTIC
                 }
             }
-        }*/
+        }
+            //pozreme do symtable
             return E_ID;
         case INT: //mozna budeme muset mapovat jinak kvuli semanticke
             return E_ID;
@@ -347,7 +324,8 @@ int expression(){
     int a;
     int b;
     int dollar_source = 0;
-    b = code_type(&dollar_source); //prekodovani typu tokenu na index do tabulky
+    t_token *my_token;
+    b = code_type(&dollar_source, my_token); //prekodovani typu tokenu na index do tabulky
     if(b==E_DOLLAR && dollar_source == EOL) {
         Stack_dispose(&stack);
         return dollar_source;
@@ -358,12 +336,13 @@ int expression(){
         switch(precedence_table[a][b]){
             case EQ:
                 Stack_push(&stack,b);
-                b = code_type(&dollar_source);
+                Stac
+                b = code_type(&dollar_source, my_token);
                 break;
             case LT:
                 Stack_expand(&stack);
                 Stack_push(&stack, b);
-                b = code_type(&dollar_source);
+                b = code_type(&dollar_source, my_token);
                 break;
             case GT:
                 ruleNumber = rule(&stack);

@@ -94,16 +94,18 @@ int function(int decDef, TTable *Table, TTable *local) {
     input = check_next_token_type(ID);
     TElement *getElement = Tbl_GetDirect(Table, input->data.s);
     TFunction *func = NULL;
-    //TFunction *tempfunc = NULL;
     TSymbol *sym = NULL;
     if (getElement == NULL) {
-        func = my_malloc(sizeof(TFunction));
+        func = my_malloc(sizeof(TFunction));        //TODO prerob na func_create
         sym = my_malloc(sizeof(TSymbol));
         sym->data = my_malloc(sizeof(TData));
         sym->isDeclared = false;
         sym->isDefined = false;
         func->attr_count = 0;
         func->attributes = my_malloc(sizeof(TType));
+
+        func->lok_table = local;
+
         if (decDef == k_declare) {
             sym->isDeclared = true;
         } else if (decDef == k_function) {
