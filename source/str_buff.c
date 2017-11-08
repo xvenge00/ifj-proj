@@ -25,7 +25,7 @@ void append_buff(t_str_buff *buffer, char c){
         buffer->max += 50;
         buffer->ret = my_realloc(buffer->ret,sizeof(char) * buffer->max);
 
-        for (int i = buffer->top + 1; i < buffer->max; ++i) {
+        for (unsigned i = buffer->top + 1; i < buffer->max; ++i) {
             buffer->ret[i] = 0;
         }
     }
