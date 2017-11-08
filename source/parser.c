@@ -4,6 +4,7 @@
 
 #include "symtable.h"
 #include "memwork.h"
+#include "scanner.h"
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -44,7 +45,7 @@ void semerror(int code){
 }
 
 int parse(TTable* Table){
-  //  TTable* Table = Tbl_Create(8);
+
     t_token * input = get_token();
     check_pointer(input);
     while(input->token_type == EOL){
@@ -60,18 +61,21 @@ int parse(TTable* Table){
             case k_declare: //declare
                 input = check_next_token_type(KEY_WORD);
                 check_token_int_value(input,k_function);
-                function(k_declare, Table);
+                function(k_declare, Table,NULL);
 
                 return parse(Table);
-            case k_function: //function
-                function(k_function, Table); //parametry, konci tokenem EOL
+            case k_function:{ //function
+                TTable* local = Tbl_Create(8);
+                function(k_function, Table,local); //parametry, konci tokenem EOL
+
                 int correct = commandsAndVariables();
                 if(correct == k_function){ //function
                     return parse(Table);
                 }
+
                 else{
                     error(ERR_SYNTA);
-                }
+                }}
             case k_scope: //scope
                 if(scope() == SUCCESS){
                     return SUCCESS;
@@ -86,7 +90,7 @@ int parse(TTable* Table){
     return SUCCESS;
 }
 
-int function(int decDef ,TTable* Table) {
+int function(int decDef ,TTable* Table,TTable* local) {
     t_token *input;
     input = check_next_token_type(ID);
     TElement *getElement = Tbl_GetDirect(Table, input->data.s);
@@ -126,9 +130,13 @@ int function(int decDef ,TTable* Table) {
     check_next_token_type(LPAR);
     input = get_token();
     check_pointer(input);
+    char* name;
     if (input->token_type == ID) {
+        if (decDef == k_function){
+           name  = input->data.s;
 
-        params(func); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
+        }
+        params(func,local,name); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
     } else if (input->token_type == RPAR) {}
     else {
         error(ERR_SYNTA);
@@ -163,7 +171,7 @@ int function(int decDef ,TTable* Table) {
 }
 
 
-int params(TFunction *functions) {
+int params(TFunction *functions,TTable* local,char* name) {
     t_token *input = check_next_token_type(KEY_WORD);
     if (check_token_int_value(input, k_as)) { //as
         functions->attr_count++;
@@ -174,6 +182,28 @@ int params(TFunction *functions) {
             check_token_int_value(input, k_string)) //return_type je datovy typ
         {
             functions->attributes[functions->attr_count-1]=input->data.i;
+            if (name != NULL){
+                TElement* lelement = Tbl_GetDirect(local,name);
+                TSymbol* lsymbol = my_malloc(sizeof(TSymbol));
+                TVariable* lvariable= my_malloc(sizeof(TVariable));
+                if (lelement != NULL){
+                    semerror(ERR_SEM_P);
+                }
+            lsymbol->isDeclared =true;
+            lsymbol->type=ST_Variable;
+            lvariable->type = input->data.i;
+            if (input->data.i == k_integer){
+                lvariable->value.i =0;
+            }
+            if (input->data.i == k_double){
+                lvariable->value.d =0.0;
+            }
+            if (input->data.i == k_string){
+                lvariable->value.s ="!""";
+            }
+            lsymbol->data->var = lvariable;
+            Tbl_Insert(local,El_Create(lsymbol));
+            }
             input = get_token();
             check_pointer(input);
 
@@ -182,8 +212,9 @@ int params(TFunction *functions) {
                 if (input == NULL) {
                     error(ERR_SYNTA);
                 }
-                check_next_token_type(ID);
-                return params(functions);
+                input = check_next_token_type(ID);
+                name = input->data.s;
+                return params(functions,local,name);
             } else if (input->token_type == RPAR) {
                 return SUCCESS;
             }
@@ -319,7 +350,7 @@ int print_params(){
 
 int scope(){
     check_next_token_type(EOL);
-    int res = commandsAndVariables();
+        int res = commandsAndVariables();
     if(res == k_scope){
         t_token * input = get_token();
         check_pointer(input);

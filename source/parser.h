@@ -7,8 +7,8 @@
 #define SUCCESS 1
 
 int parse(TTable* Table);
-int function(int decDef,TTable* Table);
-int params(TFunction *functions);
+int function(int decDef,TTable* Table,TTable* local);
+int params(TFunction *functions,TTable* local,char* name);
 int commandsAndVariables();
 int expression();
 int expressionOrFunction();
