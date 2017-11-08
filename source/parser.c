@@ -9,46 +9,47 @@
 #include <stdbool.h>
 
 
-t_token* check_next_token_type(int type){
-    t_token * input = get_token();
+t_token *check_next_token_type(int type) {
+    t_token *input = get_token();
     check_pointer(input);
 
-    if(input->token_type != type){
+    if (input->token_type != type) {
         error(ERR_SYNTA);
     }
     return input;
 }
-bool check_token_int_value(t_token * input, int value){
+
+bool check_token_int_value(t_token *input, int value) {
     check_pointer(input);
 
-    if(input->data.i != value){
+    if (input->data.i != value) {
         return false;
     }
     return true;
 }
 
-bool check_pointer(void * input) {
-    if(input == NULL){
+bool check_pointer(void *input) {
+    if (input == NULL) {
         error(ERR_SYNTA);
     }
     return true;
 }
 
-void error(int code){
-    fprintf(stderr,"Error v syntakticke analyze - spatny typ tokenu.\n");
+void error(int code) {
+    fprintf(stderr, "Error v syntakticke analyze - spatny typ tokenu.\n");
     exit(code);
 }
 
-void semerror(int code){
-    fprintf(stderr,"Error v semanticke analyze.\n");
+void semerror(int code) {
+    fprintf(stderr, "Error v semanticke analyze.\n");
     exit(code);
 }
 
-int parse(TTable* Table){
+int parse(TTable *Table) {
 
-    t_token * input = get_token();
+    t_token *input = get_token();
     check_pointer(input);
-    while(input->token_type == EOL){
+    while (input->token_type == EOL) {
         input = get_token();
         check_pointer(input);
     }
@@ -60,46 +61,45 @@ int parse(TTable* Table){
         switch (value.i) {
             case k_declare: //declare
                 input = check_next_token_type(KEY_WORD);
-                check_token_int_value(input,k_function);
-                function(k_declare, Table,NULL);
+                check_token_int_value(input, k_function);
+                function(k_declare, Table, NULL);
 
                 return parse(Table);
-            case k_function:{ //function
-                TTable* local = Tbl_Create(8);
-                function(k_function, Table,local); //parametry, konci tokenem EOL
+            case k_function: { //function
+                TTable *local = Tbl_Create(8);
+                function(k_function, Table, local); //parametry, konci tokenem EOL
 
                 int correct = commandsAndVariables(local);
-                if(correct == k_function){ //function
+                if (correct == k_function) { //function
                     return parse(Table);
-                }
-
-                else{
+                } else {
                     error(ERR_SYNTA);
-                }}
+                }
+            }
             case k_scope: //scope
-                if(scope() == SUCCESS){
+                if (scope() == SUCCESS) {
                     return SUCCESS;
                 }
             default:
                 error(ERR_SYNTA);
         }
-    }
-    else {
+    } else {
         error(ERR_SYNTA);
     }
     return SUCCESS;
 }
 
-int function(int decDef ,TTable* Table,TTable* local) {
+int function(int decDef, TTable *Table, TTable *local) {
     t_token *input;
     input = check_next_token_type(ID);
     TElement *getElement = Tbl_GetDirect(Table, input->data.s);
     TFunction *func = NULL;
-    TFunction *tempfunc = NULL;
+    //TFunction *tempfunc = NULL;
     TSymbol *sym = NULL;
     if (getElement == NULL) {
         func = my_malloc(sizeof(TFunction));
         sym = my_malloc(sizeof(TSymbol));
+        sym->data = my_malloc(sizeof(TData));
         sym->isDeclared = false;
         sym->isDefined = false;
         func->attr_count = 0;
@@ -121,7 +121,7 @@ int function(int decDef ,TTable* Table,TTable* local) {
             semerror(ERR_SEM_P);
         }
         func = my_malloc(sizeof(TFunction));
-       // func = getElement->data->data->func;
+        // func = getElement->data->data->func;
         func->attr_count = 0;
         func->attributes = my_malloc(sizeof(TType));
         sym = getElement->data;
@@ -130,13 +130,14 @@ int function(int decDef ,TTable* Table,TTable* local) {
     check_next_token_type(LPAR);
     input = get_token();
     check_pointer(input);
-    char* name;
+    char *name;
     if (input->token_type == ID) {
-        if (decDef == k_function){
-           name  = input->data.s;
+        if (decDef == k_function) {
+            name = input->data.s;
 
         }
-        params(func,local,name); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
+        params(func, local,
+               name); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
     } else if (input->token_type == RPAR) {}
     else {
         error(ERR_SYNTA);
@@ -156,11 +157,11 @@ int function(int decDef ,TTable* Table,TTable* local) {
                 && *(func->attributes) == *(sym->data->func->attributes)
                 && func->return_type == sym->data->func->return_type) {
                 sym->isDefined = true;
-            } else{
+            } else {
                 semerror(ERR_SEM_P);
             }
         } else {
-            Tbl_Insert(Table,El_Create(sym));
+            Tbl_Insert(Table, El_Create(sym));
         }
         return SUCCESS;
     } else {
@@ -171,46 +172,52 @@ int function(int decDef ,TTable* Table,TTable* local) {
 }
 
 
-int params(TFunction *functions,TTable* local,char* name) {
+int params(TFunction *functions, TTable *local, char *name) {
     t_token *input = check_next_token_type(KEY_WORD);
     if (check_token_int_value(input, k_as)) { //as
         functions->attr_count++;
-        functions->attributes = my_realloc(functions->attributes,sizeof(TType)*functions->attr_count);
+        functions->attributes = my_realloc(functions->attributes, sizeof(TType) * functions->attr_count);
         input = check_next_token_type(KEY_WORD);
 
         if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
             check_token_int_value(input, k_string)) //return_type je datovy typ
         {
-            functions->attributes[functions->attr_count-1]=input->data.i;
-            if (name != NULL){
-                TElement* lElement = Tbl_GetDirect(local,name);
-                TSymbol* lSymbol = my_malloc(sizeof(TSymbol));
-                TVariable* lVariable= my_malloc(sizeof(TVariable));
-                if (lElement != NULL){
+            functions->attributes[functions->attr_count - 1] = input->data.i;
+            if (name != NULL) {
+                TElement *lElement = Tbl_GetDirect(local, name);
+
+                /*create symbol*/
+                TData *var;
+                TValue value;
+                switch (input->data.i) {
+                    case k_integer:
+                        value.i = 0;
+                        break;
+                    case k_double:
+                        value.d = 0.0;
+                        break;
+                    case k_string:
+                        value.s = "";
+                }
+                var = Var_Create(value, input->token_type);
+                TSymbol *lSymbol = Sym_Create(ST_Variable, var, name);
+                lSymbol->isDeclared = true;     //neni v konstruktore
+
+                if (lElement != NULL) {
                     semerror(ERR_SEM_P);
                 }
-            lSymbol->isDeclared =true;
-            lSymbol->type=ST_Variable;
-            lVariable->type = input->data.i;
-            if (input->data.i == k_integer){
-                lVariable->value.i =0;
+
+                TElement *element = El_Create(lSymbol);
+                Tbl_Insert(local, element);
             }
-            if (input->data.i == k_double){
-                lVariable->value.d =0.0;
-            }
-            if (input->data.i == k_string){
-                lVariable->value.s ="!""";
-            }
-            lSymbol->data->var = lVariable;
-            Tbl_Insert(local,El_Create(lSymbol));
-            }
+
             input = get_token();
             check_pointer(input);
 
             if (input->token_type == COMMA) {
                 input = check_next_token_type(ID);
                 name = input->data.s;
-                return params(functions,local,name);
+                return params(functions, local, name);
             } else if (input->token_type == RPAR) {
                 return SUCCESS;
             }
@@ -221,19 +228,19 @@ int params(TFunction *functions,TTable* local,char* name) {
     error(ERR_SYNTA);
 }
 
-int commandsAndVariables(TTable* local){
-    t_token * input = get_token();
+int commandsAndVariables(TTable *local) {
+    t_token *input = get_token();
     check_pointer(input);
 
-    while (input->token_type == EOL){
+    while (input->token_type == EOL) {
         input = get_token();
     }
 
     tdata value = input->data;
     bool isCorrect = input->token_type == KEY_WORD;
 
-    if(input->token_type == ID){
-        char* name;
+    if (input->token_type == ID) {
+        char *name;
         name = input->data.s;
         check_next_token_type(EQ);
         expression();
@@ -244,7 +251,7 @@ int commandsAndVariables(TTable* local){
         switch (value.i) {
             case k_dim: //dim
                 input = check_next_token_type(ID);
-                char* name = input->data.s;
+                char *name = input->data.s;
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
@@ -253,28 +260,29 @@ int commandsAndVariables(TTable* local){
                         check_token_int_value(input, k_string)) { //typ
                         check_next_token_type(EOL);
 
-                        TElement* lElement = Tbl_GetDirect(local,name);
-                        TSymbol* lSymbol = my_malloc(sizeof(TSymbol));
-                        TVariable* lVariable= my_malloc(sizeof(TVariable));
-                        if (lElement != NULL){
+                        TElement *lElement = Tbl_GetDirect(local, name);
+
+                        TData *var;
+                        TValue value;
+                        switch (input->data.i) {
+                            case k_integer:
+                                value.i = 0;
+                                break;
+                            case k_double:
+                                value.d = 0.0;
+                                break;
+                            case k_string:
+                                value.s = "";
+                        }
+                        var = Var_Create(value, input->token_type);
+                        TSymbol *lSymbol = Sym_Create(ST_Variable, var, name);
+                        lSymbol->isDeclared = true;
+
+                        if (lElement != NULL) {
                             semerror(ERR_SEM_P);
                         }
-                        lSymbol->isDeclared =true;
-                        lSymbol->type=ST_Variable;
-                        lVariable->type = type;
 
-                        if (input->data.i == k_integer){
-                            lVariable->value.i =0;
-                        }
-                        if (input->data.i == k_double){
-                            lVariable->value.d =0.0;
-                        }
-                        if (input->data.i == k_string){
-                            lVariable->value.s ="!""";
-                        }
-                        lSymbol->data->var = lVariable;
-                        Tbl_Insert(local,El_Create(lSymbol));
-
+                        Tbl_Insert(local, El_Create(lSymbol));
 
                         return commandsAndVariables(local);
                     }
@@ -288,7 +296,7 @@ int commandsAndVariables(TTable* local){
                 print_params(); //skonci vcetne EOL
                 return commandsAndVariables(local);
             case k_if: //if
-                if(expression()!=k_then){
+                if (expression() != k_then) {
                     error(ERR_SYNTA);
                 }
                 check_next_token_type(EOL);
@@ -299,28 +307,28 @@ int commandsAndVariables(TTable* local){
                 error(ERR_SYNTA);
             case k_else: //else
                 check_next_token_type(EOL);
-                    return commandsAndVariables(local);
+                return commandsAndVariables(local);
             case k_end: //end
                 input = check_next_token_type(KEY_WORD);
-                if (check_token_int_value(input,k_if)){ //if
+                if (check_token_int_value(input, k_if)) { //if
                     check_next_token_type(EOL);
-                        return k_if;
-                } else if (check_token_int_value(input,k_scope)){ //Scope
-                        return k_scope;
-                } else if (check_token_int_value(input,k_function)){ //Function
+                    return k_if;
+                } else if (check_token_int_value(input, k_scope)) { //Scope
+                    return k_scope;
+                } else if (check_token_int_value(input, k_function)) { //Function
                     check_next_token_type(EOL);
-                        return k_function;
+                    return k_function;
                 }
                 error(ERR_SYNTA);
             case k_do: //do
                 input = check_next_token_type(KEY_WORD);
-                if (check_token_int_value(input,k_while)){ //while
-                    if(expression() != EOL){
+                if (check_token_int_value(input, k_while)) { //while
+                    if (expression() != EOL) {
                         error(ERR_SYNTA);
                     } //tohle asi nepojede
-                        if(commandsAndVariables(local) == k_loop){ //skoncilo to loop
-                            return commandsAndVariables(local);
-                        }
+                    if (commandsAndVariables(local) == k_loop) { //skoncilo to loop
+                        return commandsAndVariables(local);
+                    }
                     error(ERR_SYNTA);
                 }
                 error(ERR_SYNTA);
@@ -336,12 +344,12 @@ int commandsAndVariables(TTable* local){
     }
 }
 
-int print_params(){
+int print_params() {
     int result = expression();
-    while(result == SEMICOLLON){
+    while (result == SEMICOLLON) {
         result = expression();
     }
-    if(result == EOL){
+    if (result == EOL) {
         return SUCCESS;
     }
     error(ERR_SYNTA);
@@ -372,18 +380,18 @@ int print_params(){
     error(ERR_SYNTA);
 }*/
 
-int scope(){
-    TTable* local = Tbl_Create(8);
+int scope() {
+    TTable *local = Tbl_Create(8);
     check_next_token_type(EOL);
-        int res = commandsAndVariables(local);
-    if(res == k_scope){
-        t_token * input = get_token();
+    int res = commandsAndVariables(local);
+    if (res == k_scope) {
+        t_token *input = get_token();
         check_pointer(input);
-        while(input->token_type == EOL){
+        while (input->token_type == EOL) {
             input = get_token();
             check_pointer(input);
         }
-        if(input->token_type == EMPTY){
+        if (input->token_type == EMPTY) {
             return SUCCESS;
         }
     }

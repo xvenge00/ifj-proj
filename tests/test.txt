@@ -1,32 +1,5 @@
-/' Program 1: Vypocet faktorialu (iterativne) '/
-/' Vcetne ukazky case-insensitive vlastnosti jazyka IFJ17 '/
-scope 'Hlavni telo programu
-Dim a As Integer
-DIM vysl AS INTEGER
-PrinT !"Zadejte cislo pro vypocet faktorialu";
-InpuT A
-If a < 0 THEN
-print !"\nFaktorial nelze spocitat\n" ;
-ELSE
-Vysl = 1
-Do WHile A > 0
-VYSL = vysl * a
-a = A - 1
-LooP
-Print !"\nVysledek je:"; vYsl ; !"\n";
-end IF
-END SCOPE
-
-
-
-
-
-
-
-
-/' Program 2: Vypocet faktorialu (rekurzivne) '/
 Declare Function factorial (n As Integer) As Integer
-Function factorial (n As Integer)As Integer
+Function factorial (n As Integer) As Integer
 Dim temp_result As Integer
 Dim decremented_n As Integer
 Dim result As Integer
@@ -39,9 +12,8 @@ result = n * temp_result
 End If
 Return result
 End Function
-Scope
-'Hlavni telo programu
- Dim a As Integer
+Scope 'Hlavni telo programu
+Dim a As Integer
 Dim vysl As Integer
 Print !"Zadejte cislo pro vypocet faktorialu";
 Input a
@@ -52,4 +24,3 @@ vysl = factorial(a)
 Print !"\nVysledek je:" ; vysl ; !"\n";
 End If
 End Scope
-

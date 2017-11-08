@@ -36,7 +36,9 @@ void change_size(unsigned new){
         for (unsigned i=0;i<top;i++){
             tmp[i] = pole[i];
         }
-        free(pole);
+        if (pole != NULL){
+            free(pole);
+        }
         pole = tmp;
         max = new;
     }
