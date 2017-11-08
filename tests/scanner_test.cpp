@@ -13,9 +13,6 @@ namespace {
 
         virtual void SetUp(){
             f = fopen("../tests/scanner_test_input/basic_in", "r");
-            if (f == NULL) {
-                printf("NULL\n");
-            }
         }
 
         virtual void TearDown(){
@@ -28,9 +25,6 @@ namespace {
 
         virtual void SetUp(){
             f = fopen("../tests/scanner_test_input/basic_in_2", "r");
-            if (f == NULL) {
-                printf("NULL\n");
-            }
         }
 
         virtual void TearDown(){
@@ -43,9 +37,6 @@ namespace {
 
         virtual void SetUp(){
             f = fopen("../tests/scanner_test_input/basic_in_comment", "r");
-            if (f == NULL) {
-                printf("NULL\n");
-            }
         }
 
         virtual void TearDown(){
@@ -95,7 +86,6 @@ TEST_F(scanner_fixture_basic_1, basic_test1){
 
 
 }
-
 
 TEST_F(scanner_fixture_basic_2, basic_test2){
     t_token *tmp;
@@ -295,6 +285,63 @@ TEST_F(scanner_fixture_comment, comment_test){
     tmp = get_token();
     EXPECT_EQ(tmp->token_type, EMPTY);
     EXPECT_TRUE(tmp->data.s == NULL);
+}
+
+namespace {
+
+    class numbers_fixture : public ::testing::Test {
+    protected:
+        t_token *token;
+        int i = 0;
+
+        virtual void SetUp() {
+            f = fopen("../tests/scanner_test_input/numbers_test", "r");
+        }
+
+        virtual void TearDown() {
+            fclose(f);
+        }
+    };
+}
+
+TEST_F(numbers_fixture, test) {
+    token = get_token();
+    EXPECT_EQ(token->token_type, INT);
+    EXPECT_EQ(token->data.i, 1);
+    EXPECT_EQ(token->line, 1);
+    token = get_token();
+    EXPECT_EQ(token->token_type, EOL);
+
+    //12456789012345678901234567890123456789
+    token = get_token();
+    EXPECT_EQ(token->token_type, INT);
+//    EXPECT_EQ(token->data.i, vela); TODO
+    EXPECT_EQ(token->line, 2);
+    token = get_token();
+    EXPECT_EQ(token->token_type, EOL);
+
+    //1.2
+    token = get_token();
+    EXPECT_EQ(token->token_type, DOUBLE);
+    EXPECT_DOUBLE_EQ(token->data.d, 1.2);
+    EXPECT_EQ(token->line, 3);
+    token = get_token();
+    EXPECT_EQ(token->token_type, EOL);
+
+    //1.0
+    token = get_token();
+    EXPECT_EQ(token->token_type, DOUBLE);
+    EXPECT_DOUBLE_EQ(token->data.d, 1.0);
+    EXPECT_EQ(token->line, 4);
+    token = get_token();
+    EXPECT_EQ(token->token_type, EOL);
+
+    //1 . 0
+    token = get_token();
+    EXPECT_EQ(token->token_type, INT);
+    EXPECT_EQ(token->data.i, 1);
+    //token = get_token();
+    //TODO tu ma dat chybu
 }
 
 int main(int argc, char **argv) {
