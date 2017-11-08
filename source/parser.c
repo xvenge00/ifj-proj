@@ -208,10 +208,6 @@ int params(TFunction *functions,TTable* local,char* name) {
             check_pointer(input);
 
             if (input->token_type == COMMA) {
-                input = get_token();
-                if (input == NULL) {
-                    error(ERR_SYNTA);
-                }
                 input = check_next_token_type(ID);
                 name = input->data.s;
                 return params(functions,local,name);
