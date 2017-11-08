@@ -68,7 +68,7 @@ int parse(TTable* Table){
                 TTable* local = Tbl_Create(8);
                 function(k_function, Table,local); //parametry, konci tokenem EOL
 
-                int correct = commandsAndVariables();
+                int correct = commandsAndVariables(local);
                 if(correct == k_function){ //function
                     return parse(Table);
                 }
@@ -183,26 +183,26 @@ int params(TFunction *functions,TTable* local,char* name) {
         {
             functions->attributes[functions->attr_count-1]=input->data.i;
             if (name != NULL){
-                TElement* lelement = Tbl_GetDirect(local,name);
-                TSymbol* lsymbol = my_malloc(sizeof(TSymbol));
-                TVariable* lvariable= my_malloc(sizeof(TVariable));
-                if (lelement != NULL){
+                TElement* lElement = Tbl_GetDirect(local,name);
+                TSymbol* lSymbol = my_malloc(sizeof(TSymbol));
+                TVariable* lVariable= my_malloc(sizeof(TVariable));
+                if (lElement != NULL){
                     semerror(ERR_SEM_P);
                 }
-            lsymbol->isDeclared =true;
-            lsymbol->type=ST_Variable;
-            lvariable->type = input->data.i;
+            lSymbol->isDeclared =true;
+            lSymbol->type=ST_Variable;
+            lVariable->type = input->data.i;
             if (input->data.i == k_integer){
-                lvariable->value.i =0;
+                lVariable->value.i =0;
             }
             if (input->data.i == k_double){
-                lvariable->value.d =0.0;
+                lVariable->value.d =0.0;
             }
             if (input->data.i == k_string){
-                lvariable->value.s ="!""";
+                lVariable->value.s ="!""";
             }
-            lsymbol->data->var = lvariable;
-            Tbl_Insert(local,El_Create(lsymbol));
+            lSymbol->data->var = lVariable;
+            Tbl_Insert(local,El_Create(lSymbol));
             }
             input = get_token();
             check_pointer(input);
@@ -225,7 +225,7 @@ int params(TFunction *functions,TTable* local,char* name) {
     error(ERR_SYNTA);
 }
 
-int commandsAndVariables(){
+int commandsAndVariables(TTable* local){
     t_token * input = get_token();
     check_pointer(input);
 
@@ -237,45 +237,73 @@ int commandsAndVariables(){
     bool isCorrect = input->token_type == KEY_WORD;
 
     if(input->token_type == ID){
+        char* name;
+        name = input->data.s;
         check_next_token_type(EQ);
         expression();
-        return commandsAndVariables();
+        return commandsAndVariables(local);
     }
 
     if (isCorrect) {
         switch (value.i) {
             case k_dim: //dim
-                check_next_token_type(ID);
+                input = check_next_token_type(ID);
+                char* name = input->data.s;
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
+                    int type = input->data.i;
                     if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
                         check_token_int_value(input, k_string)) { //typ
                         check_next_token_type(EOL);
-                        return commandsAndVariables();
+
+                        TElement* lElement = Tbl_GetDirect(local,name);
+                        TSymbol* lSymbol = my_malloc(sizeof(TSymbol));
+                        TVariable* lVariable= my_malloc(sizeof(TVariable));
+                        if (lElement != NULL){
+                            semerror(ERR_SEM_P);
+                        }
+                        lSymbol->isDeclared =true;
+                        lSymbol->type=ST_Variable;
+                        lVariable->type = type;
+
+                        if (input->data.i == k_integer){
+                            lVariable->value.i =0;
+                        }
+                        if (input->data.i == k_double){
+                            lVariable->value.d =0.0;
+                        }
+                        if (input->data.i == k_string){
+                            lVariable->value.s ="!""";
+                        }
+                        lSymbol->data->var = lVariable;
+                        Tbl_Insert(local,El_Create(lSymbol));
+
+
+                        return commandsAndVariables(local);
                     }
                 }
                 error(ERR_SYNTA);
             case k_input: //input
                 check_next_token_type(ID);
                 check_next_token_type(EOL);
-                return commandsAndVariables();
+                return commandsAndVariables(local);
             case k_print: //print
                 print_params(); //skonci vcetne EOL
-                return commandsAndVariables();
+                return commandsAndVariables(local);
             case k_if: //if
                 if(expression()!=k_then){
                     error(ERR_SYNTA);
                 }
                 check_next_token_type(EOL);
-                int correct = commandsAndVariables();
+                int correct = commandsAndVariables(local);
                 if (correct == k_if) {//skoncilo to end if
-                    return commandsAndVariables();
+                    return commandsAndVariables(local);
                 }
                 error(ERR_SYNTA);
             case k_else: //else
                 check_next_token_type(EOL);
-                    return commandsAndVariables();
+                    return commandsAndVariables(local);
             case k_end: //end
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input,k_if)){ //if
@@ -294,8 +322,8 @@ int commandsAndVariables(){
                     if(expression() != EOL){
                         error(ERR_SYNTA);
                     } //tohle asi nepojede
-                        if(commandsAndVariables() == k_loop){ //skoncilo to loop
-                            return commandsAndVariables();
+                        if(commandsAndVariables(local) == k_loop){ //skoncilo to loop
+                            return commandsAndVariables(local);
                         }
                     error(ERR_SYNTA);
                 }
@@ -305,7 +333,7 @@ int commandsAndVariables(){
                 return k_loop; //tady to ma asi vracet k_loop
             case k_return: //return
                 expression();
-                return commandsAndVariables();
+                return commandsAndVariables(local);
             default:
                 error(ERR_SYNTA);
         }
@@ -349,8 +377,9 @@ int print_params(){
 }*/
 
 int scope(){
+    TTable* local = Tbl_Create(8);
     check_next_token_type(EOL);
-        int res = commandsAndVariables();
+        int res = commandsAndVariables(local);
     if(res == k_scope){
         t_token * input = get_token();
         check_pointer(input);
