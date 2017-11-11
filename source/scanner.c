@@ -145,7 +145,7 @@ int is_keyword(char *ret){
 //}
 
 t_str_buff *scanner_buff = NULL;
-
+int beginning = 1;
 
 t_token *create_token(ttype typ, tdata data, unsigned *line){
     t_token *tmp = my_malloc(sizeof(t_token));
@@ -162,6 +162,9 @@ t_token *create_token(ttype typ, tdata data, unsigned *line){
     if (typ == EOL){
         (*line)++;
     }
+    if (typ == EMPTY){
+        beginning = 1;
+    }
 
     return tmp;
 }
@@ -177,6 +180,10 @@ t_token *get_token(){
     static int loaded = 0;                      //inicializacia znaku
     static unsigned line = 1;                   //riadok ktory je spracovavany
     //zistenie ci neostalo po predchodzom hladany znak
+    if (beginning){
+        beginning = 0;
+        line = 1;
+    }
 
     tstate state = s_START;                     //inicializovanie stavu na stav STRAT
 
@@ -494,8 +501,8 @@ t_token *get_token(){
 //                    state = s_OP;
                 } else {
                     old = loaded;
-                    return  create_token(GT,data,&line);
-//                    state = s_OP;
+                    result =  create_token(GT,data,&line);
+                    state = s_OP;
                 }
                 break;
             default:

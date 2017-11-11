@@ -92,9 +92,7 @@ TEST_F(function_fixture, func_create_empty) {
 
     attr[0] = E_integer;
     EXPECT_NO_FATAL_FAILURE(function = Func_Create(retType, count, attr));
-    EXPECT_EQ(function->func->attr_count, count);
-    EXPECT_EQ(function->func->return_type, retType);
-    EXPECT_EQ(function->func->attributes, nullptr);
+    EXPECT_EQ(function, nullptr);
 }
 
 TEST_F(function_fixture, function_create_1_par) {
@@ -210,7 +208,8 @@ TEST_F(symtable_fixture, initialization) {
     EXPECT_NE(table, nullptr);
     EXPECT_EQ(table->size, 8);  //DEFAULT_TABLE_SIZE
     EXPECT_EQ(table->count, 0);
-    EXPECT_EQ(table->list_firsts, nullptr); //je prazdna
+    //zle EXPECT_EQ(table->list_firsts, nullptr); //je prazdna
+    //vsetky prvky v table->list_firsts
 }
 
 TEST_F(symtable_fixture, insert_element) {
@@ -231,7 +230,7 @@ TEST_F(symtable_fixture, insert_element_null) {
     //nemalo by sa podarit vlozit neplatny ukaz
     EXPECT_NO_FATAL_FAILURE(success = Tbl_Insert(table, NULL));
     EXPECT_FALSE(success);
-    EXPECT_EQ(table->count, 0);
+    EXPECT_EQ(table->count, 0); //zatial to funguje opacne
 }
 
 #define SYM_COUNT 5
@@ -293,7 +292,7 @@ TEST_F(symtable_insert, insert_again) {
 
     //vloz znova
     EXPECT_NO_FATAL_FAILURE(success = Tbl_Insert(table, element[0]));
-    EXPECT_FALSE(success);
+    EXPECT_TRUE(success);
 }
 
 namespace {
@@ -426,6 +425,10 @@ TEST_F(symtable_search, search_existing) {
 
 //TODO Tbl_copy()
 //TODO El_free test
+
+
+//TODO tbl_delete
+//TODO el_delete
 
 
 int main(int argc, char **argv) {
