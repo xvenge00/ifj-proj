@@ -501,8 +501,8 @@ t_token *get_token(){
 //                    state = s_OP;
                 } else {
                     old = loaded;
-                    result =  create_token(GT,data,&line);
-                    state = s_OP;
+                    return   create_token(GT,data,&line);
+//                    state = s_OP;
                 }
                 break;
             default:
