@@ -63,6 +63,7 @@ const char key_word_str[35][20] = {
  * @param line
  */
 void ERR_LEX(tstate state, char *loaded, int line){
+    //TODO chybove hlasenia
 
     fprintf(stderr,"ERR_LEX : neplatna lexema na riadku :%i  -- %s\n", line, loaded);
     if (state == s_block_coment_1 || state == s_block_coment_2){
@@ -109,39 +110,39 @@ int is_keyword(char *ret){
     return 0;
 }
 
-int isOperatorOrSpace(int loaded){
-    const int size = 12;
-    const char oper[] = {
-            '>',
-            '<',
-            '=',
-            '*',
-            '/',
-            '\\',
-            '+',
-            '-',
-            '(',
-            ')',
-            ',',
-            ';'
-    };
-
-    if (isspace(loaded)|| loaded == EOF){
-        return 1;
-    }
-
-    for (int i = 0; i < size; ++i) {
-        if (oper[i] == loaded){
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-int isValueOrSpace(int loaded){
-    return (isspace(loaded) || isalnum(loaded)|| loaded == EOF || loaded == '_' || loaded == '!' || loaded == '(' || loaded == ')');
-}
+//int isOperatorOrSpace(int loaded){
+//    const int size = 12;
+//    const char oper[] = {
+//            '>',
+//            '<',
+//            '=',
+//            '*',
+//            '/',
+//            '\\',
+//            '+',
+//            '-',
+//            '(',
+//            ')',
+//            ',',
+//            ';'
+//    };
+//
+//    if (isspace(loaded)|| loaded == EOF){
+//        return 1;
+//    }
+//
+//    for (int i = 0; i < size; ++i) {
+//        if (oper[i] == loaded){
+//            return 1;
+//        }
+//    }
+//
+//    return 0;
+//}
+//
+//int isValueOrSpace(int loaded){
+//    return (isspace(loaded) || isalnum(loaded)|| loaded == EOF || loaded == '_' || loaded == '!' || loaded == '(' || loaded == ')');
+//}
 
 t_str_buff *scanner_buff = NULL;
 
@@ -168,7 +169,7 @@ t_token *create_token(ttype typ, tdata data, unsigned *line){
 static int old = 0;
 
 t_token *get_token(){
-    t_token *result = NULL;
+//    t_token *result = NULL;
     tdata data;
     data.s = NULL;
 
@@ -210,20 +211,20 @@ t_token *get_token(){
                 } else if (loaded == '!'){  // mozny retazec
                     state = s_str0;
                 } else if (loaded == '+'){  // operacia plus
-                    result = create_token(PLUS, data,&line);
-                    state = s_OP;
+                    return create_token(PLUS, data,&line);
+//                    state = s_OP;
                 } else if (loaded == '-'){  // operacia minus
-                    result = create_token(MINUS, data,&line);
-                    state = s_OP;
+                    return create_token(MINUS, data,&line);
+//                    state = s_OP;
                 } else if (loaded == '*'){  // operacia krat
-                    result = create_token(KRAT, data,&line);
-                    state = s_OP;
+                    return create_token(KRAT, data,&line);
+//                    state = s_OP;
                 } else if (loaded == '\\'){ // operacia modulo
-                    result =  create_token(MOD, data,&line);
-                    state = s_OP;
+                    return  create_token(MOD, data,&line);
+//                    state = s_OP;
                 } else if (loaded == '='){  // operacia zhodne
-                    result = create_token(EQ, data,&line);
-                    state = s_OP;
+                    return create_token(EQ, data,&line);
+//                    state = s_OP;
                 } else if (loaded == '>'){  // operacia porovnania moyne vysledky >= >
                     state = s_GT;
                 } else if (loaded == '<'){// operacia porovnania moyne vysledky <> <= <
@@ -231,11 +232,11 @@ t_token *get_token(){
                 } else if (loaded == '\n'){ //EOL
                     return create_token(EOL, data,&line);
                 } else if (loaded == '('){
-                    result = create_token(LPAR, data,&line);
-                    state = s_OP;
+                    return create_token(LPAR, data,&line);
+//                    state = s_OP;
                 } else if (loaded == ')'){
-                    result = create_token(RPAR, data,&line);
-                    state = s_OP;
+                    return create_token(RPAR, data,&line);
+//                    state = s_OP;
                 }else if (loaded == ','){
                     return create_token(COMMA, data,&line);
                 }else if (loaded == ';'){
@@ -261,13 +262,13 @@ t_token *get_token(){
                     state = s_block_coment_1;
                 } else {
                     old = loaded;
-                    if (isValueOrSpace(loaded)){
-                        return create_token(DELENO, data,&line);
-                    } else {
-                        append_buff(scanner_buff,loaded);
-                        append_buff(scanner_buff, 0);
-                        ERR_LEX(state, get_buff(scanner_buff),line);
-                    }
+//                    if (isValueOrSpace(loaded)){
+//                        return create_token(DELENO, data,&line);
+//                    } else {
+//                        append_buff(scanner_buff,loaded);
+//                        append_buff(scanner_buff, 0);
+//                        ERR_LEX(state, get_buff(scanner_buff),line);
+//                    }
                 }
                 break;
             case s_block_coment_1: //blokovy koment pokial nenajde ' potom sa mozno jedna o konec komentu takze dalsi stav
@@ -292,11 +293,11 @@ t_token *get_token(){
                 if (isalnum(loaded)||(loaded == '_')){
                     append_buff(scanner_buff,loaded);
                 } else {
-                    if (!isOperatorOrSpace(loaded)){
-                        append_buff(scanner_buff,loaded);
-                        append_buff(scanner_buff, 0);
-                        ERR_LEX(state, get_buff(scanner_buff),line);
-                    }
+//                    if (!isOperatorOrSpace(loaded)){
+//                        append_buff(scanner_buff,loaded);
+//                        append_buff(scanner_buff, 0);
+//                        ERR_LEX(state, get_buff(scanner_buff),line);
+//                    }
                     // generovanie tokenu
                     append_buff(scanner_buff,0);
                     char *buff = get_buff(scanner_buff);
@@ -331,11 +332,11 @@ t_token *get_token(){
                 } else {
                     //vygeneruj token
                     old = loaded;
-                    if (!isValueOrSpace(old)){
-                        append_buff(scanner_buff,loaded);
-                        append_buff(scanner_buff, 0);
-                        ERR_LEX(state, get_buff(scanner_buff), line);
-                    }
+//                    if (!isValueOrSpace(old)){
+//                        append_buff(scanner_buff,loaded);
+//                        append_buff(scanner_buff, 0);
+//                        ERR_LEX(state, get_buff(scanner_buff), line);
+//                    }
                     append_buff(scanner_buff,0);
                     data.i = (int)strtol(get_buff(scanner_buff), NULL, 10);
                     return create_token(INT, data,&line);
@@ -349,11 +350,11 @@ t_token *get_token(){
                     append_buff(scanner_buff,loaded);
                 } else {
                     old = loaded;
-                    if (!isValueOrSpace(old)){
-                        append_buff(scanner_buff,loaded);
-                        append_buff(scanner_buff, 0);
-                        ERR_LEX(state, get_buff(scanner_buff), line);
-                    }
+//                    if (!isValueOrSpace(old)){
+//                        append_buff(scanner_buff,loaded);
+//                        append_buff(scanner_buff, 0);
+//                        ERR_LEX(state, get_buff(scanner_buff), line);
+//                    }
                     append_buff(scanner_buff,0);
                     data.d = strtod(get_buff(scanner_buff),NULL);
                     return create_token(DOUBLE, data,&line);
@@ -386,12 +387,12 @@ t_token *get_token(){
                 if (isdigit(loaded)){
                     append_buff(scanner_buff,loaded);
                 } else {
-                    if (!isValueOrSpace(old)){
-                        append_buff(scanner_buff,old);
-                        append_buff(scanner_buff,0);
-
-                        ERR_LEX(state, get_buff(scanner_buff), line);
-                    }
+//                    if (!isValueOrSpace(old)){
+//                        append_buff(scanner_buff,old);
+//                        append_buff(scanner_buff,0);
+//
+//                        ERR_LEX(state, get_buff(scanner_buff), line);
+//                    }
                     append_buff(scanner_buff,0);
                     data.d = strtod(get_buff(scanner_buff), NULL);
                     old =loaded;
@@ -475,35 +476,39 @@ t_token *get_token(){
                 break;
             case s_LT:  // stav mensi nez
                 if (loaded == '>'){
-                    result = create_token(NEQ, data,&line);
-                    state = s_OP;
+                    return create_token(NEQ, data,&line);
+//                    state = s_OP;
                 } else if (loaded == '='){
-                    result = create_token(LE, data,&line);
-                    state = s_OP;
+                    return create_token(LE, data,&line);
+//                    state = s_OP;
                 } else {
                     old = loaded;
-                    result = create_token(LT, data,&line);
-                    state = s_OP;
+                    return create_token(LT, data,&line);
+//                    state = s_OP;
 
                 }
                 break;
             case s_GT:  // stav vasci nez
                 if (loaded == '='){
-                    result =  create_token(GE,data,&line);
-                    state = s_OP;
+                    return  create_token(GE,data,&line);
+//                    state = s_OP;
                 } else {
                     old = loaded;
-                    result =  create_token(GT,data,&line);
-                    state = s_OP;
+                    return  create_token(GT,data,&line);
+//                    state = s_OP;
                 }
                 break;
-            case s_OP:
-                if (isValueOrSpace(loaded)){
-                    old = loaded;
-                    return result;
-                } else{
-                   ERR_LEX(state, "operacia", line);
-                }
+            default:
+                old = loaded;
+                state = s_START;
+//                break;
+//            case s_OP:
+//                if (isValueOrSpace(loaded)){
+//                    old = loaded;
+//                    return result;
+//                } else{
+//                   ERR_LEX(state, "operacia", line);
+//                }
         }
     }while (loaded != EOF);
     //sem by sa nikdy nemal dostat ak ano niekde je chyba
