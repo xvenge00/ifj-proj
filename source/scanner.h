@@ -16,8 +16,6 @@
 
 #include <stdio.h>
 
-#define empty_token 0
-
 FILE *f;
 ///klucove slova
 enum keyWords{
@@ -137,6 +135,8 @@ typedef union {
 typedef struct {
     int token_type;      ///typ tokenu ktory bol nacitany
     tdata data;         /// hodnota tokenu ak typ INT = N | DOUBLE = R | STR = retazec | KEY_WORLD = N  (toto N urcuje typ a konkretne sa da urcit z enum keyWorld)| ostatne NULL
+
+    unsigned line; ///riadok z koteho sa token nacital
 } t_token;
 
 /**

@@ -79,18 +79,23 @@ int main() {
 
     do  {
         tmp = get_token();
-        printf("%-15s :",op[tmp->token_type]);
+        printf("type :%-10s |",op[tmp->token_type]);
+        printf(" line: %3i |", tmp->line);
         if (tmp->token_type == ID || tmp->token_type == STR) {
-            printf(" %s\n",tmp->data.s);
+            printf(" %s",tmp->data.s);
         } else if (tmp->token_type == INT ) {
-                printf(" %i\n", tmp->data.i);
+                printf(" %i", tmp->data.i);
         }else if (tmp->token_type == DOUBLE) {
-            printf(" %f\n", tmp->data.d);
+            printf(" %f", tmp->data.d);
         } else if (tmp->token_type == KEY_WORD){
-            printf(" %s\n",key_word_str[tmp->data.i]);
-        } else {
-            printf("\n");
+            printf(" %s",key_word_str[tmp->data.i]);
         }
+        printf("\n");
+        if (tmp->token_type == EOL){
+            printf("---------------------------------------------\n");
+        }
+
+
         loaded = tmp->token_type;
         discard_token(tmp);
     }while (loaded != EMPTY);
