@@ -10,7 +10,7 @@ int parse(TTable* Table);
 int function(int decDef,TTable* Table,TTable* local);
 int params(TFunction *functions,TTable* local,char* name);
 int commandsAndVariables(TTable* local);
-int expression();
+//int expression();
 int expressionOrFunction();
 int idList();
 int scope();

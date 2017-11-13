@@ -5,7 +5,42 @@
 #include "symtable.h"
 #include "scanner.h"
 #include "expression.h"
-#include "stack_token.h"
+#include "symtable.h"
+//#include "stack_token.h"
+
+#define urcite 1
+#define s_konverziou 2
+#define nie 0
+
+TTable *Table;
+
+int are_comparable(t_token *a, t_token *b){
+    if (a->token_type == STR && b->token_type == STR){
+        return urcite;
+    } else if (a->token_type == INT && b->token_type == INT){
+        return urcite;
+    } else if (a->token_type == DOUBLE && b->token_type == DOUBLE){
+        return urcite;
+    } else if ((a->token_type == INT && b->token_type==DOUBLE) || (a->token_type == DOUBLE && b->token_type == INT)){
+        return s_konverziou;
+    } else {
+        fprintf(stderr,"ERR - sem - na riasku %i sa pracuje s nekompatibilymi typmi\n", a->line);
+        clear_all();
+        exit(ERR_SEM_T);
+
+        return nie;
+    }
+}
+
+int param_check(){ //todo
+    return 1;
+}
+
+
+int get_id(){
+    static int id = 0;
+    return id++;
+}
 
 void Stack_init(Stack * stack){
     stack->top = NULL;
@@ -26,12 +61,14 @@ int Stack_dispose(Stack * stack){
 }
 
 //vlozi na vrchol zasobniku element s type
-int Stack_push(Stack * stack, int type){
+int Stack_push(Stack * stack, int type, int id, t_token *token){
     Element * new = my_malloc(sizeof(Element));
     check_pointer(new);
 
     new->type = type;
     new->next = stack->top;
+    new->id=id;
+    new->token = token;
     stack->top = new;
 
     if(new->type != E_E){ //isTerminal
@@ -96,76 +133,121 @@ Element* check_next_element_type(int type, Stack* stack){
 int rule(Stack *stack){
     Element * input = Stack_pop(stack);
     check_pointer(input);
+    int new_id = get_id();
+
+
+    Element *tmp1 = input;
+    Element *tmp2 = NULL;
+
+
+    Element *arr_el[100] = {NULL, };
+
 
     switch(input->type){
         case E_E:
             input = Stack_pop(stack);
             switch(input->type){
                 case E_PLUS:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("defvar E_E%i\n",new_id);
+                    printf("ADD E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id,NULL);
                     return 1;
                 case E_MINUS:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("defvar E_E%i\n",new_id);
+                    printf("SUB E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 2;
                 case E_MUL:
-                    check_next_element_type(E_E,stack);
+                    tmp2 =check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("defvar E_E%i\n",new_id);
+                    printf("MUL E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 3;
                 case E_DIV:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("defvar E_E%i\n",new_id);
+                    printf("DIV E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 4;
                 case E_MOD:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("defvar E_E%i\n",new_id);
+                    printf("MOD E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 5;
                 case E_LT:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("defvar E_E%i\n",new_id);
+                    printf("LT E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 6;
                 case E_LE:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("defvar E_E%i\n",new_id);
+                    printf("LT E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    int old_id[2] = {new_id,get_id()};
+                    new_id = get_id();
+                    printf("defvar E_E%i\n",new_id);
+                    printf("LT E_E%i E_E%i E_E%i\n",old_id[1], tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 7;
                 case E_GT:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("E_E%i = E_E%i > E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 8;
                 case E_GE:
                     check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("E_E%i = E_E%i >= E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 9;
                 case E_EQ:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("E_E%i = E_E%i == E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 10;
                 case E_NEQ:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    Stack_push(stack, E_E);
+                    are_comparable(tmp1->token,tmp2->token);
+                    printf("E_E%i = E_E%i <> E_E%i\n",new_id, tmp1->id, tmp2->id);
+                    Stack_push(stack, E_E, new_id, NULL);
                     return 11;
                 default:
                     error(ERR_SYNTA);
 
             }
         case E_RPAR:
-            check_next_element_type(E_E,stack);
+
+            tmp1 = check_next_element_type(E_E,stack);
 
             input = Stack_pop(stack);
             check_pointer(input);
 
+
+            int i = 0;
             switch(input->type){
                 case E_LPAR:
                     input = Stack_pop(stack);
@@ -173,27 +255,48 @@ int rule(Stack *stack){
 
                     switch(input->type){
                         case E_LT:
-                            Stack_push(stack,E_E);
+                            printf("E_E%i <== E_E%i\n",new_id, tmp1->id);
+                            Stack_push(stack,E_E, new_id, NULL);
                             return 12;
                         case E_ID: //zmenit pak nejspis na E_FUNCT
+                            printf("E_E%i = return z E_ID%i()\n",new_id, tmp1->id);
                             check_next_element_type(E_LT,stack);
-                            Stack_push(stack,E_E);
+                            Stack_push(stack,E_E, new_id, NULL);
                             return 13;
                         default:
                             error(ERR_SYNTA);
                     }
                 case COMMA:
-                    check_next_element_type(E_E,stack);
+
+                    arr_el[i++] = tmp1;
+                    arr_el[i++] = check_next_element_type(E_E,stack);
                     input = Stack_pop(stack);
                     check_pointer(input);
                     while(input->type == COMMA){
-                        check_next_element_type(E_E,stack);
+                        arr_el[i++] = check_next_element_type(E_E,stack);
                         input = Stack_pop(stack);
                     }
                     if(input->type == LPAR){
-                        check_next_element_type(E_ID,stack);
+                        arr_el[i++] = check_next_element_type(E_ID,stack);
                         check_next_element_type(E_LT,stack);
-                        Stack_push(stack,E_E);
+
+                        int j = i;
+
+                        t_token *func_t =arr_el[--j]->token;
+                        if (func_t->token_type != ID){
+                            clear_all();
+                            exit(ERR_SYNTA);
+                        }
+
+                        printf("E_E%i = return z E_ID%i(",new_id, arr_el[--i]->id);
+                        while (i){
+                            Element *tmp = arr_el[--i];
+                            printf("E_ID%i,", tmp->id);   //TODO tu moze byt tez E_E ale kontorluje syntakt iba e_ID
+                        }
+                        printf(")\n");
+
+
+                        Stack_push(stack,E_E, new_id, NULL);
                         return 14;
                     }
                     error(ERR_SYNTA);
@@ -204,7 +307,8 @@ int rule(Stack *stack){
 
         case E_ID:
             check_next_element_type(E_LT,stack);
-            Stack_push(stack,E_E);
+            printf("E_E%i <== ID%i\n",new_id, tmp1->id);
+            Stack_push(stack,E_E, new_id, NULL);
             return 15;
         default: error(ERR_SYNTA);
     }
@@ -232,13 +336,13 @@ const int precedence_table[17][17] = {
 /* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
 };
 
-int code_type(int *dollar_source, TSymbol *ret_sym){
-    t_token * input = get_token();
-    ret_sym = input;
+int code_type(int *dollar_source, t_token *input){
+//    t_token * input = get_token();
+//    ret_sym = input;
     static int was_funct = 0;
     int i = input->token_type;
 
-    if (!was_funct && i != LPAR){
+    if (was_funct && i != LPAR){
         clear_all();
         exit(ERR_SEM_P);
     }
@@ -258,21 +362,21 @@ int code_type(int *dollar_source, TSymbol *ret_sym){
             return E_LPAR;
         case RPAR:
             return E_RPAR;
-        case ID: //nutno rozlisit ID funkce a ID promenne, ted neprochazi vyrazy jako ID = ID(ID)
-        {
-            TElement* found = Tbl_GetDirect(Table, input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
-            if(found != NULL)
-            {
-                if(found->data->type == ST_Function && found->data->isDefined) {
-                    was_funct = 1;
-                    return E_FUNC;
-                } else if(found->data->type == ST_Variable && found->data->isDefined){
-                    return ID;
-                } else {
-                    return -1; //ERR_SEMANTIC
-                }
-            }
-        }
+        case ID: //nutno rozlisit ID funkce a ID promenne, ted neprochazi vyrazy jako ID = ID(ID)   //kontrolujem v rule !!!
+//        {
+//            TElement* found = Tbl_GetDirect(Table, input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
+//            if(found != NULL)
+//            {
+//                if(found->data->type == ST_Function && found->data->isDefined) {
+//                    was_funct = 1;
+//                    return E_FUNC;
+//                } else if(found->data->type == ST_Variable && found->data->isDefined){
+//                    return ID;
+//                } else {
+//                    return -1; //ERR_SEMANTIC
+//                }
+//            }
+//        }
             //pozreme do symtable
             return E_ID;
         case INT: //mozna budeme muset mapovat jinak kvuli semanticke
@@ -317,14 +421,18 @@ int code_type(int *dollar_source, TSymbol *ret_sym){
  * Pro Then je navratova hodnota tedy 120
  * */
 
-int expression(){
+int expression(TTable *tTable, t_token *to_what){
+    Table = tTable;
+    int id_of_ID = 0;
+
     Stack stack;
     Stack_init(&stack);
-    Stack_push(&stack, E_DOLLAR);
+    Stack_push(&stack, E_DOLLAR, -1, NULL);
     int a;
     int b;
     int dollar_source = 0;
-    t_token *my_token;
+    t_token *my_token = get_token();
+
     b = code_type(&dollar_source, my_token); //prekodovani typu tokenu na index do tabulky
     if(b==E_DOLLAR && dollar_source == EOL) {
         Stack_dispose(&stack);
@@ -333,21 +441,32 @@ int expression(){
     do{
         a = Stack_top(&stack)->type;
         int ruleNumber = 0;
+        int new_id = -1;
+
+        if (b == E_ID){
+            new_id = id_of_ID++;
+        } else {
+            new_id = -1;
+            my_token = NULL;
+        }
+
         switch(precedence_table[a][b]){
             case EQ:
-                Stack_push(&stack,b);
-                Stac
+
+                Stack_push(&stack,b, new_id, my_token);
+                my_token = get_token();
                 b = code_type(&dollar_source, my_token);
                 break;
             case LT:
                 Stack_expand(&stack);
-                Stack_push(&stack, b);
+                Stack_push(&stack, b, new_id, my_token);
+                my_token = get_token();
                 b = code_type(&dollar_source, my_token);
                 break;
             case GT:
                 ruleNumber = rule(&stack);
                 if(ruleNumber != 0){
-                    printf("Rule %d\n", ruleNumber);
+                    //printf("Rule %d\n", ruleNumber);
                 } else {
                      error(ERR_SYNTA);
                 }

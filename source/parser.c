@@ -1,13 +1,28 @@
 #include "parser.h"
 #include "main.h"
 
-
+#include "expression.h"
 #include "symtable.h"
 #include "memwork.h"
 #include "scanner.h"
 #include <stdlib.h>
 #include <stdbool.h>
 
+
+TTable *tTable;
+
+char *gen_label(char *ret){
+    static int label = 0;
+    char *result = my_malloc(sizeof(char)*130);
+    if (ret == NULL){
+        sprintf(result,"l_%i", label++);
+    } else {
+        sprintf(result,"l_%s_%i",ret, label++);
+    }
+    result[129] = 0;
+
+    return result;
+}
 
 t_token *check_next_token_type(int type) {
     t_token *input = get_token();
@@ -46,7 +61,7 @@ void semerror(int code) {
 }
 
 int parse(TTable *Table) {
-
+    tTable = Table;
     t_token *input = get_token();
     check_pointer(input);
     while (input->token_type == EOL) {
@@ -70,6 +85,8 @@ int parse(TTable *Table) {
                 function(k_function, Table, local); //parametry, konci tokenem EOL
 
                 int correct = commandsAndVariables(local);
+                printf("popframe\n");
+                printf("return\n");
                 if (correct == k_function) { //function
                     return parse(Table);
                 } else {
@@ -165,6 +182,8 @@ int function(int decDef, TTable *Table, TTable *local) {
         } else {
             Tbl_Insert(Table, El_Create(sym));
         }
+        printf("label %s\n",sym->name);
+        printf("pushframe\n");
         return SUCCESS;
     } else {
         error(ERR_SYNTA);
@@ -241,11 +260,11 @@ int commandsAndVariables(TTable *local) {
     tdata value = input->data;
     bool isCorrect = input->token_type == KEY_WORD;
 
-    if (input->token_type == ID) {
+    if (input->token_type == ID) { //todo co ak je id funckia a ma sa volat funkcia bez parametru
         char *name;
         name = input->data.s;
         check_next_token_type(EQ);
-        expression();
+        expression(local);
         return commandsAndVariables(local);
     }
 
@@ -254,13 +273,38 @@ int commandsAndVariables(TTable *local) {
             case k_dim: //dim
                 input = check_next_token_type(ID);
                 char *name = input->data.s;
+                printf("defvar %s\n",name);
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
                     int type = input->data.i;
                     if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
                         check_token_int_value(input, k_string)) { //typ
-                        check_next_token_type(EOL);
+                        //check_next_token_type(EOL);
+                        t_token *tmp = get_token();
+                        int imp_i = 0;
+                        double imp_d = 0.0;
+                        char *imp_s = "";
+
+                        if (tmp ->token_type == EOL){
+                        } else if (tmp->token_type == EQ){
+                            tmp = get_token();
+                            if (tmp->token_type == STR && input->data.i == k_string){
+                                imp_s = tmp->data.s;
+                            } else if (tmp->token_type == DOUBLE && input->data.i == k_double){
+                                imp_d = tmp->data.d;
+                            } else if (tmp->token_type == INT && input->data.i == k_integer){
+                                imp_i = tmp->data.i;
+                            } else if (tmp->token_type == DOUBLE && input->data.i == k_integer){
+                                imp_i = (int)tmp->data.d;
+                            } else if (tmp->token_type == INT && input->data.i == k_double){
+                                imp_d = (int)tmp->data.d;
+                            } else {
+                                semerror(ERR_SEM_P);//nevym o aku chyby sa jedna
+                            }
+                        } else {
+                            semerror(ERR_SYNTA);
+                        }
 
                         TElement *lElement = Tbl_GetDirect(local, name);
 
@@ -268,13 +312,17 @@ int commandsAndVariables(TTable *local) {
                         TValue value;
                         switch (input->data.i) {
                             case k_integer:
-                                value.i = 0;
+                                value.i = imp_i;
+                                printf("move %s int@%i\n", name, imp_i);
                                 break;
                             case k_double:
-                                value.d = 0.0;
+                                value.d = imp_d;
+                                printf("move %s float@%f\n", name, imp_d);
                                 break;
                             case k_string:
-                                value.s = "";
+                                value.s = imp_s;
+                                printf("move %s string@%s\n", name, imp_s);
+
                         }
                         var = Var_Create(value, input->token_type);
                         TSymbol *lSymbol = Sym_Create(ST_Variable, var, name);
@@ -298,7 +346,7 @@ int commandsAndVariables(TTable *local) {
                 print_params(); //skonci vcetne EOL
                 return commandsAndVariables(local);
             case k_if: //if
-                if (expression() != k_then) {
+                if (expression(local) != k_then) {
                     error(ERR_SYNTA);
                 }
                 check_next_token_type(EOL);
@@ -325,7 +373,7 @@ int commandsAndVariables(TTable *local) {
             case k_do: //do
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, k_while)) { //while
-                    if (expression() != EOL) {
+                    if (expression(local) != EOL) {
                         error(ERR_SYNTA);
                     } //tohle asi nepojede
                     if (commandsAndVariables(local) == k_loop) { //skoncilo to loop
@@ -338,7 +386,7 @@ int commandsAndVariables(TTable *local) {
                 check_next_token_type(EOL);
                 return k_loop; //tady to ma asi vracet k_loop
             case k_return: //return
-                expression();
+                expression(local);
                 return commandsAndVariables(local);
             default:
                 error(ERR_SYNTA);
@@ -347,9 +395,9 @@ int commandsAndVariables(TTable *local) {
 }
 
 int print_params() {
-    int result = expression();
+    int result = expression(tTable);
     while (result == SEMICOLLON) {
-        result = expression();
+        result = expression(tTable);
     }
     if (result == EOL) {
         return SUCCESS;

@@ -31,6 +31,8 @@ enum{
 typedef struct element{
     int type;
     struct element *next;
+    int id;
+    t_token *token;
 } Element; //prvek zásobníku - type bude zakodovany typ symbolu, next ukazatel na dalsi
 
 typedef struct stack{
