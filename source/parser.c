@@ -2,6 +2,8 @@
 #include "main.h"
 #include "scanner.h"
 #include <stdlib.h>
+//TODO přidat kontrolu u všech volání expression() na return typ
+
 
 t_token* check_next_token_type(int type){
     t_token * input = get_token();
@@ -156,8 +158,16 @@ int commandsAndVariables(){
                     input = check_next_token_type(KEY_WORD);
                     if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
                         check_token_int_value(input, k_string)) { //typ
-                        check_next_token_type(EOL);
-                        return commandsAndVariables();
+                        input = get_token();
+                        check_pointer(input);
+
+                        if(input->token_type == EOL){
+                            return commandsAndVariables();
+                        } else if(input->token_type == EQ){
+                            expression();
+                            return commandsAndVariables();
+
+                        }
                     }
                 }
                 error(ERR_SYNTA);
