@@ -40,5 +40,5 @@ typedef struct stack{
     Element *top; //ukazuje na vrchol zasobniku
 }Stack;
 
-
+int expression(TTable *tTable);
 #endif //IFJ_PROJ_EXPRESSION_H

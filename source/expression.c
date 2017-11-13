@@ -288,10 +288,11 @@ int rule(Stack *stack){
                             exit(ERR_SYNTA);
                         }
 
+
                         printf("E_E%i = return z E_ID%i(",new_id, arr_el[--i]->id);
                         while (i){
                             Element *tmp = arr_el[--i];
-                            printf("E_ID%i,", tmp->id);   //TODO tu moze byt tez E_E ale kontorluje syntakt iba e_ID
+                            printf("E_ID%i,", tmp->id);
                         }
                         printf(")\n");
 
@@ -307,7 +308,7 @@ int rule(Stack *stack){
 
         case E_ID:
             check_next_element_type(E_LT,stack);
-            printf("E_E%i <== ID%i\n",new_id, tmp1->id);
+            printf("MOVE E_E%i %s\n",new_id, tmp1->token->data.s);
             Stack_push(stack,E_E, new_id, NULL);
             return 15;
         default: error(ERR_SYNTA);
@@ -421,7 +422,7 @@ int code_type(int *dollar_source, t_token *input){
  * Pro Then je navratova hodnota tedy 120
  * */
 
-int expression(TTable *tTable, t_token *to_what){
+int expression(TTable *tTable){
     Table = tTable;
     int id_of_ID = 0;
 

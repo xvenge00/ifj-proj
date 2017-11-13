@@ -57,6 +57,7 @@ void error(int code) {
 
 void semerror(int code) {
     fprintf(stderr, "Error v semanticke analyze.\n");
+    clear_all();
     exit(code);
 }
 
@@ -112,7 +113,11 @@ int function(int decDef, TTable *Table, TTable *local) {
     TElement *getElement = Tbl_GetDirect(Table, input->data.s);
     TFunction *func = NULL;
     TSymbol *sym = NULL;
+    TData *f = NULL;
     if (getElement == NULL) {
+
+
+
         func = my_malloc(sizeof(TFunction));        //TODO prerob na func_create
         sym = my_malloc(sizeof(TSymbol));
         sym->data = my_malloc(sizeof(TData));
@@ -263,17 +268,32 @@ int commandsAndVariables(TTable *local) {
     if (input->token_type == ID) { //todo co ak je id funckia a ma sa volat funkcia bez parametru
         char *name;
         name = input->data.s;
-        check_next_token_type(EQ);
-        expression(local);
+
+        t_token *loaded = get_token();
+        if (loaded->token_type == EQ){
+            expression(local);
+        } else if (loaded->token_type==LPAR){
+            //todo load function and call
+        } else {
+            semerror(ERR_SEM_P);
+        }
+
+
         return commandsAndVariables(local);
     }
+
+    t_token *tmp1, *tmp2, *tmp3;
+    tmp1 = NULL;
+    tmp2 = NULL;
+    tmp3 = NULL;
 
     if (isCorrect) {
         switch (value.i) {
             case k_dim: //dim
                 input = check_next_token_type(ID);
+                tmp1 = input;
                 char *name = input->data.s;
-                printf("defvar %s\n",name);
+                printf("DEFVAR %s\n",name);
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
@@ -341,6 +361,7 @@ int commandsAndVariables(TTable *local) {
             case k_input: //input
                 check_next_token_type(ID);
                 check_next_token_type(EOL);
+
                 return commandsAndVariables(local);
             case k_print: //print
                 print_params(); //skonci vcetne EOL
