@@ -1,5 +1,5 @@
 
 Scope 'Hlavni telo programu
 Dim vysl As Integer
-vysl = foo(5)
+else
 End Scope

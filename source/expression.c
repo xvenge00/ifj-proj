@@ -581,7 +581,7 @@ int expression(TTable *tTable){
     }while(!(b == E_DOLLAR && Stack_top(&stack)->type == E_DOLLAR));
 
     Stack_dispose(&stack);
-    char *last;
+    char last[130];
     sprintf(last, "$E_E%i",get_id() - 1);
     create_3ac("PUSHS", NULL, NULL, last);  //vytvorenie operacii
 

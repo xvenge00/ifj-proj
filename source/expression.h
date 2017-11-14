@@ -41,5 +41,8 @@ typedef struct stack{
     Element *top; //ukazuje na vrchol zasobniku
 }Stack;
 
+char *token2operand(t_token *token);
+
+
 int expression(TTable *tTable);
 #endif //IFJ_PROJ_EXPRESSION_H

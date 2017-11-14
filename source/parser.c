@@ -11,13 +11,13 @@
 
 TTable *tTable;
 
-char *gen_label(char *ret){
+char *gen_label(char *ret) {
     static int label = 0;
-    char *result = my_malloc(sizeof(char)*130);
-    if (ret == NULL){
-        sprintf(result,"l_%i", label++);
+    char *result = my_malloc(sizeof(char) * 130);
+    if (ret == NULL) {
+        sprintf(result, "l_%i", label++);
     } else {
-        sprintf(result,"l_%s_%i",ret, label++);
+        sprintf(result, "l_%s_%i", ret, label++);
     }
     result[129] = 0;
 
@@ -117,7 +117,6 @@ int function(int decDef, TTable *Table, TTable *local) {
     if (getElement == NULL) {
 
 
-
         func = my_malloc(sizeof(TFunction));        //TODO prerob na func_create
         sym = my_malloc(sizeof(TSymbol));
         sym->data = my_malloc(sizeof(TData));
@@ -165,7 +164,8 @@ int function(int decDef, TTable *Table, TTable *local) {
             create_3ac("POPS", NULL, NULL, name);  //vytvorenie operacii
         }
         params(func, local,
-               name, decDef); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
+               name,
+               decDef); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
     } else if (input->token_type == RPAR) {}
     else {
         error(ERR_SYNTA);
@@ -279,9 +279,50 @@ int commandsAndVariables(TTable *local) {
 
         t_token *loaded = get_token();
 
-        if (loaded->token_type == EQ){
+        if (loaded->token_type == EQ) {
             expression(local);
-        } else if (loaded->token_type==LPAR){
+            create_3ac("POPS", NULL, NULL, name);  //vytvorenie operacii
+
+        } else if (loaded->token_type == LPAR) {
+            create_3ac("CREATEFRAME", NULL, NULL, NULL);  //vytvorenie operacii
+            loaded = get_token();
+            if (loaded->token_type == ID) {
+                t_token *arr_el[100] = {NULL,};
+                unsigned i = 0;
+                arr_el[i++] = loaded;
+
+                check_token_int_value(check_next_token_type(KEY_WORD), k_as);
+                t_token *tmp = check_next_token_type(KEY_WORD);
+                if (tmp->data.i != k_string && tmp->data.i != k_integer && tmp->data.i != k_double) {
+                    clear_all();
+                    exit(ERR_SYNTA);
+                }
+                loaded = get_token();
+                while (loaded->token_type != RPAR) {
+                    if (loaded->token_type != COMMA) {
+                        clear_all();
+                        exit(ERR_SYNTA);
+                    }
+                    loaded = check_next_token_type(ID);
+                    arr_el[i++] = loaded;
+                    check_token_int_value(check_next_token_type(KEY_WORD), k_as);
+                    t_token *tmp = check_next_token_type(KEY_WORD);
+                    if (tmp->data.i != k_string && tmp->data.i != k_integer && tmp->data.i != k_double) {
+                        clear_all();
+                        exit(ERR_SYNTA);
+                    }
+                    loaded = get_token();
+                }
+                while (i) {
+                    create_3ac("PUSHS", NULL, NULL, arr_el[--i]->data.s);  //vytvorenie operacii
+                }
+
+            } else if (loaded->token_type != RPAR) {
+                semerror(ERR_SEM_P);
+
+            }
+
+
             //todo load function and call
         } else {
             semerror(ERR_SEM_P);
@@ -302,38 +343,15 @@ int commandsAndVariables(TTable *local) {
                 input = check_next_token_type(ID);
                 tmp1 = input;
                 char *name = input->data.s;
-                printf("DEFVAR %s\n",name);
+                create_3ac("DEFVAR", NULL, NULL, name); //deklarovanie operandu
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
                     int type = input->data.i;
                     if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
                         check_token_int_value(input, k_string)) { //typ
-                        //check_next_token_type(EOL);
-                        t_token *tmp = get_token();
-                        int imp_i = 0;
-                        double imp_d = 0.0;
-                        char *imp_s = "";
+                        check_next_token_type(EOL);
 
-                        if (tmp ->token_type == EOL){
-                        } else if (tmp->token_type == EQ){
-                            tmp = get_token();
-                            if (tmp->token_type == STR && input->data.i == k_string){
-                                imp_s = tmp->data.s;
-                            } else if (tmp->token_type == DOUBLE && input->data.i == k_double){
-                                imp_d = tmp->data.d;
-                            } else if (tmp->token_type == INT && input->data.i == k_integer){
-                                imp_i = tmp->data.i;
-                            } else if (tmp->token_type == DOUBLE && input->data.i == k_integer){
-                                imp_i = (int)tmp->data.d;
-                            } else if (tmp->token_type == INT && input->data.i == k_double){
-                                imp_d = (int)tmp->data.d;
-                            } else {
-                                semerror(ERR_SEM_P);//nevym o aku chyby sa jedna
-                            }
-                        } else {
-                            semerror(ERR_SYNTA);
-                        }
 
                         TElement *lElement = Tbl_GetDirect(local, name);
 
@@ -341,16 +359,16 @@ int commandsAndVariables(TTable *local) {
                         TValue value;
                         switch (input->data.i) {
                             case k_integer:
-                                value.i = imp_i;
-                                printf("move %s int@%i\n", name, imp_i);
+                                value.i = 0;
+                                create_3ac("MOVE", NULL, NULL, "int@0");  //vytvorenie operacii
                                 break;
                             case k_double:
-                                value.d = imp_d;
-                                printf("move %s float@%f\n", name, imp_d);
+                                value.d = 0.0;
+                                create_3ac("MOVE", NULL, NULL, "double@0");  //vytvorenie operacii
                                 break;
                             case k_string:
-                                value.s = imp_s;
-                                printf("move %s string@%s\n", name, imp_s);
+                                value.s = "";
+                                create_3ac("MOVE", NULL, NULL, "string@");  //vytvorenie operacii
 
                         }
                         var = Var_Create(value, input->token_type);
@@ -368,7 +386,28 @@ int commandsAndVariables(TTable *local) {
                 }
                 error(ERR_SYNTA);
             case k_input: //input
-                check_next_token_type(ID);
+                tmp1 = check_next_token_type(ID);
+                TElement *el = Tbl_GetDirect(tTable, tmp1->data.s);
+                int i = 1;
+
+                if (el == NULL || el->data->type != ST_Variable) {
+                    semerror(ERR_SEM_T);
+                } else {
+                    if (el->data->data->var->type == E_integer) {
+                        i = 1;
+                    } else if (el->data->data->var->type == E_double) {
+                        i = 0;
+                    } else if (el->data->data->var->type == E_integer) {
+                        i = 2;
+                    } else {
+                        i = -1;
+                    }
+                }
+                char *type[10] = {"float", "int", "str"};
+
+
+                create_3ac("READ", type[i], NULL, tmp1->data.s); //deklarovanie operandu
+
                 check_next_token_type(EOL);
 
                 return commandsAndVariables(local);
@@ -379,6 +418,10 @@ int commandsAndVariables(TTable *local) {
                 if (expression(local) != k_then) {
                     error(ERR_SYNTA);
                 }
+                create_3ac("PUSHS", NULL, NULL, "bool@0");  //vytvorenie operacii
+
+                create_3ac("JUMPIFNEQS", NULL, NULL, NULL);  //vytvorenie operacii
+
                 check_next_token_type(EOL);
                 int correct = commandsAndVariables(local);
                 if (correct == k_if) {//skoncilo to end if
@@ -426,8 +469,19 @@ int commandsAndVariables(TTable *local) {
 
 int print_params() {
     int result = expression(tTable);
+    char ret[130];
+    static int print_par = 0;
+    sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
+    create_3ac("DEFVAR", NULL, NULL, ret); //deklarovanie operandu
+    create_3ac("POPS", NULL, NULL, ret); //deklarovanie operandu
+    create_3ac("WRITE", NULL, NULL, ret); //deklarovanie operandu
+
     while (result == SEMICOLLON) {
         result = expression(tTable);
+        sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
+        create_3ac("DEFVAR", NULL, NULL, ret); //deklarovanie operandu
+        create_3ac("POPS", NULL, NULL, ret); //deklarovanie operandu
+        create_3ac("WRITE", NULL, NULL, ret); //deklarovanie operandu
     }
     if (result == EOL) {
         return SUCCESS;
@@ -461,6 +515,7 @@ int print_params() {
 }*/
 
 int scope() {
+    create_3ac("LABEL", NULL, NULL, "!l_main");
     TTable *local = Tbl_Create(8);
     check_next_token_type(EOL);
     int res = commandsAndVariables(local);
