@@ -6,35 +6,28 @@
 #include "scanner.h"
 #include "expression.h"
 #include "symtable.h"
+#include "codegen.h"
 //#include "stack_token.h"
+#include <string.h>
+#include <ctype.h>
 
-#define urcite 1
-#define s_konverziou 2
-#define nie 0
+char * my_strcpy(char *src){
+    char *dest;
+    if (src == NULL){
+        dest = NULL;
+    } else {
+        size_t size = strlen(src) + sizeof(char);
+        dest = my_malloc(size);
+        for (int i = 0; src[i] != 0; ++i) {
+            dest[i] = src[i];
+        }
+
+    }
+    return dest;
+}
 
 TTable *Table;
 
-int are_comparable(t_token *a, t_token *b){
-    if (a->token_type == STR && b->token_type == STR){
-        return urcite;
-    } else if (a->token_type == INT && b->token_type == INT){
-        return urcite;
-    } else if (a->token_type == DOUBLE && b->token_type == DOUBLE){
-        return urcite;
-    } else if ((a->token_type == INT && b->token_type==DOUBLE) || (a->token_type == DOUBLE && b->token_type == INT)){
-        return s_konverziou;
-    } else {
-        fprintf(stderr,"ERR - sem - na riasku %i sa pracuje s nekompatibilymi typmi\n", a->line);
-        clear_all();
-        exit(ERR_SEM_T);
-
-        return nie;
-    }
-}
-
-int param_check(){ //todo
-    return 1;
-}
 
 
 int get_id(){
@@ -61,14 +54,14 @@ int Stack_dispose(Stack * stack){
 }
 
 //vlozi na vrchol zasobniku element s type
-int Stack_push(Stack * stack, int type, int id, t_token *token){
+int Stack_push(Stack * stack, int type, char *operand){
     Element * new = my_malloc(sizeof(Element));
     check_pointer(new);
 
     new->type = type;
     new->next = stack->top;
-    new->id=id;
-    new->token = token;
+    new->operand = my_strcpy(operand);
+
     stack->top = new;
 
     if(new->type != E_E){ //isTerminal
@@ -134,6 +127,7 @@ int rule(Stack *stack){
     Element * input = Stack_pop(stack);
     check_pointer(input);
     int new_id = get_id();
+    char *dest = my_malloc(sizeof(char) * 130);
 
 
     Element *tmp1 = input;
@@ -150,90 +144,138 @@ int rule(Stack *stack){
                 case E_PLUS:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("defvar E_E%i\n",new_id);
-                    printf("ADD E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id,NULL);
+
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("ADD", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 1;
                 case E_MINUS:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("defvar E_E%i\n",new_id);
-                    printf("SUB E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("SUB", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 2;
                 case E_MUL:
                     tmp2 =check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("defvar E_E%i\n",new_id);
-                    printf("MUL E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("MUL", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 3;
                 case E_DIV:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("defvar E_E%i\n",new_id);
-                    printf("DIV E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("DIV", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 4;
                 case E_MOD:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("defvar E_E%i\n",new_id);
-                    printf("MOD E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+                    //todo urobit nejak modulo nieje prikaz !!!
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("DIV", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 5;
                 case E_LT:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("defvar E_E%i\n",new_id);
-                    printf("LT E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("LT", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 6;
                 case E_LE:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("defvar E_E%i\n",new_id);
-                    printf("LT E_E%i E_E%i E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    int old_id[2] = {new_id,get_id()};
-                    new_id = get_id();
-                    printf("defvar E_E%i\n",new_id);
-                    printf("LT E_E%i E_E%i E_E%i\n",old_id[1], tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("LT", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac("PUSHS", NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac("EQ", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac("PUSHS", NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac("ORS", NULL, NULL, NULL);  //vytvorenie operacii
+                    create_3ac("POPS", NULL, NULL, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 7;
                 case E_GT:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("E_E%i = E_E%i > E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("GT", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 8;
                 case E_GE:
                     check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("E_E%i = E_E%i >= E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("GT", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac("PUSHS", NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac("EQ", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac("PUSHS", NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac("ORS", NULL, NULL, NULL);  //vytvorenie operacii
+                    create_3ac("POPS", NULL, NULL, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 9;
                 case E_EQ:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("E_E%i = E_E%i == E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+
+                    //gen vnutorneho kodu
+                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac("EQ", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 10;
                 case E_NEQ:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
-                    are_comparable(tmp1->token,tmp2->token);
-                    printf("E_E%i = E_E%i <> E_E%i\n",new_id, tmp1->id, tmp2->id);
-                    Stack_push(stack, E_E, new_id, NULL);
+
+
+                    create_3ac("EQ", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac("NOT", dest, NULL, dest);  //vytvorenie operacii
+
+                    Stack_push(stack, E_E, dest);
                     return 11;
                 default:
                     error(ERR_SYNTA);
@@ -255,13 +297,21 @@ int rule(Stack *stack){
 
                     switch(input->type){
                         case E_LT:
-                            printf("E_E%i <== E_E%i\n",new_id, tmp1->id);
-                            Stack_push(stack,E_E, new_id, NULL);
+                            dest = my_strcpy(tmp1->operand);
+                            Stack_push(stack,E_E, dest);
                             return 12;
                         case E_ID: //zmenit pak nejspis na E_FUNCT
-                            printf("E_E%i = return z E_ID%i()\n",new_id, tmp1->id);
+                            //gen vnutorneho kodu
+                            sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                            create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+
+                            create_3ac("CREATEFRAME", NULL, NULL, NULL);  //vytvorenie operacii
+                            create_3ac("CALL", NULL, NULL, input->operand);  //vytvorenie operacii
+
+                            create_3ac("MOVE", "%RETVAL", NULL, dest); //deklarovanie operandu
+
                             check_next_element_type(E_LT,stack);
-                            Stack_push(stack,E_E, new_id, NULL);
+                            Stack_push(stack,E_E, dest);
                             return 13;
                         default:
                             error(ERR_SYNTA);
@@ -289,15 +339,16 @@ int rule(Stack *stack){
                         }
 
 
-                        printf("E_E%i = return z E_ID%i(",new_id, arr_el[--i]->id);
-                        while (i){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                        while (i >= 0){
                             Element *tmp = arr_el[--i];
-                            printf("E_ID%i,", tmp->id);
+                            create_3ac("PUSHS", NULL, NULL, tmp->operand);  //vytvorenie operacii
                         }
-                        printf(")\n");
+                        create_3ac("CALL", NULL, NULL, arr_el[0]->operand);  //vytvorenie operacii
+                        create_3ac("MOVE", "%RETVAL", NULL, dest); //deklarovanie operandu
 
-
-                        Stack_push(stack,E_E, new_id, NULL);
+                        Stack_push(stack,E_E, dest);
                         return 14;
                     }
                     error(ERR_SYNTA);
@@ -308,8 +359,7 @@ int rule(Stack *stack){
 
         case E_ID:
             check_next_element_type(E_LT,stack);
-            printf("MOVE E_E%i %s\n",new_id, tmp1->token->data.s);
-            Stack_push(stack,E_E, new_id, NULL);
+            Stack_push(stack,E_E, input->operand);
             return 15;
         default: error(ERR_SYNTA);
     }
@@ -336,6 +386,59 @@ const int precedence_table[17][17] = {
 /* f    */ { xx, xx, xx, xx, xx, EQ, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, },
 /* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
 };
+
+void prilep(char *ret, char c, int *top, int *cap){
+    if (*cap <= *top + 5){
+        *cap = *top + 20;
+        ret = my_realloc(ret, sizeof(char) * (*cap));
+    }
+
+    if (isspace(c)){
+        char tmp[4];
+        sprintf(tmp, "%03i",c);
+        ret[++(*top)]='\\';
+        ret[++(*top)]=tmp[0];
+        ret[++(*top)]=tmp[1];
+        ret[++(*top)]=tmp[2];
+
+    } else {
+        ret[++(*top)]= c;
+    }
+    ret[1+(*top)]= 0;
+}
+
+char *token2operand(t_token *token){
+    if (token == NULL){
+        return "";
+    }
+    int size = 130;
+    char *result = my_malloc(sizeof(char) * size);
+    unsigned i = 0;
+    unsigned j = i;
+    switch (token->token_type){
+        case ID:
+            result = my_strcpy(token->data.s);
+            break;
+        case INT:
+            sprintf(result, "int@%i", token->data.i);
+            break;
+        case DOUBLE:
+            sprintf(result, "float@%f", token->data.d);
+            break;
+        case STR:
+            while (token->data.s[i] != 0){
+                prilep(result, token->data.s[i], &j, &size);
+                i++;
+            }
+            break;
+        default:
+            result[0] = 0;
+
+    }
+    return result;
+}
+
+
 
 int code_type(int *dollar_source, t_token *input){
 //    t_token * input = get_token();
@@ -428,7 +531,7 @@ int expression(TTable *tTable){
 
     Stack stack;
     Stack_init(&stack);
-    Stack_push(&stack, E_DOLLAR, -1, NULL);
+    Stack_push(&stack, E_DOLLAR, NULL);
     int a;
     int b;
     int dollar_source = 0;
@@ -453,14 +556,13 @@ int expression(TTable *tTable){
 
         switch(precedence_table[a][b]){
             case EQ:
-
-                Stack_push(&stack,b, new_id, my_token);
+                Stack_push(&stack,b, token2operand(my_token));
                 my_token = get_token();
                 b = code_type(&dollar_source, my_token);
                 break;
             case LT:
                 Stack_expand(&stack);
-                Stack_push(&stack, b, new_id, my_token);
+                Stack_push(&stack, b, token2operand(my_token));
                 my_token = get_token();
                 b = code_type(&dollar_source, my_token);
                 break;
@@ -479,5 +581,10 @@ int expression(TTable *tTable){
     }while(!(b == E_DOLLAR && Stack_top(&stack)->type == E_DOLLAR));
 
     Stack_dispose(&stack);
+    char *last[130];
+    sprintf(last, "$E_E%i",get_id() - 1);
+    create_3ac("PUSHS", NULL, NULL, last);  //vytvorenie operacii
+
+
     return dollar_source;
 }

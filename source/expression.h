@@ -33,6 +33,7 @@ typedef struct element{
     struct element *next;
     int id;
     t_token *token;
+    char  *operand;
 } Element; //prvek zásobníku - type bude zakodovany typ symbolu, next ukazatel na dalsi
 
 typedef struct stack{
