@@ -18,9 +18,11 @@ char * my_strcpy(char *src){
     } else {
         size_t size = strlen(src) + sizeof(char);
         dest = my_malloc(size);
-        for (int i = 0; src[i] != 0; ++i) {
+        int i;
+        for (i = 0; src[i] != 0; ++i) {
             dest[i] = src[i];
         }
+        dest[i] = 0;
 
     }
     return dest;
@@ -282,7 +284,7 @@ int rule(Stack *stack){
 
             }
         case E_RPAR:
-
+            //todo otazka nemozu byt funkice bez parametrou   SYNTAKS
             tmp1 = check_next_element_type(E_E,stack);
 
             input = Stack_pop(stack);
@@ -304,12 +306,10 @@ int rule(Stack *stack){
                             //gen vnutorneho kodu
                             sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
                             create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-
                             create_3ac("CREATEFRAME", NULL, NULL, NULL);  //vytvorenie operacii
+                            create_3ac("PUSHS", NULL, NULL, tmp1->operand);  //vytvorenie operacii
                             create_3ac("CALL", NULL, NULL, input->operand);  //vytvorenie operacii
-
                             create_3ac("MOVE", "%RETVAL", NULL, dest); //deklarovanie operandu
-
                             check_next_element_type(E_LT,stack);
                             Stack_push(stack,E_E, dest);
                             return 13;
