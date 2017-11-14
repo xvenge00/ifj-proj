@@ -7,7 +7,7 @@
 #include "scanner.h"
 #include <stdlib.h>
 #include <stdbool.h>
-
+#include "codegen.h"
 
 TTable *tTable;
 
@@ -132,6 +132,9 @@ int function(int decDef, TTable *Table, TTable *local) {
             sym->isDeclared = true;
         } else if (decDef == k_function) {
             sym->isDefined = true;
+            create_3ac("LABEL", NULL, NULL, input->data.s);  //vytvorenie operacii
+            create_3ac("DEFVAR", NULL, NULL, "%RETVAL"); //deklarovanie operandu
+            create_3ac("PUSHFRAME", NULL, NULL, NULL);  //vytvorenie operacii
         }
         sym->name = input->data.s;
         sym->type = ST_Function;
@@ -158,10 +161,11 @@ int function(int decDef, TTable *Table, TTable *local) {
     if (input->token_type == ID) {
         if (decDef == k_function) {
             name = input->data.s;
-
+            create_3ac("DEFVAR", NULL, NULL, name); //deklarovanie operandu
+            create_3ac("POPS", NULL, NULL, name);  //vytvorenie operacii
         }
         params(func, local,
-               name); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
+               name, decDef); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
     } else if (input->token_type == RPAR) {}
     else {
         error(ERR_SYNTA);
@@ -187,8 +191,8 @@ int function(int decDef, TTable *Table, TTable *local) {
         } else {
             Tbl_Insert(Table, El_Create(sym));
         }
-        printf("label %s\n",sym->name);
-        printf("pushframe\n");
+        create_3ac("PUSHFRAME", NULL, NULL, NULL);  //vytvorenie operacii
+        create_3ac("RETURN", NULL, NULL, NULL);  //vytvorenie operacii
         return SUCCESS;
     } else {
         error(ERR_SYNTA);
@@ -198,7 +202,7 @@ int function(int decDef, TTable *Table, TTable *local) {
 }
 
 
-int params(TFunction *functions, TTable *local, char *name) {
+int params(TFunction *functions, TTable *local, char *name, int decDef) {
     t_token *input = check_next_token_type(KEY_WORD);
     if (check_token_int_value(input, k_as)) { //as
         functions->attr_count++;
@@ -243,7 +247,11 @@ int params(TFunction *functions, TTable *local, char *name) {
             if (input->token_type == COMMA) {
                 input = check_next_token_type(ID);
                 name = input->data.s;
-                return params(functions, local, name);
+                if (decDef) {
+                    create_3ac("DEFVAR", NULL, NULL, name); //deklarovanie operandu
+                    create_3ac("POPS", NULL, NULL, name);  //vytvorenie operacii
+                }
+                return params(functions, local, name, decDef);
             } else if (input->token_type == RPAR) {
                 return SUCCESS;
             }
@@ -270,6 +278,7 @@ int commandsAndVariables(TTable *local) {
         name = input->data.s;
 
         t_token *loaded = get_token();
+
         if (loaded->token_type == EQ){
             expression(local);
         } else if (loaded->token_type==LPAR){

@@ -1,5 +1,5 @@
 
 Scope 'Hlavni telo programu
 Dim vysl As Integer
-vysl = 5 +  5 + 6 + 7
+vysl = foo(5)
 End Scope

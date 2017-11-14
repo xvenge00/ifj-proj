@@ -8,7 +8,7 @@
 
 int parse(TTable* Table);
 int function(int decDef,TTable* Table,TTable* local);
-int params(TFunction *functions,TTable* local,char* name);
+int params(TFunction *functions,TTable* local,char* name, int decDef);
 int commandsAndVariables(TTable* local);
 //int expression();
 int expressionOrFunction();
