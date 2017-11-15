@@ -65,7 +65,7 @@ int parse(TTable *Table) {
     tTable = Table;
     t_token *input = get_token();
     check_pointer(input);
-    while (input->token_type == EOL) {
+    while (input->token_type == EOL) {  //preskoc prazdne riadky
         input = get_token();
         check_pointer(input);
     }
@@ -86,8 +86,10 @@ int parse(TTable *Table) {
                 function(k_function, Table, local); //parametry, konci tokenem EOL
 
                 int correct = commandsAndVariables(local);
-                printf("popframe\n");
-                printf("return\n");
+
+                //printf("popframe\n");
+                //printf("return\n");
+
                 if (correct == k_function) { //function
                     return parse(Table);
                 } else {
@@ -191,8 +193,8 @@ int function(int decDef, TTable *Table, TTable *local) {
         } else {
             Tbl_Insert(Table, El_Create(sym));
         }
-        create_3ac("PUSHFRAME", NULL, NULL, NULL);  //vytvorenie operacii
-        create_3ac("RETURN", NULL, NULL, NULL);  //vytvorenie operacii
+        create_3ac("POPFRAME", NULL, NULL, NULL);   //vytvorenie operacii
+        create_3ac("RETURN", NULL, NULL, NULL);     //vytvorenie operacii
         return SUCCESS;
     } else {
         error(ERR_SYNTA);
@@ -418,9 +420,9 @@ int commandsAndVariables(TTable *local) {
                 if (expression(local) != k_then) {
                     error(ERR_SYNTA);
                 }
-                create_3ac("PUSHS", NULL, NULL, "bool@0");  //vytvorenie operacii
+                create_3ac("PUSHS", NULL, NULL, "int@0");  //vytvorenie operacii
 
-                create_3ac("JUMPIFNEQS", NULL, NULL, NULL);  //vytvorenie operacii
+                create_3ac("JUMPIFEQS", NULL, NULL, NULL);  //vytvorenie operacii
 
                 check_next_token_type(EOL);
                 int correct = commandsAndVariables(local);
@@ -460,6 +462,9 @@ int commandsAndVariables(TTable *local) {
                 return k_loop; //tady to ma asi vracet k_loop
             case k_return: //return
                 expression(local);
+                create_3ac("POPS", NULL, NULL, "%RETVAL");
+                create_3ac("POPFRAME", NULL, NULL, NULL);
+                create_3ac("RETURN", NULL, NULL, NULL);
                 return commandsAndVariables(local);
             default:
                 error(ERR_SYNTA);
@@ -516,7 +521,9 @@ int print_params() {
 
 int scope() {
     create_3ac("LABEL", NULL, NULL, "!l_main");
+
     TTable *local = Tbl_Create(8);
+
     check_next_token_type(EOL);
     int res = commandsAndVariables(local);
     if (res == k_scope) {

@@ -1,5 +1,27 @@
+Function a (i as integer) as integer
+dim a as integer
+end function
 
 Scope 'Hlavni telo programu
 Dim vysl As Integer
-else
+vysl = 1
 End Scope
+
+/'-------------
+    JUMP !l_main
+
+LABEL a
+    DEFVAR %RETVAL
+    PUSHFRAME
+    DEFVAR i
+    POPS i
+    POPFRAME
+    RETURN
+    DEFVAR a
+    MOVE int@0
+
+LABEL !l_main
+    DEFVAR vysl
+    MOVE int@0
+    PUSHS
+    POPS vysl'/
