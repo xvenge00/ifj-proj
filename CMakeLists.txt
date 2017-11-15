@@ -7,7 +7,7 @@ enable_testing()
 
 
 set(SOURCE_FILES  source/codegen.c source/main.c source/symtable.c
-        source/str_buff.c source/memwork.c  source/parser.c source/scanner.c source/expression.c source/ast.h source/expression.h)
+        source/str_buff.c source/memwork.c  source/parser.c source/scanner.c source/expression.c source/expression.h)
 add_executable(ifj_proj ${SOURCE_FILES})
 
 #testy memwork

@@ -57,8 +57,9 @@ typedef struct TElement{
 } TElement; //prvek seznamu elementu se stejnym key (hashle jmeno)
 
 typedef struct {
-    unsigned int size; //na kolik je naalokovano
+    unsigned int size;  //na kolik je naalokovano
     unsigned int count; //obsazenych ukazatelu
+    bool isScope;       //rozdeleni lokalnich tabulek na funkce a scope
     TElement **list_firsts; //pole ukazatelu na prvni TElement v seznamu
 } TTable; //samotna tabulka
 

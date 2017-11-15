@@ -352,8 +352,19 @@ int commandsAndVariables(TTable *local) {
                     int type = input->data.i;
                     if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
                         check_token_int_value(input, k_string)) { //typ
-                        check_next_token_type(EOL);
+                        //check_next_token_type(EOL);
 
+                        /* merge z masteru */
+                        input = get_token();
+                        check_pointer(input);
+
+                        if(input->token_type == EOL){
+                            return commandsAndVariables(local);
+                        } else if(input->token_type == EQ) {
+                            expression(local);
+                            return commandsAndVariables(local);
+                        }
+                        /* koniec mergu */
 
                         TElement *lElement = Tbl_GetDirect(local, name);
 
@@ -426,13 +437,19 @@ int commandsAndVariables(TTable *local) {
 
                 check_next_token_type(EOL);
                 int correct = commandsAndVariables(local);
-                if (correct == k_if) {//skoncilo to end if
+                if (correct == k_if) {                      //skoncilo to end if
+                    return commandsAndVariables(local);
+                } else if (correct == k_else) {             //prosel uspesne else
                     return commandsAndVariables(local);
                 }
                 error(ERR_SYNTA);
             case k_else: //else
                 check_next_token_type(EOL);
-                return commandsAndVariables(local);
+                correct = commandsAndVariables(local);
+                if (correct == k_if) {//skoncilo to end if
+                    return k_else; //vrat else, odchytne si to if a if zavola dalsi prikazy
+                }
+                error(ERR_SYNTA);
             case k_end: //end
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, k_if)) { //if
@@ -461,11 +478,17 @@ int commandsAndVariables(TTable *local) {
                 check_next_token_type(EOL);
                 return k_loop; //tady to ma asi vracet k_loop
             case k_return: //return
-                expression(local);
-                create_3ac("POPS", NULL, NULL, "%RETVAL");
-                create_3ac("POPFRAME", NULL, NULL, NULL);
-                create_3ac("RETURN", NULL, NULL, NULL);
-                return commandsAndVariables(local);
+
+                if(local->isScope){
+                    error(ERR_SYNTA);
+                } else{
+                    expression(local);
+                    create_3ac("POPS", NULL, NULL, "%RETVAL");
+                    create_3ac("POPFRAME", NULL, NULL, NULL);
+                    create_3ac("RETURN", NULL, NULL, NULL);
+                    return commandsAndVariables(local);
+                }
+
             default:
                 error(ERR_SYNTA);
         }
@@ -523,6 +546,7 @@ int scope() {
     create_3ac("LABEL", NULL, NULL, "!l_main");
 
     TTable *local = Tbl_Create(8);
+    local->isScope = true;
 
     check_next_token_type(EOL);
     int res = commandsAndVariables(local);

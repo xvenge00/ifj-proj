@@ -77,6 +77,7 @@ TTable * Tbl_Create(unsigned int size){
 
     if(tbl!=NULL){
         tbl->size = size;
+        tbl->isScope = false;
         tbl->count = 0;
         tbl->list_firsts = NULL;
 
