@@ -4,7 +4,7 @@ end function
 
 Scope 'Hlavni telo programu
 Dim vysl As Integer
-vysl = 1
+vysl = a(5)
 End Scope
 
 /'-------------

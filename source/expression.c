@@ -608,7 +608,10 @@ int expression(TTable *tTable, int typ){
         a = Stack_top(&stack)->type;
         int ruleNumber = 0;
         int new_id = -1;
-
+        int token_type = -1;
+        if (my_token != NULL){
+            token_type = my_token->token_type;
+        }
         if (b == E_ID){
             new_id = id_of_ID++;
         } else {
@@ -618,13 +621,13 @@ int expression(TTable *tTable, int typ){
 
         switch(precedence_table[a][b]){
             case EQ:
-                Stack_push(&stack,b, token2operand(my_token), my_token->token_type);
+                Stack_push(&stack,b, token2operand(my_token), token_type);
                 my_token = get_token();
                 b = code_type(&dollar_source, my_token);
                 break;
             case LT:
                 Stack_expand(&stack);
-                Stack_push(&stack, b, token2operand(my_token), my_token->token_type);
+                Stack_push(&stack, b, token2operand(my_token), token_type);
                 my_token = get_token();
                 b = code_type(&dollar_source, my_token);
                 break;

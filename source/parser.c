@@ -825,6 +825,7 @@ int scope() {
             check_pointer(input);
         }
         if (input->token_type == EMPTY) {
+
             return SUCCESS;
         }
     }

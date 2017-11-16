@@ -80,8 +80,8 @@ t_3ac *create_3ac(int operation,char *op1, char *op2, char *dest){
     result->op2 = op2;
     result->dest = dest;
     result->next = NULL;
-//    append_3ac(result);
-    print_operation(result);
+    append_3ac(result);
+//    print_operation(result);
     return result;
 }
 
@@ -110,6 +110,14 @@ void print_operation(t_3ac *code){
 
 int generate_code(){
     t_3ac j;
+//    j.op1 = j.op2 = NULL;
+//    j.dest = NULL;
+//    j.operation = I_CREATEFRAME;
+//    print_operation(&j);
+//    j.op1 = j.op2 = NULL;
+//    j.dest = NULL;
+//    j.operation = I_PUSHFRAME;
+//    print_operation(&j);
     j.op1 = j.op2 = NULL;
     j.dest = "!l_main";
     j.operation = I_JUMP;
