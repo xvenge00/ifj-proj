@@ -396,9 +396,6 @@ int params(TTable *local, unsigned *attr_count, int *attributes, int decDef) {
 //    error(ERR_SYNTA);
 //}
 
-int load_f(TTable *local, char *name) {
-
-}
 
 int commandsAndVariables(TTable *local) {
     int i = 0;
@@ -415,7 +412,7 @@ int commandsAndVariables(TTable *local) {
     if (input->token_type == ID) { //todo co ak je id funckia a ma sa volat funkcia bez parametru
         char *name;
         name = input->data.s;
-        TElement *el_func = Tbl_GetDirect(tTable, name);
+        TElement *el_func = Tbl_GetDirect(local, name);
         if (el_func == NULL){
             semerror(ERR_SEM_P);
         }
@@ -607,15 +604,15 @@ int commandsAndVariables(TTable *local) {
                             switch (input->data.i) {
                                 case k_integer:
                                     value.i = 0;
-                                    create_3ac(I_MOVE, NULL, NULL, "int@0");  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "int@0", NULL,name );  //vytvorenie operacii
                                     break;
                                 case k_double:
                                     value.d = 0.0;
-                                    create_3ac(I_MOVE, NULL, NULL, "float@0.0");  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "float@0.0", NULL, name);  //vytvorenie operacii
                                     break;
                                 case k_string:
                                     value.s = "";
-                                    create_3ac(I_MOVE, NULL, NULL, "string@");  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "string@",NULL, name );  //vytvorenie operacii
 
                             }
                         } else if (input2->token_type == EQ) {

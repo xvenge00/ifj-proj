@@ -56,13 +56,14 @@ int Stack_dispose(Stack * stack){
 }
 
 //vlozi na vrchol zasobniku element s type
-int Stack_push(Stack * stack, int type, char *operand){
+int Stack_push(Stack * stack, int type, char *operand, int t_dat){
     Element * new = my_malloc(sizeof(Element));
     check_pointer(new);
 
     new->type = type;
     new->next = stack->top;
     new->operand = my_strcpy(operand);
+    new->typ_konkretne = t_dat;
 
     stack->top = new;
 
@@ -135,6 +136,9 @@ int rule(Stack *stack){
     Element *tmp1 = input;
     Element *tmp2 = NULL;
 
+    int typ1;
+    int typ2;
+
 
     Element *arr_el[100] = {NULL, };
 
@@ -147,50 +151,81 @@ int rule(Stack *stack){
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
 
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
 
+                    /*
+                     * todo
+                     * porovnat ci typ1 a typ2 su
+                     * k_int a k_int
+                     * k_int a k_double
+                     * k_double a k_double
+                     * k_double a k_int
+                     * k_str a k_str
+                     * inak semerror ERR_SEM_T
+                     * */
+
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
                     create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                     create_3ac(I_ADD, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, typ1);
                     return 1;
                 case E_MINUS:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
+
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
                     create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                     create_3ac(I_SUB, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, typ1);
                     return 2;
                 case E_MUL:
                     tmp2 =check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
+
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
                     create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                     create_3ac(I_MUL, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, typ1);
                     return 3;
                 case E_DIV:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
+
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
                     create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                     create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, typ1);
                     return 4;
                 case E_MOD:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
+
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
                     //todo urobit nejak modulo nieje prikaz !!!
                     //gen vnutorneho kodu
@@ -198,22 +233,29 @@ int rule(Stack *stack){
                     create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                     create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, typ1);
                     return 5;
                 case E_LT:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
 
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
+
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
                     create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                     create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, k_boolean);
                     return 6;
                 case E_LE:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
 
                     //gen vnutorneho kodu
@@ -226,23 +268,31 @@ int rule(Stack *stack){
                     create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
                     create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, k_boolean);
                     return 7;
                 case E_GT:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
 
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
                     create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                     create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, k_boolean);
                     return 8;
                 case E_GE:
-                    check_next_element_type(E_E,stack);
+                    tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
+
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
 
                     //gen vnutorneho kodu
@@ -255,11 +305,15 @@ int rule(Stack *stack){
                     create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
                     create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, k_boolean);
                     return 9;
                 case E_EQ:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
+
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
 
                     //gen vnutorneho kodu
@@ -267,17 +321,21 @@ int rule(Stack *stack){
                     create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                     create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, k_boolean);
                     return 10;
                 case E_NEQ:
                     tmp2 = check_next_element_type(E_E,stack);
                     check_next_element_type(E_LT,stack);
 
+                    typ1 = tmp1->typ_konkretne;
+                    typ2 = tmp2->typ_konkretne;
+
+                    //todo semanticka konrola ci tie 2 prvky su upravitelne
 
                     create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
                     create_3ac(I_EQ, dest, NULL, dest);  //vytvorenie operacii
 
-                    Stack_push(stack, E_E, dest);
+                    Stack_push(stack, E_E, dest, k_boolean);
                     return 11;
                 default:
                     error(ERR_SYNTA);
@@ -300,19 +358,18 @@ int rule(Stack *stack){
                     switch(input->type){
                         case E_LT:
                             dest = my_strcpy(tmp1->operand);
-                            Stack_push(stack,E_E, dest);
+                            Stack_push(stack,E_E, dest, tmp1->typ_konkretne);
                             return 12;
                         case E_ID: //zmenit pak nejspis na E_FUNCT
                             //todo skontrolovat sematiku ze tato funkcia sa ma volat bez parametra
                             //gen vnutorneho kodu
-                            sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                            create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+
                             create_3ac(I_CREATEFRAME, NULL, NULL, NULL);  //vytvorenie operacii
                             create_3ac(I_PUSHS, NULL, NULL, tmp1->operand);  //vytvorenie operacii
                             create_3ac(I_CALL, NULL, NULL, input->operand);  //vytvorenie operacii
                             create_3ac(I_MOVE, "%RETVAL", NULL, dest); //deklarovanie operandu
                             check_next_element_type(E_LT,stack);
-                            Stack_push(stack,E_E, dest);
+                            Stack_push(stack,E_E, dest, -1);    //todo pristupit do symtable a pozret aky je navratovy typ
                             return 13;
                         default:
                             error(ERR_SYNTA);
@@ -350,7 +407,7 @@ int rule(Stack *stack){
                         create_3ac(I_CALL, NULL, NULL, arr_el[0]->operand);  //vytvorenie operacii
                         create_3ac(I_MOVE, "%RETVAL", NULL, dest); //deklarovanie operandu
 
-                        Stack_push(stack,E_E, dest);
+                        Stack_push(stack,E_E, dest,-1);    //todo pristupit do symtable a pozret aky je navratovy typ
                         return 14;
                     }
                     error(ERR_SYNTA);
@@ -361,7 +418,10 @@ int rule(Stack *stack){
 
         case E_ID:
             check_next_element_type(E_LT,stack);
-            Stack_push(stack,E_E, input->operand);
+            sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+            create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+            create_3ac(I_MOVE, tmp1->operand, NULL, dest);
+            Stack_push(stack,E_E, dest, tmp1->typ_konkretne);
             return 15;
         default: error(ERR_SYNTA);
     }
@@ -533,7 +593,7 @@ int expression(TTable *tTable, int typ){
 
     Stack stack;
     Stack_init(&stack);
-    Stack_push(&stack, E_DOLLAR, NULL);
+    Stack_push(&stack, E_DOLLAR, NULL, 0);
     int a;
     int b;
     int dollar_source = 0;
@@ -558,13 +618,13 @@ int expression(TTable *tTable, int typ){
 
         switch(precedence_table[a][b]){
             case EQ:
-                Stack_push(&stack,b, token2operand(my_token));
+                Stack_push(&stack,b, token2operand(my_token), my_token->token_type);
                 my_token = get_token();
                 b = code_type(&dollar_source, my_token);
                 break;
             case LT:
                 Stack_expand(&stack);
-                Stack_push(&stack, b, token2operand(my_token));
+                Stack_push(&stack, b, token2operand(my_token), my_token->token_type);
                 my_token = get_token();
                 b = code_type(&dollar_source, my_token);
                 break;

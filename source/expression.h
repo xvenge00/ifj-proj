@@ -34,6 +34,8 @@ typedef struct element{
     int id;
     t_token *token;
     char  *operand;
+    int typ_konkretne;
+
 } Element; //prvek zásobníku - type bude zakodovany typ symbolu, next ukazatel na dalsi
 
 typedef struct stack{

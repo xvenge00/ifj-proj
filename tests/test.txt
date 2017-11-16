@@ -1,5 +1,5 @@
 Function a (i as integer) as integer
-dim a as integer
+'dim a as integer
 end function
 
 Scope 'Hlavni telo programu
