@@ -456,17 +456,17 @@ void prilep(char *ret, char c, int *top, int *cap){
     }
 
     if (isspace(c)){
-        char tmp[4];
-        sprintf(tmp, "%03i",c);
-        ret[++(*top)]='\\';
-        ret[++(*top)]=tmp[0];
-        ret[++(*top)]=tmp[1];
-        ret[++(*top)]=tmp[2];
+        char tmp[5];
+        sprintf(tmp, "\\%03i",c);
+        ret[(*top)++]=tmp[0];
+        ret[(*top)++]=tmp[1];
+        ret[(*top)++]=tmp[2];
+        ret[(*top)++]=tmp[3];
 
     } else {
-        ret[++(*top)]= c;
+        ret[(*top)++]= c;
     }
-    ret[1+(*top)]= 0;
+    ret[(*top)]= 0;
 }
 
 char *token2operand(t_token *token){
@@ -492,6 +492,8 @@ char *token2operand(t_token *token){
                 prilep(result, token->data.s[i], &j, &size);
                 i++;
             }
+            char *tmp = my_strcpy(result);
+            sprintf(result, "str@%s", tmp);
             break;
         default:
             result[0] = 0;
@@ -598,6 +600,9 @@ int expression(TTable *tTable, int typ){
     int b;
     int dollar_source = 0;
     t_token *my_token = get_token();
+    if (my_token->token_type == EOL && typ == -2){
+        return EOL;
+    }
 
     b = code_type(&dollar_source, my_token); //prekodovani typu tokenu na index do tabulky
     if(b==E_DOLLAR && dollar_source == EOL) {

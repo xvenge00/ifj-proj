@@ -52,7 +52,8 @@ char oper[50][15] = {
         "JUMPIFEQS",
         "JUMPIFNEQS",
         "BREAK",
-        "DPRINT"
+        "DPRINT",
+                "#"
 };
 
 
@@ -80,8 +81,8 @@ t_3ac *create_3ac(int operation,char *op1, char *op2, char *dest){
     result->op2 = op2;
     result->dest = dest;
     result->next = NULL;
-    append_3ac(result);
-//    print_operation(result);
+//    append_3ac(result);
+    print_operation(result);
     return result;
 }
 

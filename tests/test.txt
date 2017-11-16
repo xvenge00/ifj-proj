@@ -1,27 +1,16 @@
-Function a (i as integer) as integer
-'dim a as integer
-end function
-
-Scope 'Hlavni telo programu
-Dim vysl As Integer
-vysl = a(5)
-End Scope
-
-/'-------------
-    JUMP !l_main
-
-LABEL a
-    DEFVAR %RETVAL
-    PUSHFRAME
-    DEFVAR i
-    POPS i
-    POPFRAME
-    RETURN
-    DEFVAR a
-    MOVE int@0
-
-LABEL !l_main
-    DEFVAR vysl
-    MOVE int@0
-    PUSHS
-    POPS vysl'/
+scope 'Hlavni telo programu
+    Dim a As Integer
+    DIM vysl AS INTEGER
+    PrinT !"Zadejte cislo pro vypocet faktorialu";
+    InpuT A
+    If a < 0 THEN
+        print !"\nFaktorial nelze spocitat\n";
+    ELSE
+        Vysl = 1
+        Do WHile A > 0
+            VYSL = vysl * a
+            a = A - 1
+        LooP
+        Print !"\nVysledek je:"; vYsl ; !"\n";
+    end IF
+END SCOPE

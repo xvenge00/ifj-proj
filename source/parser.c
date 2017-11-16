@@ -580,7 +580,7 @@ int commandsAndVariables(TTable *local) {
                         check_token_int_value(input, k_string)) { //typ
                         //check_next_token_type(EOL);
 
-                        int type = 0;
+                        int type = -1;
 
                         switch (input->data.i) {
                             case k_integer:
@@ -630,7 +630,7 @@ int commandsAndVariables(TTable *local) {
                             semerror(ERR_SEM_P); //druhy raz definovana
                         }
 
-                        TData *var = Var_Create(value, input->token_type);
+                        TData *var = Var_Create(value, type);
                         TSymbol *lSymbol = Sym_Create(ST_Variable, var, name);
                         lSymbol->isDeclared = true;
 
@@ -642,17 +642,17 @@ int commandsAndVariables(TTable *local) {
                 error(ERR_SYNTA);
             case k_input: //input
                 tmp1 = check_next_token_type(ID);
-                TElement *el = Tbl_GetDirect(tTable, tmp1->data.s);
+                TElement *el = Tbl_GetDirect(local, tmp1->data.s);
                 int i = 1;
 
                 if (el == NULL || el->data->type != ST_Variable) {
                     semerror(ERR_SEM_T);
                 } else {
-                    if (el->data->data->var->type == E_integer) {
+                    if (el->data->data->var->type == k_integer) {
                         i = 1;
-                    } else if (el->data->data->var->type == E_double) {
+                    } else if (el->data->data->var->type == k_double) {
                         i = 0;
-                    } else if (el->data->data->var->type == E_integer) {
+                    } else if (el->data->data->var->type == k_integer) {
                         i = 2;
                     } else {
                         clear_all();
@@ -674,7 +674,7 @@ int commandsAndVariables(TTable *local) {
                 if (expression(local, -1) != k_then) {
                     error(ERR_SYNTA);
                 }
-                create_3ac(I_PUSHS, NULL, NULL, "bool@true");  //vytvorenie operacii
+                create_3ac(I_PUSHS, NULL, NULL, "bool@false");  //vytvorenie operacii
 
                 char *label = gen_label("if");
                 str_push(label);
@@ -776,10 +776,12 @@ int print_params() {
 
     while (result == SEMICOLLON) {
         result = expression(tTable, -2);
-        sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
-        create_3ac(I_DEFVAR, NULL, NULL, ret); //deklarovanie operandu
-        create_3ac(I_POPS, NULL, NULL, ret); //deklarovanie operandu
-        create_3ac(I_WRITE, NULL, NULL, ret); //deklarovanie operandu
+        if (result != EOL) {
+            sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
+            create_3ac(I_DEFVAR, NULL, NULL, ret); //deklarovanie operandu
+            create_3ac(I_POPS, NULL, NULL, ret); //deklarovanie operandu
+            create_3ac(I_WRITE, NULL, NULL, ret); //deklarovanie operandu
+        }
     }
     if (result == EOL) {
         return SUCCESS;
