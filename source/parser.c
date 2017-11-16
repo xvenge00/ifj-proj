@@ -179,7 +179,10 @@ int function(int decDef, TTable *Table, TTable *local) {
 
     //nacitanie prikazouv ak je toto definicia
 
-     int i =   commandsAndVariables(local);
+     int i ;
+    if (decDef == k_function) {
+        i = commandsAndVariables(local);
+    }
 
 
     create_3ac(I_POPFRAME, NULL, NULL, NULL);
