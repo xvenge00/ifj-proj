@@ -150,8 +150,8 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("ADD", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_ADD, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 1;
@@ -161,8 +161,8 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("SUB", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_SUB, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 2;
@@ -172,8 +172,8 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("MUL", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_MUL, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 3;
@@ -183,8 +183,8 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("DIV", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 4;
@@ -195,8 +195,8 @@ int rule(Stack *stack){
                     //todo urobit nejak modulo nieje prikaz !!!
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("DIV", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 5;
@@ -206,8 +206,8 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("LT", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 6;
@@ -218,13 +218,13 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("LT", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac("PUSHS", NULL, NULL, dest);  //vytvorenie operacii
-                    create_3ac("EQ", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac("PUSHS", NULL, NULL, dest);  //vytvorenie operacii
-                    create_3ac("ORS", NULL, NULL, NULL);  //vytvorenie operacii
-                    create_3ac("POPS", NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
+                    create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 7;
@@ -235,8 +235,8 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("GT", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 8;
@@ -247,13 +247,13 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("GT", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac("PUSHS", NULL, NULL, dest);  //vytvorenie operacii
-                    create_3ac("EQ", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac("PUSHS", NULL, NULL, dest);  //vytvorenie operacii
-                    create_3ac("ORS", NULL, NULL, NULL);  //vytvorenie operacii
-                    create_3ac("POPS", NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                    create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
+                    create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 9;
@@ -264,8 +264,8 @@ int rule(Stack *stack){
 
                     //gen vnutorneho kodu
                     sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac("EQ", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                    create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 10;
@@ -274,8 +274,8 @@ int rule(Stack *stack){
                     check_next_element_type(E_LT,stack);
 
 
-                    create_3ac("EQ", tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac("NOT", dest, NULL, dest);  //vytvorenie operacii
+                    create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    create_3ac(I_EQ, dest, NULL, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest);
                     return 11;
@@ -303,13 +303,14 @@ int rule(Stack *stack){
                             Stack_push(stack,E_E, dest);
                             return 12;
                         case E_ID: //zmenit pak nejspis na E_FUNCT
+                            //todo skontrolovat sematiku ze tato funkcia sa ma volat bez parametra
                             //gen vnutorneho kodu
                             sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                            create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
-                            create_3ac("CREATEFRAME", NULL, NULL, NULL);  //vytvorenie operacii
-                            create_3ac("PUSHS", NULL, NULL, tmp1->operand);  //vytvorenie operacii
-                            create_3ac("CALL", NULL, NULL, input->operand);  //vytvorenie operacii
-                            create_3ac("MOVE", "%RETVAL", NULL, dest); //deklarovanie operandu
+                            create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                            create_3ac(I_CREATEFRAME, NULL, NULL, NULL);  //vytvorenie operacii
+                            create_3ac(I_PUSHS, NULL, NULL, tmp1->operand);  //vytvorenie operacii
+                            create_3ac(I_CALL, NULL, NULL, input->operand);  //vytvorenie operacii
+                            create_3ac(I_MOVE, "%RETVAL", NULL, dest); //deklarovanie operandu
                             check_next_element_type(E_LT,stack);
                             Stack_push(stack,E_E, dest);
                             return 13;
@@ -338,15 +339,16 @@ int rule(Stack *stack){
                             exit(ERR_SYNTA);
                         }
 
+                        //todo skontrolovat sematiku ze tato funkcia sa ma volat bez parametra
 
                         sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                        create_3ac("DEFVAR", NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
                         while (i >= 0){
                             Element *tmp = arr_el[--i];
-                            create_3ac("PUSHS", NULL, NULL, tmp->operand);  //vytvorenie operacii
+                            create_3ac(I_PUSHS, NULL, NULL, tmp->operand);  //vytvorenie operacii
                         }
-                        create_3ac("CALL", NULL, NULL, arr_el[0]->operand);  //vytvorenie operacii
-                        create_3ac("MOVE", "%RETVAL", NULL, dest); //deklarovanie operandu
+                        create_3ac(I_CALL, NULL, NULL, arr_el[0]->operand);  //vytvorenie operacii
+                        create_3ac(I_MOVE, "%RETVAL", NULL, dest); //deklarovanie operandu
 
                         Stack_push(stack,E_E, dest);
                         return 14;
@@ -583,7 +585,7 @@ int expression(TTable *tTable, int typ){
     Stack_dispose(&stack);
     char last[130];
     sprintf(last, "$E_E%i",get_id() - 1);
-    create_3ac("PUSHS", NULL, NULL, last);  //vytvorenie operacii
+    create_3ac(I_PUSHS, NULL, NULL, last);  //vytvorenie operacii
 
 
     return dollar_source;
