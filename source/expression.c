@@ -525,7 +525,7 @@ int code_type(int *dollar_source, t_token *input){
  * Pro Then je navratova hodnota tedy 120
  * */
 
-int expression(TTable *tTable){
+int expression(TTable *tTable, int typ){
     Table = tTable;
     int id_of_ID = 0;
 
