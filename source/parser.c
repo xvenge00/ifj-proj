@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "main.h"
+#include "err.h"
 
 #include "expression.h"
 #include "symtable.h"
@@ -47,17 +47,6 @@ bool check_pointer(void *input) {
         error(ERR_SYNTA);
     }
     return true;
-}
-
-void error(int code) {
-    fprintf(stderr, "Error v syntakticke analyze - spatny typ tokenu.\n");
-    exit(code);
-}
-
-void semerror(int code) {
-    fprintf(stderr, "Error v semanticke analyze.\n");
-    clear_all();
-    exit(code);
 }
 
 int parse(TTable *Table) {
@@ -290,8 +279,10 @@ int params(TTable *local, unsigned *attr_count, int *attributes, int decDef) {
 
         char *name = input->data.s;
         if (Tbl_GetDirect(local, name) != NULL) { //bola premenna uz definovana alebo dekralovana ako func
-            semerror(ERR_SEM_P);
+            //semerror(ERR_SEM_P);
+            redefine_error(name);
         }
+
         check_token_int_value(check_next_token_type(KEY_WORD), k_as);
         input = check_next_token_type(KEY_WORD);
         //je nacitane sa id as typ

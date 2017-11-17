@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "memwork.h"
-#include "main.h"
+#include "err.h"
 
 
 void null_buffer(t_str_buff *buffer){

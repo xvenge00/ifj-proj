@@ -7,7 +7,7 @@ enable_testing()
 
 
 set(SOURCE_FILES  source/codegen.c source/main.c source/symtable.c
-        source/str_buff.c source/memwork.c  source/parser.c source/scanner.c source/expression.c source/expression.h source/token_stack.c source/token_stack.h)
+        source/str_buff.c source/memwork.c  source/parser.c source/scanner.c source/expression.c source/expression.h source/token_stack.c source/token_stack.h source/err.c source/err.h)
 add_executable(ifj_proj ${SOURCE_FILES})
 
 #testy memwork
@@ -18,7 +18,7 @@ target_link_libraries(memwork gtest)
 #testy str_buff
 set(SOURCE_FILES_STR_BUFF
         source/str_buff.c source/str_buff.h ${SOURCE_FILES_MEMWORK}
-        source/main.h)
+        source/err.h)
 add_executable(str_buff ${SOURCE_FILES_STR_BUFF} tests/test_str_buff.cpp)
 target_link_libraries(str_buff gtest)
 

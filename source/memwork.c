@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "memwork.h"
-#include "main.h"
+#include "err.h"
 
 void **pole = NULL;
 unsigned max = 0;

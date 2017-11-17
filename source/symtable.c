@@ -3,7 +3,41 @@
 #include "symtable.h"
 #include "memwork.h"
 #include <string.h>
-#include "main.h"
+#include "err.h"
+
+//TData *Func_Init(TTable *param_table) {
+//    TData *data;
+//    TFunction *func;
+//
+//    data = my_malloc(sizeof(TData));
+//    func = my_malloc(sizeof(TFunction));
+//
+//    func->attr_count = 0;
+//    func->attributes = NULL;
+//    func->lok_table = param_table;
+//    func->return_type = E_void;
+//
+//    data->func = func;
+//
+//    return data;
+//}
+//
+//TSymbol *Sym_init(char *name, Symbol_type sym_type, TTable *param_table) {
+//    TSymbol *sym;
+//    sym = my_malloc(sizeof(TSymbol));
+//
+//    sym->isDeclared = false;
+//    sym->isDefined = false;
+//    sym->name = name;
+//    sym->type = sym_type;
+//    if (sym_type == ST_Function) {
+//        sym->data = Func_Init(param_table);
+//    } else {
+//        sym->data = NULL;   //TODO Var_init();
+//    }
+//
+//    return sym;
+//}
 
 //konstruktor funkce
 TData *Func_Create(int return_type, unsigned int attributes_count, int *attributes_values) {

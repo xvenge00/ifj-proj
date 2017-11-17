@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "parser.h"
-#include "main.h"
+#include "err.h"
 #include "memwork.h"
 #include "symtable.h"
 #include "scanner.h"
@@ -165,12 +165,12 @@ int rule(Stack *stack, TTable *local){
                      * */
 
                     if (typ1 == k_string && typ2 == k_string){
-                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        sprintf(dest, "$E_E%i", new_id);                        //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest);                 //deklarovanie operandu
                         create_3ac(I_CONCAT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
                     } else if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double)){
-                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        sprintf(dest, "$E_E%i", new_id);                        //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest);                 //deklarovanie operandu
                         create_3ac(I_ADD, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
                     } else if (typ1 == k_integer && typ2 == k_double){
                         char tmp[130];
