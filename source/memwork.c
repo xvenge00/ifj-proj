@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "memwork.h"
-#include "main.h"
+#include "err.h"
 
 void **pole = NULL;
 unsigned max = 0;
@@ -36,7 +36,9 @@ void change_size(unsigned new){
         for (unsigned i=0;i<top;i++){
             tmp[i] = pole[i];
         }
-        free(pole);
+        if (pole != NULL){
+            free(pole);
+        }
         pole = tmp;
         max = new;
     }

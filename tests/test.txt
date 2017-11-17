@@ -1,20 +1,16 @@
-1
-12456789012345678901234567890123456789
-1.2
-1.0
-1 . 0       'asi chyba'
-00001       'ignoruje pociatocne 0'
-.0          'asi chyba'
-1_0         'chyba'
-'zaporne cisla = chyba'
--1
--0
--1
--123456789123456
-'hexa'
-&H0
-&H1
-&HF
-&HW         'chyba'
-&H1         'asi chyba'
-&HFFFFFFFF  '-1'
+scope 'Hlavni telo programu
+    Dim a As Integer
+    DIM vysl AS INTEGER
+    PrinT !"Zadejte cislo pro vypocet faktorialu";
+    InpuT A
+    If a < 0 THEN
+        print !"\nFaktorial nelze spocitat\n";
+    ELSE
+        Vysl = 1
+        Do WHile A > 0
+            VYSL = vysl * a
+            a = A - 1
+        LooP
+        Print !"\nVysledek je:"; vYsl ; !"\n";
+    end IF
+END SCOPE

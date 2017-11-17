@@ -3,24 +3,58 @@
 #include "symtable.h"
 #include "memwork.h"
 #include <string.h>
-#include "main.h"
+#include "err.h"
+
+//TData *Func_Init(TTable *param_table) {
+//    TData *data;
+//    TFunction *func;
+//
+//    data = my_malloc(sizeof(TData));
+//    func = my_malloc(sizeof(TFunction));
+//
+//    func->attr_count = 0;
+//    func->attributes = NULL;
+//    func->lok_table = param_table;
+//    func->return_type = E_void;
+//
+//    data->func = func;
+//
+//    return data;
+//}
+//
+//TSymbol *Sym_init(char *name, Symbol_type sym_type, TTable *param_table) {
+//    TSymbol *sym;
+//    sym = my_malloc(sizeof(TSymbol));
+//
+//    sym->isDeclared = false;
+//    sym->isDefined = false;
+//    sym->name = name;
+//    sym->type = sym_type;
+//    if (sym_type == ST_Function) {
+//        sym->data = Func_Init(param_table);
+//    } else {
+//        sym->data = NULL;   //TODO Var_init();
+//    }
+//
+//    return sym;
+//}
 
 //konstruktor funkce
-TData *Func_Create(TType return_type, unsigned int attributes_count, TType *attributes_values){
+TData *Func_Create(int return_type, unsigned int attributes_count, int *attributes_values) {
     TFunction *function = NULL;
     function = my_malloc(sizeof(TFunction));
-    if(function != NULL){
+    if (function != NULL) {
         function->return_type = return_type;
         function->attr_count = attributes_count;
-        if(attributes_count == 0){
-            if(attributes_values == NULL){
+        if (attributes_count == 0) {
+            if (attributes_values == NULL) {
                 function->attributes = NULL;
             } else {
                 my_free(function);
                 return NULL;
             }
         } else {
-            if(attributes_values != NULL){
+            if (attributes_values != NULL) {
                 function->attributes = attributes_values;
             } else {
                 my_free(function);
@@ -28,19 +62,10 @@ TData *Func_Create(TType return_type, unsigned int attributes_count, TType *attr
             }
         }
     }
-
-    TData *data = my_malloc(sizeof(TData));
-    if(data != NULL){
-        data->func = function;
-        return data;
-    }
-    my_free(function);
-    my_free(data);
-    return NULL;
 }
 
 //konstruktor promenne
-TData * Var_Create(TValue value, TType type){
+TData * Var_Create(TValue value, int type){
     TVariable *var = NULL;
     var = my_malloc(sizeof(TVariable));
     if(var != NULL){
@@ -58,18 +83,11 @@ TSymbol *Sym_Create(Symbol_type type, TData *data, char* name){
     TSymbol *symbol = NULL;
     symbol = my_malloc(sizeof(TSymbol));
     if(symbol != NULL){
-        if(data == NULL || name == NULL){
-            my_free(symbol);
-            return NULL;
-        } else {
-            symbol->data = data;
-            symbol->type = type;
-            symbol->name = name;
-            return symbol;
-        }
+        symbol->data = data;
+        symbol->type = type;
+        symbol->name = name;
     }
-    my_free(symbol);
-    return NULL;
+    return symbol;
 }
 
 //konstruktor elementu
@@ -77,18 +95,11 @@ TElement * El_Create(TSymbol * data){
     TElement  *element = NULL;
     element = my_malloc(sizeof(TElement));
     if(element != NULL){
-        if(data == NULL){
-            my_free(element);
-            return NULL;
-        } else {
-            element->data = data;
-            element->next = NULL;
-            element->key = data->name;
-            return element;
-        }
+        element->data = data;
+        element->next = NULL;
+        element->key = data->name;
     }
-    my_free(element);
-    return NULL;
+    return element;
 }
 
 //konstruktor tabulky na defaultni velikost
@@ -100,6 +111,7 @@ TTable * Tbl_Create(unsigned int size){
 
     if(tbl!=NULL){
         tbl->size = size;
+        tbl->isScope = false;
         tbl->count = 0;
         tbl->list_firsts = NULL;
 
@@ -117,9 +129,10 @@ TTable * Tbl_Create(unsigned int size){
     return tbl;
 }
 
-bool Tbl_Resize(TTable* tbl){
-    bool output = true;
+void Tbl_Resize(TTable* tbl){
+
     TTable* newTbl = NULL;
+
     if(tbl != NULL){
         newTbl = Tbl_Create(tbl->size * 2);
     }
@@ -156,9 +169,7 @@ bool Tbl_Resize(TTable* tbl){
         my_free(tbl->list_firsts);
         *tbl = *newTbl;
         my_free(newTbl);
-        return output;
     }
-    return output;
 }
 
 /* Inkrementuje velikost tabulky, popripade vola resize. */
@@ -174,11 +185,12 @@ obsahuje položku s klíčem K dojde k přepisu datové složky Data novou
 hodnotou. Tato vlastnost se podobá činnosti v kartotéce, kdy při existenci
 staré karty se shodným klíčem se stará karta zahodí a vloží se nová (aktualizační
  sémantika operace TInsert).*/
-bool Tbl_Insert(TTable* tbl, TElement* el){
+int Tbl_Insert(TTable* tbl, TElement* el){
+
     //kontrola ukazatelu
 
     if(tbl == NULL || el == NULL){
-        return false;
+        return ERR_INTER;
     }
     el->hash = hash(el->key,tbl->size);
 
@@ -186,6 +198,7 @@ bool Tbl_Insert(TTable* tbl, TElement* el){
     if(tbl->list_firsts[el->hash] == NULL){
         tbl->list_firsts[el->hash] = el;
         Tbl_Increment(tbl);
+        return 0;
     }
     else{
         TElement *active = tbl->list_firsts[el->hash];
@@ -198,8 +211,9 @@ bool Tbl_Insert(TTable* tbl, TElement* el){
                 active->next = el->next;
                 active->hash = el->hash;
                 my_free(active->data->data);
+                //my_free(active->data->name);
 
-                return true;
+                return 0;
             }
             active = active->next;
         }
@@ -209,41 +223,78 @@ bool Tbl_Insert(TTable* tbl, TElement* el){
             active->next = el->next;
             active->hash = el->hash;
             my_free(active->data->data);
-            return true;
+            //my_free(active->data->name);
+            return 0;
         }
         //pridani elementu na konec listu
         active->next = el;
-        return true;
+        return 0;
     }
 }
 
 /*Predikát, který vrací hodnotu true v případě,že v tabulce T existuje položka s klíčem K
 a hodnotu false v opačném případě. */
 bool Tbl_Search(TTable* tbl, char *name){
+    bool found = false;
     if(tbl != NULL){
-        bool found = false;
         for(unsigned int i = 0; i<tbl->size; i++){
             TElement *active = tbl->list_firsts[i];
             if(active != NULL){ //je tam prvni
                 if(active->key == name){
-                    return true;
+                    found = true;
+                    return found;
                 }
                 while (active->next != NULL){ //je jich vic
                     active = active->next;
                     if(active->key == name){
-                        return true;
+                        found = true;
+                        return found;
                     }
                 }
                 if(active->key == name){
-                    return true;
+                    found = true;
+                    return found;
+                }
+            }
+
+        }
+        return found;
+    }
+    return found;
+}
+/* Vrací ukazatel na prvek tabulky, umožňuje přímý přístup k datům, funguje na stejném principu jako Search.
+ * Vrací NULL pokud element s keky name není nalezen.
+ * */
+TElement * Tbl_GetDirect(TTable* tbl, char* name){
+    TElement * found = NULL;
+    if(tbl != NULL){
+        for(unsigned int i = 0; i<tbl->size; i++){
+            TElement *active = tbl->list_firsts[i];
+            if(active != NULL){ //je tam prvni
+                if(*(active->key) == *name){
+                    found = active;
+                    return found;
+                }
+                while (active->next != NULL){ //je jich vic
+                    active = active->next;
+                    if(active->key == name){
+                        found = active;
+                        return found;
+                    }
+                }
+                if(active->key == name){
+                    found = active;
+                    return found;
                 }
             }
         }
+        return found;
     }
-    return false;
+    return found;
 }
 
-bool El_Free(TElement* element){
+
+void El_Free(TElement* element){
     if(element->data->type == ST_Variable){
         my_free(element->data->data->var);
         my_free(element->data->data);
@@ -257,13 +308,12 @@ bool El_Free(TElement* element){
     my_free(element->data);
 
     my_free(element);
-    return true;
 }
 
 /*Operace rušení prvku s klíčem name v tabulce tbl.
 V případě, že prvek neexistuje, má operace
 sémantiku prázdné operace.*/
-bool El_Delete(TTable* tbl, char* name){
+void El_Delete(TTable* tbl, char* name){
     if(tbl != NULL){
         for(unsigned int i = 0; i<tbl->size; i++){
             TElement *active = tbl->list_firsts[i];
@@ -272,34 +322,35 @@ bool El_Delete(TTable* tbl, char* name){
                     if(active->next!=NULL){
                         tbl->list_firsts[i]->next = active->next;
                         El_Free(active);
-                        return true;
+                        return;
                     }
                     El_Free(tbl->list_firsts[i]);
                     tbl->list_firsts[i] = NULL; //opetovny init pro dalsi pouziti
-                    return true;
+                    return;
                 }
 
                 while(active->next != NULL){
+
                     if(active->next->key == name){ //uprostred
                         TElement * tmp = active->next;
                         active->next = active->next->next;
                         El_Free(tmp);
-                        return true;
+                        return;
                     }
                     active = active->next;
                 }
+
                 if(active->key == name){ //mazeme posledni
                     tbl->list_firsts[i]->next = active->next;
                     El_Free(active);
-                    return true;
+                    return;
                 }
             }
         }
     }
-    return false;
 }
 
-bool Tbl_Delete(TTable * tbl){
+void Tbl_Delete(TTable * tbl){
     if(tbl != NULL){
         TElement * tmp = NULL;
         TElement * tmp2 = NULL;
@@ -327,9 +378,8 @@ bool Tbl_Delete(TTable * tbl){
         }//for pres radky
         my_free(tbl->list_firsts);
         my_free(tbl);
-        return true;
+
     }
-    return false;
 }
 
 
