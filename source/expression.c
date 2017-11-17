@@ -755,7 +755,7 @@ const int precedence_table[17][17] = {
 /* \    */ { GT, GT, LT, LT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
 /* (    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, xx, LT, EQ, },
 /* )    */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, },
-/* id   */ { GT, GT, GT, GT, GT, EQ, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, }, //ID x ( ma byt xx, tohle je kvuli debugu funkci
+/* id   */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, }, //ID x ( ma byt xx, tohle je kvuli debugu funkci
 /* <    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
 /* <=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
 /* >    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
@@ -822,7 +822,7 @@ char *token2operand(t_token *token){
 
 
 
-int code_type(int *dollar_source, t_token *input){
+int code_type(int *dollar_source, t_token *input, TTable *table){
 //    t_token * input = get_token();
 //    ret_sym = input;
     static int was_funct = 0;
@@ -849,20 +849,20 @@ int code_type(int *dollar_source, t_token *input){
         case RPAR:
             return E_RPAR;
         case ID: //nutno rozlisit ID funkce a ID promenne, ted neprochazi vyrazy jako ID = ID(ID)   //kontrolujem v rule !!!
-//        {
-//            TElement* found = Tbl_GetDirect(Table, input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
-//            if(found != NULL)
-//            {
-//                if(found->data->type == ST_Function && found->data->isDefined) {
-//                    was_funct = 1;
-//                    return E_FUNC;
-//                } else if(found->data->type == ST_Variable && found->data->isDefined){
-//                    return ID;
-//                } else {
-//                    return -1; //ERR_SEMANTIC
-//                }
-//            }
-//        }
+        {
+            TElement* found = Tbl_GetDirect(table, input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
+            if(found != NULL)
+            {
+                if(found->data->type == ST_Function && found->data->isDefined) {
+                    was_funct = 1;
+                    return E_FUNC;
+                } else if(found->data->type == ST_Variable && found->data->isDefined){
+                    return ID;
+                } else {
+                    return -1; //ERR_SEMANTIC
+                }
+            }
+        }
             //pozreme do symtable
             return E_ID;
         case INT: //mozna budeme muset mapovat jinak kvuli semanticke
@@ -921,7 +921,7 @@ int expression(TTable *local, int typ){
         return EOL;
     }
 
-    b = code_type(&dollar_source, my_token); //prekodovani typu tokenu na index do tabulky
+    b = code_type(&dollar_source, my_token, local); //prekodovani typu tokenu na index do tabulky
     if(b==E_DOLLAR && dollar_source == EOL) {
         Stack_dispose(&stack);
         return dollar_source;
@@ -962,13 +962,13 @@ int expression(TTable *local, int typ){
             case EQ:
                 Stack_push(&stack,b, token2operand(my_token), token_type);
                 my_token = get_token();
-                b = code_type(&dollar_source, my_token);
+                b = code_type(&dollar_source, my_token, local);
                 break;
             case LT:
                 Stack_expand(&stack);
                 Stack_push(&stack, b, token2operand(my_token), token_type);
                 my_token = get_token();
-                b = code_type(&dollar_source, my_token);
+                b = code_type(&dollar_source, my_token, local);
                 break;
             case GT:
                 ruleNumber = rule(&stack,local);
