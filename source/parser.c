@@ -80,7 +80,7 @@ int parse(TTable *Table) {
                 }
             }
             case k_scope: //scope
-                if (scope() == SUCCESS) {
+                if (scope(Table) == SUCCESS) {
                     return SUCCESS;
                 }
             default:
@@ -109,7 +109,7 @@ int function(int decDef, TTable *Table, TTable *local) {
     unsigned attr_count = 0;
     int *attr_types = NULL;
     check_next_token_type(LPAR);
-    params(local, &attr_count, attr_types, decDef);
+    params(local, &attr_count, &attr_types, decDef);
     check_token_int_value(check_next_token_type(KEY_WORD), k_as);
     input = check_next_token_type(KEY_WORD);
     if (check_token_int_value(input, k_integer)) {
@@ -263,7 +263,7 @@ int function(int decDef, TTable *Table, TTable *local) {
 
 
 
-int params(TTable *local, unsigned *attr_count, int *attributes, int decDef) {
+int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
     int start = 1;
     TData *var = NULL;
     TValue value;
@@ -287,23 +287,23 @@ int params(TTable *local, unsigned *attr_count, int *attributes, int decDef) {
         //je nacitane sa id as typ
 
         (*attr_count)++;
-        attributes = my_realloc(attributes, sizeof(int) * (*attr_count));
+        *attributes = my_realloc(*attributes, sizeof(int) * (*attr_count));
         if (check_token_int_value(input, k_integer)) {
-            attributes[(*attr_count) - 1] = E_integer;
+            (*attributes)[(*attr_count) - 1] = E_integer;
             value.i = 0;
         } else if (check_token_int_value(input, k_double)) {
-            attributes[(*attr_count) - 1] = E_double;
+            (*attributes)[(*attr_count) - 1] = E_double;
             value.d = 0.0;
 
         } else if (check_token_int_value(input, k_string)) {
-            attributes[(*attr_count) - 1] = E_string;
+            (*attributes)[(*attr_count) - 1] = E_string;
             value.s = "";
         } else {
             error(ERR_SYNTA);
         }
 
 
-        var = Var_Create(value, attributes[(*attr_count) - 1]);
+        var = Var_Create(value, (*attributes)[(*attr_count) - 1]);
         lSymbol = Sym_Create(ST_Variable, var, name);
         lSymbol->isDeclared = true;
         lSymbol->isDefined = true;
@@ -802,14 +802,14 @@ int print_params(TTable *local) {
     error(ERR_SYNTA);
 }*/
 
-int scope() {
+int scope(TTable *Table) {
     create_3ac(I_LABEL, NULL, NULL, "!l_main");
 
-    TTable *local = Tbl_Create(8);
-    local->isScope = true;
+//    TTable *local = Tbl_Create(8);    //todo preco tu sa generuje nova tabulka ??????
+//    local->isScope = true;
 
     check_next_token_type(EOL);
-    int res = commandsAndVariables(local);
+    int res = commandsAndVariables(Table);
     if (res == k_scope) {
         t_token *input = get_token();
         check_pointer(input);

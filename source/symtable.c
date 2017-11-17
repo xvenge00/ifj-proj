@@ -61,7 +61,13 @@ TData *Func_Create(int return_type, unsigned int attributes_count, int *attribut
                 return NULL;
             }
         }
+        //tuto bol ten bug
+        TData *data = malloc(sizeof(TData));
+        data->func = function;
+        return data;
     }
+
+
 }
 
 //konstruktor promenne
