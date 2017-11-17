@@ -1,8 +1,9 @@
+#ifndef IFJ_PROJ_PARSER_H
+#define IFJ_PROJ_PARSER_H
+
 #include <stdbool.h>
 #include "scanner.h"
 #include "symtable.h"
-#ifndef IFJ_PROJ_PARSER_H
-#define IFJ_PROJ_PARSER_H
 
 #define SUCCESS 1
 

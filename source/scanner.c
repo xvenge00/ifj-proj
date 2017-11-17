@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "memwork.h"
 #include "str_buff.h"
-#include "main.h"
+#include "err.h"
 
 #define key_size 35
 
