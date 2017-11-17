@@ -22,10 +22,10 @@ enum{
     E_GE,
     E_EQ,
     E_NEQ,
-    E_DOLLAR, //15
+    E_DOLLAR, //14
     E_FUNC,
     E_COMMA,
-    E_E //18
+    E_E //17
 }types;
 
 typedef struct element{

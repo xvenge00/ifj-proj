@@ -1,7 +1,7 @@
-function foo (a as integer) as integer
+function foo (a as integer, b as double) as integer
 end function
 
 scope 'Hlavni telo programu
     Dim a As Integer
-    a = foo(5)
+    a = foo(5, 5.2)
 END SCOPE
