@@ -10,7 +10,7 @@
 int parse(TTable* Table);
 int function(int decDef,TTable* Table,TTable* local);
 //int params(TFunction *functions,TTable* local,char* name, int decDef);
-int params(TTable *local, unsigned *attr_count, int *attributes, int decDef);
+int params(TTable *local, unsigned *attr_count, int **attributes, int decDef);
 
 
 int commandsAndVariables(TTable* local);
@@ -18,7 +18,7 @@ int commandsAndVariables(TTable* local);
 //int expression();
 int expressionOrFunction();
 int idList();
-int scope();
+int scope(TTable *Table);
 int print_params(TTable *local);
 t_token* check_next_token_type(int type);
 bool check_token_int_value(t_token * input, int value);
