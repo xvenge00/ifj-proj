@@ -10,8 +10,6 @@
 #include "codegen.h"
 #include "token_stack.h"
 
-TTable *tTable;
-
 char *gen_label(char *ret) {
     static int label = 0;
     char *result = my_malloc(sizeof(char) * 130);
@@ -63,7 +61,6 @@ void semerror(int code) {
 }
 
 int parse(TTable *Table) {
-    tTable = Table;
     t_token *input = get_token();
     check_pointer(input);
     while (input->token_type == EOL) {  //preskoc prazdne riadky
@@ -401,6 +398,7 @@ int params(TTable *local, unsigned *attr_count, int *attributes, int decDef) {
 
 
 int commandsAndVariables(TTable *local) {
+    create_3ac(-1, NULL, NULL, NULL);
     int i = 0;
     t_token *input = get_token();
     check_pointer(input);
@@ -668,7 +666,7 @@ int commandsAndVariables(TTable *local) {
 
                 return commandsAndVariables(local);
             case k_print: //print
-                print_params(); //skonci vcetne EOL
+                print_params(local); //skonci vcetne EOL
                 return commandsAndVariables(local);
             case k_if: //if
                 if (expression(local, -1) != k_then) {
@@ -765,8 +763,8 @@ int commandsAndVariables(TTable *local) {
     }
 }
 
-int print_params() {
-    int result = expression(tTable, -2);
+int print_params(TTable *local) {
+    int result = expression(local, -2);
     char ret[130];
     static int print_par = 0;
     sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
@@ -775,7 +773,7 @@ int print_params() {
     create_3ac(I_WRITE, NULL, NULL, ret); //deklarovanie operandu
 
     while (result == SEMICOLLON) {
-        result = expression(tTable, -2);
+        result = expression(local, -2);
         if (result != EOL) {
             sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
             create_3ac(I_DEFVAR, NULL, NULL, ret); //deklarovanie operandu

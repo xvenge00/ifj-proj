@@ -28,7 +28,6 @@ char * my_strcpy(char *src){
     return dest;
 }
 
-TTable *Table;
 
 
 
@@ -126,7 +125,7 @@ Element* check_next_element_type(int type, Stack* stack){
  * priklad: pravidlo: E -> E + E
  *          zasobnik:  $E+id+<E+E
  *          vysledek na zasobniku: $E+id+E  */
-int rule(Stack *stack){
+int rule(Stack *stack, TTable *local){
     Element * input = Stack_pop(stack);
     check_pointer(input);
     int new_id = get_id();
@@ -165,11 +164,38 @@ int rule(Stack *stack){
                      * inak semerror ERR_SEM_T
                      * */
 
+                    if (typ1 == k_string && typ2 == k_string){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_CONCAT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_ADD, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_ADD, tmp1->operand, tmp, dest);
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_ADD, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
+
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
                     //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_ADD, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+
 
                     Stack_push(stack, E_E, dest, typ1);
                     return 1;
@@ -181,10 +207,30 @@ int rule(Stack *stack){
                     typ2 = tmp2->typ_konkretne;
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
 
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_SUB, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_SUB, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_SUB, tmp1->operand, tmp, dest);
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_SUB, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
 
                     Stack_push(stack, E_E, dest, typ1);
                     return 2;
@@ -194,13 +240,32 @@ int rule(Stack *stack){
 
                     typ1 = tmp1->typ_konkretne;
                     typ2 = tmp2->typ_konkretne;
+                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_MUL, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
 
-                    //todo semanticka konrola ci tie 2 prvky su upravitelne
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_MUL, tmp1->operand, tmp, dest);
 
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_MUL, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_MUL, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
+
+
 
                     Stack_push(stack, E_E, dest, typ1);
                     return 3;
@@ -212,12 +277,43 @@ int rule(Stack *stack){
                     typ2 = tmp2->typ_konkretne;
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
 
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    if (typ1 == k_integer && typ2 == k_integer) {
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp1->operand, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_PUSHS, NULL,NULL,dest);
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_PUSHS, NULL,NULL,dest);
+                        create_3ac(I_DIVS, NULL,NULL,NULL);
+                        create_3ac(I_POPS, NULL,NULL,dest);
 
-                    Stack_push(stack, E_E, dest, typ1);
+                    } else if (typ1 == k_double && typ2 == k_double){
+
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp1->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_DIV, tmp, tmp2->operand, dest);
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_DIV, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
+
+                    Stack_push(stack, E_E, dest, k_double);
                     return 4;
                 case E_MOD:
                     tmp2 = check_next_element_type(E_E,stack);
@@ -226,14 +322,60 @@ int rule(Stack *stack){
                     typ1 = tmp1->typ_konkretne;
                     typ2 = tmp2->typ_konkretne;
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
+                    char tmp[130];
+                    if (typ1 == k_integer && typ2 == k_integer) {
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp1->operand, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_PUSHS, NULL,NULL,dest);
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_PUSHS, NULL,NULL,dest);
+                        create_3ac(I_DIVS, NULL,NULL,NULL);
+                        create_3ac(I_POPS, NULL,NULL,dest);
 
-                    //todo urobit nejak modulo nieje prikaz !!!
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_double && typ2 == k_double){
 
-                    Stack_push(stack, E_E, dest, typ1);
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp1->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_DIV, tmp, tmp2->operand, dest);
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_DIV, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
+                    create_3ac(I_PUSHS,NULL,NULL,dest);
+                    create_3ac(I_FLOAT2R2EINT, dest, NULL,dest);
+                    create_3ac(I_INT2FLOAT, dest, NULL,dest);
+                    create_3ac(I_PUSHS,NULL,NULL,dest);
+                    create_3ac(I_SUBS, NULL,NULL,NULL);
+                    if (typ2 == k_integer){
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand,NULL,tmp);
+                        create_3ac(I_PUSHS,NULL,NULL,NULL);
+                    } else {
+                        create_3ac(I_PUSHS,NULL,NULL,NULL);
+                    }
+                    create_3ac(I_MULS,NULL,NULL,NULL);
+                    create_3ac(I_POPS,NULL,NULL,tmp);
+                    create_3ac(I_FLOAT2R2EINT, tmp, NULL, dest);
+
+                    Stack_push(stack, E_E, dest, k_integer);
                     return 5;
                 case E_LT:
                     tmp2 = check_next_element_type(E_E,stack);
@@ -242,11 +384,40 @@ int rule(Stack *stack){
                     typ1 = tmp1->typ_konkretne;
                     typ2 = tmp2->typ_konkretne;
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
+                   if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) || (typ1 == k_string && typ2 == k_string)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
 
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                       create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                       create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_LT, tmp1->operand, tmp, dest);
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_LT, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
+
+
+
+
+
+
+
+
 
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 6;
@@ -257,16 +428,54 @@ int rule(Stack *stack){
                     typ2 = tmp2->typ_konkretne;
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
 
+                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) || (typ1 == k_string && typ2 == k_string)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
+                        create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
 
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
-                    create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
-                    create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
-                    create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_LT, tmp1->operand, tmp, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_EQ, tmp1->operand, tmp, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
+                        create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_LT, tmp1->operand, tmp, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_EQ, tmp1->operand, tmp, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
+                        create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
 
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 7;
@@ -279,10 +488,32 @@ int rule(Stack *stack){
 
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
 
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) || (typ1 == k_string && typ2 == k_string)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_GT, tmp1->operand, tmp, dest);
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_GT, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
 
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 8;
@@ -295,15 +526,54 @@ int rule(Stack *stack){
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
 
 
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
-                    create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
-                    create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
-                    create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
+                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) || (typ1 == k_string && typ2 == k_string)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
+                        create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_GT, tmp1->operand, tmp, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_EQ, tmp1->operand, tmp, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
+                        create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_GT, tmp1->operand, tmp, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_EQ, tmp1->operand, tmp, dest);  //vytvorenie operacii
+                        create_3ac(I_PUSHS, NULL, NULL, dest);  //vytvorenie operacii
+                        create_3ac(I_ORS, NULL, NULL, NULL);  //vytvorenie operacii
+                        create_3ac(I_POPS, NULL, NULL, dest);  //vytvorenie operacii
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
 
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 9;
@@ -316,10 +586,32 @@ int rule(Stack *stack){
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
 
 
-                    //gen vnutorneho kodu
-                    sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-                    create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
-                    create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) || (typ1 == k_string && typ2 == k_string)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
 
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 10;
@@ -332,8 +624,35 @@ int rule(Stack *stack){
 
                     //todo semanticka konrola ci tie 2 prvky su upravitelne
 
-                    create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
-                    create_3ac(I_EQ, dest, NULL, dest);  //vytvorenie operacii
+                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) || (typ1 == k_string && typ2 == k_string)){
+                        sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);  //vytvorenie operacii
+                    } else if (typ1 == k_integer && typ2 == k_double){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_DEFVAR, NULL, NULL, tmp); //deklarovanie operandu
+
+                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
+
+                    } else if (typ1 == k_double && typ2 == k_integer){
+                        char tmp[130];
+                        sprintf(tmp, "$E_E%i", get_id());    //generovanie operandu pre vysledok medzisuctu
+                        sprintf(tmp, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
+                        create_3ac(I_DEFVAR, NULL, NULL, dest); //deklarovanie operandu
+                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp); //deklarovanie operandu
+                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
+                    } else {
+                        clear_all();
+                        exit(ERR_SEM_T);
+                    }
+
+
+                    create_3ac(I_NOT, dest, NULL, dest);  //vytvorenie operacii
 
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 11;
@@ -589,8 +908,7 @@ int code_type(int *dollar_source, t_token *input){
  * Pro Then je navratova hodnota tedy 120
  * */
 
-int expression(TTable *tTable, int typ){
-    Table = tTable;
+int expression(TTable *local, int typ){
     int id_of_ID = 0;
 
     Stack stack;
@@ -615,7 +933,24 @@ int expression(TTable *tTable, int typ){
         int new_id = -1;
         int token_type = -1;
         if (my_token != NULL){
-            token_type = my_token->token_type;
+             if (my_token->token_type == INT){
+                token_type = k_integer;
+            } else if (my_token->token_type == DOUBLE){
+                 token_type = k_double;
+             } else if (my_token->token_type == STR){
+                 token_type = k_string;
+             } else if (my_token->token_type == ID) {
+                TElement *el = Tbl_GetDirect(local,my_token->data.s);
+                if (el == NULL){
+                    clear_all();
+                    exit(ERR_SEM_P); //nebolo definovane
+                }
+                if (el->data->type ==ST_Variable){
+                    token_type = el->data->data->var->type;
+                } else {
+                    token_type = el->data->data->func->return_type;
+                }
+            }
         }
         if (b == E_ID){
             new_id = id_of_ID++;
@@ -637,7 +972,7 @@ int expression(TTable *tTable, int typ){
                 b = code_type(&dollar_source, my_token);
                 break;
             case GT:
-                ruleNumber = rule(&stack);
+                ruleNumber = rule(&stack,local);
                 if(ruleNumber != 0){
                     //printf("Rule %d\n", ruleNumber);
                 } else {

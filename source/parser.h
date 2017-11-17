@@ -18,7 +18,7 @@ int commandsAndVariables(TTable* local);
 int expressionOrFunction();
 int idList();
 int scope();
-int print_params();
+int print_params(TTable *local);
 t_token* check_next_token_type(int type);
 bool check_token_int_value(t_token * input, int value);
 bool check_pointer(void* input);
