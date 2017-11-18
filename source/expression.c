@@ -868,7 +868,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table){
                     was_funct = 1;
                     return E_FUNC;
                 } else if(found->data->type == ST_Variable && found->data->isDefined){
-                    return ID;
+                    return E_ID;
                 } else {
                     return -1; //ERR_SEMANTIC
                 }
