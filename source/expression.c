@@ -697,9 +697,9 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     return 12;
                                 case E_FUNC:{ //zmenit pak nejspis na E_FUNCT
                                     //skontrolovat sematiku ze tato funkcia sa ma volat s jednym parametrom a to typ tmp1->typ_konktretne ci implicitne prekonvertovatelny typ
-                                    found= Tbl_GetDirect(local,input->token->data.s);
+                                    found= Tbl_GetDirect(local,input->operand);
                                     if (found == NULL) {
-                                        found = Tbl_GetDirect(Table,input->token->data.s);
+                                        found = Tbl_GetDirect(Table,input->operand);
                                         if (found == NULL) {
                                             semerror(ERR_SEM_T);
                                         }
@@ -761,7 +761,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     //parametre su nacitane v arr_el a su su nacitane od konca
 
                                     // semantika skonrolovat ci funckia pod menon name ma prave i parametrou a ci sa tieto parametre zhoduju ci su prekonvergovatelne implicitne
-                                    int paramReturn = found->data->data->func->attributes[i-j];
+                                    int paramReturn = found->data->data->func->attributes[i-j-1];
                                     if(paramReturn == arr_el[j]->typ_konkretne){
                                         if (paramReturn == k_string){
 
