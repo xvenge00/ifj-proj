@@ -664,7 +664,17 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                     input = check_next_element_type(E_FUNC, stack);
                     char *name = input->operand;
 
-                    //todo semanticky skontrolovat ze tato funkcie ma 0 parametrou jej meno je name
+                    //semanticky skontrolovat ze tato funkcie ma 0 parametrou jej meno je name
+                    TElement *found= Tbl_GetDirect(local,name);
+                    if (found == NULL) {
+                        found = Tbl_GetDirect(Table,name);
+                        if (found == NULL) {
+                            semerror(ERR_SEM_P);
+                        }
+                    }
+                    if (found->data->data->func->attr_count != 0){
+                        semerror(ERR_SEM_T);
+                    }
                     sprintf(dest, "$E_E%i", new_id);
                     create_3ac(I_DEFVAR, NULL, NULL, dest);
                     create_3ac(I_CREATEFRAME, NULL, NULL, NULL);  //vytvorenie operacii
@@ -685,8 +695,24 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 case E_LT:
                                     Stack_push(stack, E_E, tmp1->operand, tmp1->typ_konkretne);
                                     return 12;
-                                case E_FUNC: //zmenit pak nejspis na E_FUNCT
-                                    //todo skontrolovat sematiku ze tato funkcia sa ma volat s jednym parametrom a to typ tmp1->typ_konktretne ci implicitne prekonvertovatelny typ
+                                case E_FUNC:{ //zmenit pak nejspis na E_FUNCT
+                                    //skontrolovat sematiku ze tato funkcia sa ma volat s jednym parametrom a to typ tmp1->typ_konktretne ci implicitne prekonvertovatelny typ
+                                    found= Tbl_GetDirect(local,input->token->data.s);
+                                    if (found == NULL) {
+                                        found = Tbl_GetDirect(Table,input->token->data.s);
+                                        if (found == NULL) {
+                                            semerror(ERR_SEM_T);
+                                        }
+                                    }
+                                    if (found->data->data->func->attr_count == 1){
+                                        int paramReturn = found->data->data->func->attributes[0];
+                                        if(!((paramReturn == tmp1->typ_konkretne) || (paramReturn == k_integer && tmp1->typ_konkretne == k_double)
+                                            || (paramReturn == k_double && tmp1->typ_konkretne == k_integer))){
+                                            semerror(ERR_SEM_T);
+                                        }
+                                    } else{
+                                        semerror(ERR_SEM_T);
+                                    }
                                     //gen vnutorneho kodu
                                     sprintf(dest, "$E_E%i", new_id);
                                     create_3ac(I_DEFVAR, NULL, NULL, dest);
@@ -698,7 +724,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     Stack_push(stack, E_E, dest, input->typ_konkretne);
                                     return 13;
                                 default:
-                                    error(ERR_SYNTA);
+                                    error(ERR_SYNTA);}
                             }
                         case E_COMMA:
 
@@ -719,13 +745,42 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 sprintf(dest, "$E_E%i", new_id);
                                 create_3ac(I_DEFVAR, NULL, NULL, dest);
                                 create_3ac(I_CREATEFRAME, NULL, NULL, NULL);  //vytvorenie operacii
+
+                                found= Tbl_GetDirect(local,name);
+                                if (found == NULL) {
+                                    found = Tbl_GetDirect(Table,name);
+                                    if (found == NULL) {
+                                        semerror(ERR_SEM_T);
+                                    }
+                                }
+                                if (found->data->data->func->attr_count != i){
+                                    semerror(ERR_SEM_T);
+                                }
                                 for (int j = 0; j < i; ++j) {
                                     create_3ac(I_PUSHS, NULL, NULL, arr_el[j]->operand);  //vytvorenie operacii
                                     //parametre su nacitane v arr_el a su su nacitane od konca
 
-                                    //todo semantika skonrolovat ci funckia pod menon name ma prave i parametrou a ci sa tieto parametre zhoduju ci su prekonvergovatelne implicitne
+                                    // semantika skonrolovat ci funckia pod menon name ma prave i parametrou a ci sa tieto parametre zhoduju ci su prekonvergovatelne implicitne
+                                    int paramReturn = found->data->data->func->attributes[i-j];
+                                    if(paramReturn == arr_el[j]->typ_konkretne){
+                                        if (paramReturn == k_string){
 
-                                    //todo overenie typu parametru rob tu ja tu potom do toho doplnim premeni urob to obdobne ako to je urobene pri e_plus ...
+
+                                        }else{
+
+
+                                        }
+
+                                    }
+                                    else if(paramReturn == k_integer && arr_el[j]->typ_konkretne == k_double){
+
+                                    }
+                                    else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer){
+
+                                    }else {
+                                        semerror(ERR_SEM_T);
+                                    }
+                                    // overenie typu parametru rob tu ja tu potom do toho doplnim premeni urob to obdobne ako to je urobene pri e_plus ...
 
                                 }
 
