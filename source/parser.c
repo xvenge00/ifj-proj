@@ -819,7 +819,7 @@ int print_params(TTable *Table,TTable *local) {
 }*/
 
 int scope(TTable *Table) {
-    create_3ac(I_LABEL, NULL, NULL, "!l_main");
+    create_3ac(I_LABEL, NULL, NULL, "l_main");
 
     TTable *local = Tbl_Create(8);    //todo preco tu sa generuje nova tabulka ??????
     local->isScope = true;

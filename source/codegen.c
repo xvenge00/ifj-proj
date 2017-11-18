@@ -2,7 +2,7 @@
 #include "memwork.h"
 #include <stdio.h>
 
-char oper[50][15] = {
+char oper[52][15] = {
         "MOVE",
         "CREATEFRAME",
         "PUSHFRAME",
@@ -53,7 +53,8 @@ char oper[50][15] = {
         "JUMPIFNEQS",
         "BREAK",
         "DPRINT",
-                "#"
+        ".IFJcode17",
+        "#"
 };
 
 
@@ -119,8 +120,13 @@ int generate_code(){
 //    j.dest = NULL;
 //    j.operation = I_PUSHFRAME;
 //    print_operation(&j);
-    j.op1 = j.op2 = NULL;
-    j.dest = "!l_main";
+
+    // na zaciatku musi byt .IFJcode17
+    j.op1 = j.op2 = j.dest = NULL;
+    j.operation = I_HEADER;
+    print_operation(&j);
+
+    j.dest = "l_main";
     j.operation = I_JUMP;
     print_operation(&j);
 
