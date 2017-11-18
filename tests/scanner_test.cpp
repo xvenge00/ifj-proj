@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 
-
 extern "C"{
 #include "../source/scanner.h"
 }
@@ -343,6 +342,32 @@ TEST_F(numbers_fixture, test) {
     //token = get_token();
     //TODO tu ma dat chybu
 }
+
+namespace {
+
+    class ID_fixture : public ::testing::Test {
+    protected:
+        t_token *token;
+        int i = 0;
+
+        virtual void SetUp() {
+            f = fopen("../tests/scanner_test_input/ID_test", "r");
+        }
+
+        virtual void TearDown() {
+            fclose(f);
+        }
+    };
+}
+
+TEST_F(ID_fixture, prvy) {
+    //a0_ == ID
+    token = get_token();
+    EXPECT_EQ(token->token_type, ID);
+    EXPECT_TRUE(!strcmp(token->data.s,"a0_"));
+    EXPECT_FALSE(!strcmp(token->data.s, "a"));
+}
+
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
