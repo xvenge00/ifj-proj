@@ -12,5 +12,7 @@ void error(int code);
 void semerror(int code);
 void is_undefined(char *name);
 void redefine_error(char *name);
+void internall_err();
+void check_null(void *ptr);
 
 #endif //IFJ_PROJ_ERR_H

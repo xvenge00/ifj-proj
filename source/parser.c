@@ -6,6 +6,7 @@
 #include "scanner.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "codegen.h"
 #include "token_stack.h"
 
@@ -46,6 +47,11 @@ bool check_pointer(void *input) {
         error(ERR_SYNTA);
     }
     return true;
+}
+
+bool is_data_type(t_token *input) {
+    check_pointer(input);
+    return input->data.i == k_integer || input->data.i == k_double || input->data.i == k_string;
 }
 
 int parse(TTable *Table) {
@@ -99,8 +105,8 @@ int function(int decDef, TTable *Table, TTable *local) {
     int ret_type = -1;
     if (decDef == k_function) {
         create_3ac(I_LABEL, NULL, NULL, name_f);
-        create_3ac(I_DEFVAR, NULL, NULL, "%RETVAL");
-        create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
+        //create_3ac(I_DEFVAR, NULL, NULL, cat_string("TF@","%RETVAL"));
+        //create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
     }
     TData *func = NULL;
     TSymbol *sym = NULL;
@@ -170,7 +176,7 @@ int function(int decDef, TTable *Table, TTable *local) {
      int i ;
     if (decDef == k_function) {
         i = commandsAndVariables(Table,local);
-        create_3ac(I_POPFRAME, NULL, NULL, NULL);
+        //create_3ac(I_POPFRAME, NULL, NULL, NULL);
         create_3ac(I_RETURN, NULL, NULL, NULL);
     }
 
@@ -313,6 +319,9 @@ int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
         lSymbol->isDefined = true;
         element = El_Create(lSymbol);
         Tbl_Insert(local, element);
+
+        //!!!menim name
+        name = cat_string("TF@", name);
 
         if (decDef == k_function) {
             create_3ac(I_DEFVAR, NULL, NULL, name); //deklarovanie operandu
@@ -572,13 +581,12 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                 input = check_next_token_type(ID);
                 tmp1 = input;
                 char *name = input->data.s;
-                create_3ac(I_DEFVAR, NULL, NULL, name); //deklarovanie operandu
+                create_3ac(I_DEFVAR, NULL, NULL, cat_string("TF@", name)); //deklarovanie lok. premennej
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
                     int type = input->data.i;
-                    if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
-                        check_token_int_value(input, k_string)) { //typ
+                    if (is_data_type(input)) { //typ
                         //check_next_token_type(EOL);
 
                         int type = -1;
@@ -608,20 +616,20 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                             switch (input->data.i) {
                                 case k_integer:
                                     value.i = 0;
-                                    create_3ac(I_MOVE, "int@0", NULL,name );  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "int@0", NULL, cat_string("TF@",name));  //vytvorenie operacii
                                     break;
                                 case k_double:
                                     value.d = 0.0;
-                                    create_3ac(I_MOVE, "float@0.0", NULL, name);  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "float@0.0", NULL, cat_string("TF@",name));  //vytvorenie operacii
                                     break;
                                 case k_string:
                                     value.s = "";
-                                    create_3ac(I_MOVE, "string@",NULL, name );  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "string@",NULL, cat_string("TF@",name));  //vytvorenie operacii
 
                             }
                         } else if (input2->token_type == EQ) {
                             expression(Table,local,type);
-                            create_3ac(I_POPS, NULL, NULL, name);
+                            create_3ac(I_POPS, NULL, NULL, cat_string("TF@",name));
                         } else {
                             error(ERR_SYNTA);
                         }
@@ -666,7 +674,7 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                 char *type[10] = {"float", "int", "str"};
 
 
-                create_3ac(I_READ, type[i], NULL, tmp1->data.s); //deklarovanie operandu
+                create_3ac(I_READ, type[i], NULL, cat_string("TF@",tmp1->data.s)); //deklarovanie operandu
 
                 check_next_token_type(EOL);
 
@@ -730,7 +738,7 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                     char *new_e = gen_label("w_e");
                     str_push(new_b);
                     str_push(new_e);
-                    create_3ac(I_LABEL, NULL, NULL, new_b);
+                    create_3ac(I_LABEL, NULL, NULL, cat_string("TF@",new_b));
                     if (expression(Table,local, -1) != EOL) {
                         error(ERR_SYNTA);
                     } //tohle asi nepojede
@@ -757,7 +765,7 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                     error(ERR_SYNTA);
                 } else {
                     expression(Table,local, -2); //todo neviem zistit akeho typu ma byt navrat
-                    create_3ac(I_POPS, NULL, NULL, "%RETVAL");
+                    create_3ac(I_POPS, NULL, NULL, cat_string("TF@","%RETVAL"));
                     create_3ac(I_POPFRAME, NULL, NULL, NULL);
                     create_3ac(I_RETURN, NULL, NULL, NULL);
                     return commandsAndVariables(Table,local);
@@ -820,6 +828,7 @@ int print_params(TTable *Table,TTable *local) {
 
 int scope(TTable *Table) {
     create_3ac(I_LABEL, NULL, NULL, "l_main");
+    create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
 
     TTable *local = Tbl_Create(8);    //todo preco tu sa generuje nova tabulka ??????
     local->isScope = true;

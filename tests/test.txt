@@ -1,26 +1,48 @@
-Declare Function factorial (n As Integer) As Integer
-Function factorial (n As Integer) As Integer
-Dim temp_result As Integer
-Dim decremented_n As Integer
-Dim result As Integer
-If n < 2 Then
-result = 1
-Else
-decremented_n = n - 1
-temp_result = factorial(decremented_n)
-result = n * temp_result
-End If
-Return result
+Function factorial () As Integer
+    Dim tmp As Integer
+    tmp = 5
+    Return tmp
 End Function
 Scope 'Hlavni telo programu
-Dim a As Integer
-Dim vysl As Integer
-Print !"Zadejte cislo pro vypocet faktorialu";
-Input a
-If a < 0 Then
-Print !"\nFaktorial nelze spocitat\n";
-Else
-vysl = factorial(a)
-Print !"\nVysledek je:" ; vysl ; !"\n";
-End If
+    Dim a As Integer
+    a = factorial()
 End Scope
+
+/'vystup by mal byt (medzery neriesim, nemusia tam byt)
+.IFJcode17
+    JUMP l_main
+LABEL factorial
+    DEFVAR TF@tmp
+    MOVE TF@tmp int@0
+
+    DEFVAR TF@$E_E0
+    MOVE TF@$E_E0 int@5
+    PUSHS TF@$E_E0
+    POPS TF@tmp
+
+    DEFVAR TF@$E_E2
+    MOVE TF@$E_E2 TF@tmp
+    PUSHS TF@$E_E2
+    POPS TF@%RETVAL
+
+    RETURN
+LABEL l_main
+    CREATEFRAME
+
+    DEFVAR TF@a
+    MOVE TF@a int@0
+
+    READ TF@a int
+
+    DEFVAR TF@$E_E4
+    PUSHFRAME
+    CREATEFRAME
+    DEFVAR TF@%RETVAL
+    CALL factorial
+    MOVE LF@$E_E4 TF@%RETVAL
+    POPFRAME
+
+    PUSHS TF@$E_E4
+    POPS TF@a
+    WRITE TF@a
+'/

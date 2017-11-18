@@ -25,3 +25,18 @@ void redefine_error(char *name) {
     clear_all();
     exit(ERR_SEM_P);
 }
+
+void internall_err() {
+    fprintf(stderr, "Interna chyba prekladaca.\n");
+    clear_all();
+    exit(ERR_INTER);
+}
+
+void check_null(void *ptr) {
+    if (ptr != NULL) {
+        return;
+    }
+    fprintf(stderr, "Chybny ukazatel. \n");
+    clear_all();
+    exit(ERR_INTER);
+}

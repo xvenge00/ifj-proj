@@ -10,6 +10,25 @@
 #include <string.h>
 #include <ctype.h>
 
+
+/*
+ * spaja 2 stringy do 1
+ * funkciu pouzivam na spojenie frame a mena
+ * priklad name = cat_string("LF@", name)
+ * !!!maximalna dlzka noveho retazca je 260!!!  //TODO
+ */
+char *cat_string(char *frame, char *variable) {
+    check_null(frame);
+    check_null(variable);
+
+    char *buf = my_malloc(sizeof(char)*260);
+    buf[0]=0;
+    buf = strncat(buf, frame, 3);
+    buf = strncat(buf, variable, 256);
+
+    return buf;
+}
+
 char *my_strcpy(char *src) {
     char *dest;
     if (src == NULL) {
@@ -153,6 +172,8 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                      */
                     typ1 = tmp1->typ_konkretne;
                     typ2 = tmp2->typ_konkretne;
+
+                    char *TF_dest = NULL;   //TF_dest = cat_string("TF@", dest);
 
                     if (typ1 == k_string && typ2 == k_string) {
                         sprintf(dest, "$E_E%i", new_id);
