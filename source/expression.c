@@ -12,7 +12,7 @@
 
 char *my_strcpy(char *src) {
     char *dest;
-    if (src == NULL){
+    if (src == NULL) {
         dest = NULL;
     } else {
         size_t size = strlen(src) + sizeof(char);
@@ -32,17 +32,17 @@ int get_id() {
     return id++;
 }
 
-void Stack_init(Stack * stack){
+void Stack_init(Stack *stack) {
     stack->top = NULL;
     stack->active = NULL;
 }
 
 //smaze zasobnik, uvolni pamet
-int Stack_dispose(Stack * stack){
+int Stack_dispose(Stack *stack) {
     check_pointer(stack);
-    Element * tmp;
+    Element *tmp;
 
-    while(stack->top != NULL){
+    while (stack->top != NULL) {
         tmp = stack->top;
         stack->top = tmp->next;
         my_free(tmp);
@@ -51,8 +51,8 @@ int Stack_dispose(Stack * stack){
 }
 
 //vlozi na vrchol zasobniku element s type
-int Stack_push(Stack * stack, int type, char *operand, int t_dat){
-    Element * new = my_malloc(sizeof(Element));
+int Stack_push(Stack *stack, int type, char *operand, int t_dat) {
+    Element *new = my_malloc(sizeof(Element));
     check_pointer(new);
 
     new->type = type;
@@ -62,27 +62,28 @@ int Stack_push(Stack * stack, int type, char *operand, int t_dat){
 
     stack->top = new;
 
-    if(new->type != E_E){ //isTerminal
+    if (new->type != E_E) { //isTerminal
         stack->active = new;
     }
     return SUCCESS;
 
 }
+
 //po zavolani tehle funkce je potreba uvolnit ten ukazatel
-Element * Stack_pop(Stack * stack){
-    Element * tmp = stack->top;
+Element *Stack_pop(Stack *stack) {
+    Element *tmp = stack->top;
     stack->top = tmp->next;
-    if(stack->active == tmp){ //pokud byl prvni aktivni, posuneme aktivitu na dalsi neterminal
-        while(stack->active->type == E_E){
+    if (stack->active == tmp) { //pokud byl prvni aktivni, posuneme aktivitu na dalsi neterminal
+        while (stack->active->type == E_E) {
             stack->active = stack->active->next;
         }
     }
     return tmp;
 }
 
-Element* Stack_top(Stack *stack){
+Element *Stack_top(Stack *stack) {
     Element *tmp = stack->top;
-    while(tmp->type == E_E){
+    while (tmp->type == E_E) {
         tmp = tmp->next;
     }
     return tmp;
@@ -90,13 +91,13 @@ Element* Stack_top(Stack *stack){
 
 //nad nejvrchnejsi terminal (stack.active) vlozi novy element s "<"
 //implementace - vlozi a prekopiruje aktivni pod aktivni a vrchni premaze na <
-int Stack_expand(Stack *stack){
+int Stack_expand(Stack *stack) {
     Element *tmp = stack->top;
-    while(tmp->type == E_E){
+    while (tmp->type == E_E) {
         tmp = tmp->next;
     }
 
-    Element * new = my_malloc(sizeof(Element));
+    Element *new = my_malloc(sizeof(Element));
     check_pointer(new);
 
     new->type = tmp->type;
@@ -107,10 +108,10 @@ int Stack_expand(Stack *stack){
     return SUCCESS;
 }
 
-Element* check_next_element_type(int type, Stack* stack){
-    Element * input = Stack_pop(stack);
+Element *check_next_element_type(int type, Stack *stack) {
+    Element *input = Stack_pop(stack);
     check_pointer(input);
-    if(input->type == type){
+    if (input->type == type) {
         return input;
     }
     error(ERR_SYNTA);
@@ -121,8 +122,8 @@ Element* check_next_element_type(int type, Stack* stack){
  * priklad: pravidlo: E -> E + E
  *          zasobnik:  $E+id+<E+E
  *          vysledek na zasobniku: $E+id+E  */
-int rule(Stack *stack, TTable *local){
-    Element * input = Stack_pop(stack);
+int rule(Stack *stack, TTable *local, TTable *Table) {
+    Element *input = Stack_pop(stack);
     check_pointer(input);
     int new_id = get_id();
     char *dest = my_malloc(sizeof(char) * 130);
@@ -136,13 +137,13 @@ int rule(Stack *stack, TTable *local){
 
     char tmp[130];
 
-    Element *arr_el[100] = {NULL, };
+    Element *arr_el[100] = {NULL,};
 
 
-    switch(input->type){
+    switch (input->type) {
         case E_E:
             input = Stack_pop(stack);
-            switch(input->type){
+            switch (input->type) {
                 case E_PLUS:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
@@ -263,7 +264,6 @@ int rule(Stack *stack, TTable *local){
                         clear_all();
                         exit(ERR_SEM_T);
                     }
-
 
 
                     Stack_push(stack, E_E, dest, typ1);
@@ -703,7 +703,7 @@ int rule(Stack *stack, TTable *local){
                         case E_COMMA:
 
                             arr_el[i++] = tmp1;
-                            arr_el[i++] =  check_next_element_type(E_E, stack);
+                            arr_el[i++] = check_next_element_type(E_E, stack);
 
                             input = Stack_pop(stack);
                             while (input->type == E_COMMA) {
@@ -760,23 +760,39 @@ int rule(Stack *stack, TTable *local){
 // Precedencni tabulka, rozsirena pro FUNEXP
 const int precedence_table[17][17] = {
         /*    +   -   *   /   \   (   )  id   <  <=   >  >=   =  <>   $   f   ,  */
-/* +    */ { GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
-/* -    */ { GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
-/* *    */ { GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
-/* /    */ { GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
-/* \    */ { GT, GT, LT, LT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
-/* (    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, xx, LT, EQ, },
-/* )    */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, },
-/* id   */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, }, //ID x ( ma byt xx, tohle je kvuli debugu funkci
-/* <    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
-/* <=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
-/* >    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
-/* >=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
-/* =    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
-/* <>   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
-/* $    */ { LT, LT, LT, LT, LT, LT, xx, LT, LT, LT, LT, LT, LT, LT, xx, LT, xx, },
-/* f    */ { xx, xx, xx, xx, xx, EQ, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, },
-/* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
+/* +    */ {GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
+/* -    */
+           {GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
+/* *    */
+           {GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
+/* /    */
+           {GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
+/* \    */
+           {GT, GT, LT, LT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
+/* (    */
+           {LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, xx, LT, EQ,},
+/* )    */
+           {GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT,},
+/* id   */
+           {GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT,}, //ID x ( ma byt xx, tohle je kvuli debugu funkci
+/* <    */
+           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
+/* <=   */
+           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
+/* >    */
+           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
+/* >=   */
+           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
+/* =    */
+           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
+/* <>   */
+           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
+/* $    */
+           {LT, LT, LT, LT, LT, LT, xx, LT, LT, LT, LT, LT, LT, LT, xx, LT, xx,},
+/* f    */
+           {xx, xx, xx, xx, xx, EQ, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,},
+/* ,    */
+           {LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ,},
 };
 
 void prilep(char *ret, char c, int *top, int *cap) {
@@ -833,7 +849,7 @@ char *token2operand(t_token *token) {
 }
 
 
-int code_type(int *dollar_source, t_token *input, TTable *table){
+int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) {
 //    t_token * input = get_token();
 //    ret_sym = input;
     static int was_funct = 0;
@@ -844,7 +860,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table){
 //        exit(ERR_SEM_P);
 //    }
 
-    switch(i) {
+    switch (i) {
         case PLUS:
             return E_PLUS;
         case MINUS:
@@ -861,18 +877,24 @@ int code_type(int *dollar_source, t_token *input, TTable *table){
             return E_RPAR;
         case ID: //nutno rozlisit ID funkce a ID promenne, ted neprochazi vyrazy jako ID = ID(ID)   //kontrolujem v rule !!!
         {
-            TElement* found = Tbl_GetDirect(table, input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
-            if(found != NULL)
-            {
-                if(found->data->type == ST_Function && found->data->isDefined) {
-                    was_funct = 1;
-                    return E_FUNC;
-                } else if(found->data->type == ST_Variable && found->data->isDefined){
-                    return E_ID;
-                } else {
-                    return -1; //ERR_SEMANTIC
+            TElement *found = Tbl_GetDirect(table,
+                                            input->data.s); //odkomentovat, až bude globální table a budou se do ní plnit ID
+            if (found == NULL) {
+                found = Tbl_GetDirect(Table, input->data.s);
+                if (found == NULL) {
+                    semerror(ERR_SEM_P);
                 }
             }
+            if (found->data->type == ST_Function && found->data->isDefined) {
+                was_funct = 1;
+                return E_FUNC;
+            } else if (found->data->type == ST_Variable && found->data->isDeclared) {
+                return E_ID;
+            } else {
+                return -1; //ERR_SEMANTIC
+            }
+
+
         }
             //pozreme do symtable
             semerror(ERR_SEM_P);
@@ -918,7 +940,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table){
  * Pro Then je navratova hodnota tedy 120
  * */
 
-int expression(TTable *local, int typ){
+int expression(TTable *Table, TTable *local, int typ) {
     int id_of_ID = 0;
 
     Stack stack;
@@ -932,28 +954,31 @@ int expression(TTable *local, int typ){
         return EOL;
     }
 
-    b = code_type(&dollar_source, my_token, local); //prekodovani typu tokenu na index do tabulky
-    if(b==E_DOLLAR && dollar_source == EOL) {
+    b = code_type(&dollar_source, my_token, local, Table); //prekodovani typu tokenu na index do tabulky
+    if (b == E_DOLLAR && dollar_source == EOL) {
         Stack_dispose(&stack);
         return dollar_source;
     }
-    do{
+    do {
         a = Stack_top(&stack)->type;
         int ruleNumber = 0;
         int new_id = -1;
         int token_type = -1;
-        if (my_token != NULL){
-             if (my_token->token_type == INT){
+        if (my_token != NULL) {
+            if (my_token->token_type == INT) {
                 token_type = k_integer;
-            } else if (my_token->token_type == DOUBLE){
-                 token_type = k_double;
-             } else if (my_token->token_type == STR){
-                 token_type = k_string;
-             } else if (my_token->token_type == ID) {
-                TElement *el = Tbl_GetDirect(local,my_token->data.s);
-                if (el == NULL){
-                    clear_all();
-                    exit(ERR_SEM_P); //nebolo definovane
+            } else if (my_token->token_type == DOUBLE) {
+                token_type = k_double;
+            } else if (my_token->token_type == STR) {
+                token_type = k_string;
+            } else if (my_token->token_type == ID) {
+                TElement *el = Tbl_GetDirect(local, my_token->data.s);
+                if (el == NULL) {
+                    el = Tbl_GetDirect(Table, my_token->data.s);
+                    if (el == NULL) {
+                        clear_all();
+                        exit(ERR_SEM_P); //nebolo definovane
+                    }
                 }
                 if (el->data->type == ST_Variable) {
                     token_type = el->data->data->var->type;
@@ -971,27 +996,28 @@ int expression(TTable *local, int typ){
 //            my_token = NULL;
         }
 
-        switch(precedence_table[a][b]){
+        switch (precedence_table[a][b]) {
             case EQ:
-                Stack_push(&stack,b, token2operand(my_token), token_type);
+                Stack_push(&stack, b, token2operand(my_token), token_type);
                 my_token = get_token();
-                b = code_type(&dollar_source, my_token, local);
+                b = code_type(&dollar_source, my_token, local, Table);
                 break;
             case LT:
                 Stack_expand(&stack);
                 Stack_push(&stack, b, token2operand(my_token), token_type);
                 my_token = get_token();
-                b = code_type(&dollar_source, my_token, local);
+                b = code_type(&dollar_source, my_token, local,Table);
                 break;
             case GT:
-                ruleNumber = rule(&stack, local);
+                ruleNumber = rule(&stack, local, Table);
                 if (ruleNumber != 0) {
                     //printf("Rule %d\n", ruleNumber);
                 } else {
                     error(ERR_SYNTA);
                 }
                 break;
-            default: error(ERR_SYNTA);
+            default:
+                error(ERR_SYNTA);
 
         }
 

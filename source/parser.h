@@ -13,13 +13,13 @@ int function(int decDef,TTable* Table,TTable* local);
 int params(TTable *local, unsigned *attr_count, int **attributes, int decDef);
 
 
-int commandsAndVariables(TTable* local);
+int commandsAndVariables(TTable *Table,TTable *local);
 
 //int expression();
 int expressionOrFunction();
 int idList();
 int scope(TTable *Table);
-int print_params(TTable *local);
+int print_params(TTable *Table,TTable *local);
 t_token* check_next_token_type(int type);
 bool check_token_int_value(t_token * input, int value);
 bool check_pointer(void* input);

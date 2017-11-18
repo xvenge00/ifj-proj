@@ -46,5 +46,5 @@ typedef struct stack{
 char *token2operand(t_token *token);
 int get_id();
 
-int expression(TTable *tTable, int typ);
+int expression(TTable *Table,TTable *tTable, int typ);
 #endif //IFJ_PROJ_EXPRESSION_H
