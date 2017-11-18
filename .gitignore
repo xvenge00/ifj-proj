@@ -54,5 +54,9 @@ dkms.conf
 #CLion
 .idea/
 cmake-build-debug/
+
+#nepotrebne veci
 test_results.txt
 venv/
+log/
+ifj

@@ -134,6 +134,7 @@ int function(int decDef, TTable *Table, TTable *local) {
             sym->isDeclared = true;
         } else if (decDef == k_declare) {
             sym->isDeclared = true;
+            sym->isDefined = false;
         } else {
             clear_all();
             exit(ERR_INTER);
