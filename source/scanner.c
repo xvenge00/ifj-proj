@@ -269,6 +269,7 @@ t_token *get_token(){
                     state = s_block_coment_1;
                 } else {
                     old = loaded;
+                    return create_token(DELENO,data, &line);
 //                    if (isValueOrSpace(loaded)){
 //                        return create_token(DELENO, data,&line);
 //                    } else {
