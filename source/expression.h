@@ -2,6 +2,8 @@
 #define IFJ_PROJ_EXPRESSION_H
 
 #include <stddef.h>
+#include "scanner.h"
+#include "symtable.h"
 
 enum{
     xx

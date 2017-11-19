@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "memwork.h"
+#include "expression.h"
 
 void error(int code) {
     fprintf(stderr, "Error v syntakticke analyze - spatny typ tokenu.\n");
@@ -39,4 +40,10 @@ void check_null(void *ptr) {
     fprintf(stderr, "Chybny ukazatel. \n");
     clear_all();
     exit(ERR_INTER);
+}
+
+void bad_operands_err() {
+    fprintf(stderr, "Nekompatibilne operandy.\n");
+    clear_all();
+    exit(ERR_SEM_T);
 }

@@ -1,6 +1,8 @@
 #ifndef IFJ_PROJ_CODEGEN_H
 #define IFJ_PROJ_CODEGEN_H
 
+#include "expression.h"
+
 enum {
     I_MOVE = 0,         //0
     I_CREATEFRAME,
@@ -69,5 +71,10 @@ t_3ac *create_3ac(int operation,char *op1, char *op2, char *dest);
 void print_operation(t_3ac *code);
 
 int generate_code();
+
+char *cat_string(char *frame, char *variable);
+void call_function(char *name, char *dest);
+void convert_and_gen_op(int operation, Element *l_operand, Element *r_operand, int new_id);
+bool is_data_type (int typ);
 
 #endif //IFJ_PROJ_CODEGEN_H

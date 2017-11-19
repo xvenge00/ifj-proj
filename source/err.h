@@ -14,5 +14,6 @@ void is_undefined(char *name);
 void redefine_error(char *name);
 void internall_err();
 void check_null(void *ptr);
+void bad_operands_err();
 
 #endif //IFJ_PROJ_ERR_H

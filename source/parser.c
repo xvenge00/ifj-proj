@@ -49,9 +49,9 @@ bool check_pointer(void *input) {
     return true;
 }
 
-bool is_data_type(t_token *input) {
+bool token_is_data_type(t_token *input) {
     check_pointer(input);
-    return input->data.i == k_integer || input->data.i == k_double || input->data.i == k_string;
+    return is_data_type(input->data.i);
 }
 
 int parse(TTable *Table) {
@@ -586,7 +586,7 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                 if (check_token_int_value(input, 0)) { //AS
                     input = check_next_token_type(KEY_WORD);
                     int type = input->data.i;
-                    if (is_data_type(input)) { //typ
+                    if (token_is_data_type(input)) { //typ
                         //check_next_token_type(EOL);
 
                         int type = -1;
@@ -766,8 +766,8 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                 } else {
                     expression(Table,local, -2); //todo neviem zistit akeho typu ma byt navrat
                     create_3ac(I_POPS, NULL, NULL, cat_string("TF@","%RETVAL"));
-                    create_3ac(I_POPFRAME, NULL, NULL, NULL);
-                    create_3ac(I_RETURN, NULL, NULL, NULL);
+//                    create_3ac(I_POPFRAME, NULL, NULL, NULL);
+//                    create_3ac(I_RETURN, NULL, NULL, NULL);
                     return commandsAndVariables(Table,local);
                 }
 
@@ -782,9 +782,9 @@ int print_params(TTable *Table,TTable *local) {
     char ret[130];
     static int print_par = 0;
     sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
-    create_3ac(I_DEFVAR, NULL, NULL, ret); //deklarovanie operandu
-    create_3ac(I_POPS, NULL, NULL, ret); //deklarovanie operandu
-    create_3ac(I_WRITE, NULL, NULL, ret); //deklarovanie operandu
+    create_3ac(I_DEFVAR, NULL, NULL, ret);
+    create_3ac(I_POPS, NULL, NULL, ret);
+    create_3ac(I_WRITE, NULL, NULL, ret);
 
     while (result == SEMICOLLON) {
         result = expression(Table,local, -2);

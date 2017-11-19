@@ -1,6 +1,9 @@
 #include "codegen.h"
 #include "memwork.h"
+#include "expression.h"
 #include <stdio.h>
+#include "scanner.h"
+#include "err.h"
 
 char oper[52][15] = {
         "MOVE",
@@ -136,4 +139,161 @@ int generate_code(){
         i = i->next;
     }
     return 0;
+}
+
+void call_function(char *name, char *dest) {
+    create_3ac(I_DEFVAR, NULL, NULL, cat_string("TF@", dest));
+    create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
+    create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
+    create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
+    create_3ac(I_CALL, NULL, NULL, name);
+    create_3ac(I_MOVE, "TF@%RETVAL", NULL, cat_string("LF@",dest));
+    create_3ac(I_POPFRAME, NULL, NULL, NULL);
+}
+
+bool is_data_type (int typ) {
+    return typ == k_integer || typ == k_double || typ == k_string;
+}
+
+bool is_num_type (int typ) {
+    return typ == k_integer || typ == k_double;
+}
+
+/*
+ * funguje len +,-,*,/
+ * / sa zacykli!!!
+ */
+void convert_and_gen_op(int operation, Element *l_operand, Element *r_operand, int new_id) {
+    //todo kontrola ukazatelov
+    int l_typ = l_operand->typ_konkretne;
+    int r_typ = r_operand->typ_konkretne;
+
+    char *dest  = NULL;
+    char *tmp   = NULL;
+    char *l_op_str = cat_string("TF@", l_operand->operand);
+    char *r_op_str = cat_string("TF@", r_operand->operand);
+
+    dest = my_malloc(sizeof(char) * 260);
+    sprintf(dest, "TF@$E_E%i", new_id);
+
+    //is_data_type(l_typ)
+    //is_data_type(r_typ)
+
+    switch (operation) {
+        case E_PLUS:
+            if (!is_data_type(l_typ) || !is_data_type(r_typ)) {
+                bad_operands_err();
+            }
+
+            if (l_typ == r_typ) {   //netreba konverziu
+                if (l_typ == k_string) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_CONCAT, l_op_str, r_op_str, dest);
+                } else {    //double, int
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_ADD, l_op_str, r_op_str, dest);
+                }
+            } else  {               //treba konverziu
+                tmp = my_malloc(sizeof(char)*260);
+                sprintf(tmp, "TF@$E_E%i", get_id());    //generuj nazov pre tmp
+
+                if (l_typ == k_integer && r_typ == k_double) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DEFVAR, NULL, NULL, tmp);
+                    create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
+                    create_3ac(I_ADD, l_op_str, tmp, dest);
+                } else if (l_typ == k_double && r_typ == k_integer) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DEFVAR, NULL, NULL, tmp);
+                    create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
+                    create_3ac(I_ADD, l_op_str, r_op_str, dest);
+                } else {    //je tam string
+                    bad_operands_err();
+                }
+            }
+            break;
+        case E_MINUS:
+            if (!is_num_type(l_typ) || !is_num_type(r_typ)) {
+                bad_operands_err();
+            }
+
+            if (l_typ == r_typ) {   //netreba konverziu
+                create_3ac(I_DEFVAR, NULL, NULL, dest);
+                create_3ac(I_SUB, l_op_str, r_op_str, dest);
+            } else {                //treba konverziu
+                tmp = my_malloc(sizeof(char)*260);
+                sprintf(tmp, "TF@$E_E%i", get_id());    //generuj nazov pre tmp
+
+                if (l_typ == k_integer && r_typ == k_double) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DEFVAR, NULL, NULL, tmp);
+                    create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
+                    create_3ac(I_SUB, l_op_str, tmp, dest);
+                } else if (l_typ == k_double && r_typ == k_integer) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DEFVAR, NULL, NULL, tmp);
+                    create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
+                    create_3ac(I_SUB, l_op_str, tmp, dest);
+                }   //else err??
+            }
+        case E_MUL:
+            if (!is_num_type(l_typ) || !is_num_type(r_typ)) {
+                bad_operands_err();
+            }
+            if (l_typ == r_typ) {   //netreba konverziu
+                create_3ac(I_DEFVAR, NULL, NULL, dest);
+                create_3ac(I_MUL, l_op_str, r_op_str, dest);
+            } else {                //treba konverziu
+                tmp = my_malloc(sizeof(char)*260);
+                sprintf(tmp, "TF@$E_E%i", get_id());    //generuj nazov pre tmp
+
+                if (l_typ == k_integer && r_typ == k_double) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DEFVAR, NULL, NULL, tmp);
+                    create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
+                    create_3ac(I_MUL, l_op_str, tmp, dest);
+                } else if (l_typ == k_double && r_typ == k_integer) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DEFVAR, NULL, NULL, tmp);
+                    create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
+                    create_3ac(I_MUL, l_op_str, tmp, dest);
+                }   //else err??
+            }
+        case E_DIV:
+            if (!is_num_type(l_typ) || !is_num_type(r_typ)) {
+                bad_operands_err();
+            }
+
+            if (l_typ == r_typ) {   //netreba konverziu
+                if (l_typ == k_integer) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_INT2FLOAT, l_op_str, NULL, dest);
+                    create_3ac(I_PUSHS, NULL, NULL, dest);
+                    create_3ac(I_INT2FLOAT, r_op_str, NULL, dest);
+                    create_3ac(I_PUSHS, NULL, NULL, dest);
+                    create_3ac(I_DIVS, NULL, NULL, NULL);
+                    create_3ac(I_POPS, NULL, NULL, dest);
+                } else {            //double
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DIV, l_op_str, r_op_str, dest);
+                }
+            } else {                //treba konverziu
+                tmp = my_malloc(sizeof(char)*260);
+                sprintf(tmp, "TF@$E_E%i", get_id());    //generuj nazov pre tmp
+
+                if (l_typ == k_integer && r_typ == k_double) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DEFVAR, NULL, NULL, tmp);
+                    create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
+                    create_3ac(I_DIV, tmp, r_op_str, dest);
+                } else if (l_typ == k_double && r_typ == k_integer) {
+                    create_3ac(I_DEFVAR, NULL, NULL, dest);
+                    create_3ac(I_DEFVAR, NULL, NULL, tmp);
+                    create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
+                    create_3ac(I_DIV, l_op_str, tmp, dest);
+                }   //else err??
+            }
+        default:
+            break;
+    }
 }

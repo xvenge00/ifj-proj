@@ -1,17 +1,22 @@
-Function factorial () As Integer
+Function factorial (n as Integer, b as integer) As Integer
     Dim tmp As Integer
-    tmp = 5
+    tmp = 5 + 2.3
     Return tmp
 End Function
 Scope 'Hlavni telo programu
     Dim a As Integer
-    a = factorial()
+    a = factorial(2, 3)
 End Scope
 
 /'vystup by mal byt (medzery neriesim, nemusia tam byt)
-.IFJcode17
+    .IFJcode17
     JUMP l_main
 LABEL factorial
+    DEFVAR TF@n
+    POPS TF@n
+    DEFVAR TF@b
+    POPS TF@b
+
     DEFVAR TF@tmp
     MOVE TF@tmp int@0
 
@@ -32,17 +37,22 @@ LABEL l_main
     DEFVAR TF@a
     MOVE TF@a int@0
 
-    READ TF@a int
-
-    DEFVAR TF@$E_E4
+    DEFVAR TF@$E_E4	#parameter1
+    MOVE TF@$E_E4 int@2
+    DEFVAR TF@$E_E5	#parameter2
+    MOVE TF@$E_E5 int@3
+    PUSHS TF@$E_E5	#push od posledneho
+    PUSHS TF@$E_E4
+    DEFVAR TF@$E_E6	#navrat
     PUSHFRAME
     CREATEFRAME
     DEFVAR TF@%RETVAL
     CALL factorial
-    MOVE LF@$E_E4 TF@%RETVAL
+    MOVE LF@$E_E6 TF@%RETVAL
     POPFRAME
 
-    PUSHS TF@$E_E4
+    PUSHS TF@$E_E6
     POPS TF@a
-    WRITE TF@a
+
+    WRITE TF@a  #debug
 '/
