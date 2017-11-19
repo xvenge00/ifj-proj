@@ -166,371 +166,81 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
         case E_E:
             input = Stack_pop(stack);
 
-            //TODO po konverzii sa v generovanom kode pushuje zly vyraz
-            //TODO doplnit ostatne operacie do convert_and_gen_op()
+            //TODO po konverzii sa v generovanom kode pushuje zly vyraz, problem je na konci expression()
+            //TODO doplnit ostatne operacie do gen_and_convert()
             switch (input->type) {
                 case E_PLUS:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-                    convert_and_gen_op(E_PLUS, tmp1, tmp2, new_id);
+                    dest = gen_and_convert(E_PLUS, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, tmp1->typ_konkretne);
                     return 1;
                 case E_MINUS:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-                    convert_and_gen_op(E_MINUS, tmp1, tmp2, new_id);
+                    dest = gen_and_convert(E_MINUS, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, tmp1->typ_konkretne);
                     return 2;
                 case E_MUL:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-                    convert_and_gen_op(E_MUL, tmp1, tmp2, new_id);
+                    dest = gen_and_convert(E_MUL, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, tmp1->typ_konkretne);
                     return 3;
                 case E_DIV:
                     //TODO BUG ZACYKLI SA!!!
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-                    convert_and_gen_op(E_DIV, tmp1, tmp2, new_id);
+                    dest = gen_and_convert(E_DIV, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, k_double);
                     return 4;
                 case E_MOD:
+                    //netestovane
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-
-                    typ1 = tmp1->typ_konkretne;
-                    typ2 = tmp2->typ_konkretne;
-                    if (typ1 == k_integer && typ2 == k_integer) {
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_INT2FLOAT, tmp1->operand, NULL, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_DIVS, NULL, NULL, NULL);
-                        create_3ac(I_POPS, NULL, NULL, dest);
-
-                    } else if (typ1 == k_double && typ2 == k_double) {
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DIV, tmp1->operand, tmp2->operand, dest);
-                    } else if (typ1 == k_integer && typ2 == k_double) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_INT2FLOAT, tmp1->operand, NULL, tmp);
-                        create_3ac(I_DIV, tmp, tmp2->operand, dest);
-
-                    } else if (typ1 == k_double && typ2 == k_integer) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_DIV, tmp1->operand, tmp, dest);
-                    } else {
-                        clear_all();
-                        exit(ERR_SEM_T);
-                    }
-                    create_3ac(I_PUSHS, NULL, NULL, dest);
-                    //zaokruhlenie
-                    create_3ac(I_FLOAT2R2EINT, dest, NULL, dest);
-                    create_3ac(I_INT2FLOAT, dest, NULL, dest);
-
-                    create_3ac(I_PUSHS, NULL, NULL, dest);
-                    create_3ac(I_SUBS, NULL, NULL, NULL);
-                    if (typ2 == k_integer) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_PUSHS, NULL, NULL, NULL);
-                    } else {
-                        create_3ac(I_PUSHS, NULL, NULL, NULL);
-                    }
-                    create_3ac(I_MULS, NULL, NULL, NULL);
-                    create_3ac(I_POPS, NULL, NULL, tmp);
-                    create_3ac(I_FLOAT2R2EINT, tmp, NULL, dest);
-
+                    dest = gen_and_convert(E_MOD, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, k_integer);
                     return 5;
                 case E_LT:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-
-                    typ1 = tmp1->typ_konkretne;
-                    typ2 = tmp2->typ_konkretne;
-
-                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) ||
-                        (typ1 == k_string && typ2 == k_string)) {
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);
-                    } else if (typ1 == k_integer && typ2 == k_double) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_LT, tmp1->operand, tmp, dest);
-
-                    } else if (typ1 == k_double && typ2 == k_integer) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-
-                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_LT, tmp1->operand, tmp, dest);
-                    } else {
-                        clear_all();
-                        exit(ERR_SEM_T);
-                    }
-
+                    dest = gen_and_convert(E_LT, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 6;
                 case E_LE:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-                    typ1 = tmp1->typ_konkretne;
-                    typ2 = tmp2->typ_konkretne;
-                    //todo semanticka konrola ci tie 2 prvky su upravitelne
-
-                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) ||
-                        (typ1 == k_string && typ2 == k_string)) {
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_LT, tmp1->operand, tmp2->operand, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_ORS, NULL, NULL, NULL);
-                        create_3ac(I_POPS, NULL, NULL, dest);
-                    } else if (typ1 == k_integer && typ2 == k_double) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-
-
-                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp);
-
-                        create_3ac(I_LT, tmp1->operand, tmp, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_ORS, NULL, NULL, NULL);
-                        create_3ac(I_POPS, NULL, NULL, dest);
-
-                    } else if (typ1 == k_double && typ2 == k_integer) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-
-
-                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp);
-
-                        create_3ac(I_LT, tmp1->operand, tmp, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_ORS, NULL, NULL, NULL);
-                        create_3ac(I_POPS, NULL, NULL, dest);
-                    } else {
-                        clear_all();
-                        exit(ERR_SEM_T);
-                    }
-
+                    dest = gen_and_convert(E_LE, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 7;
                 case E_GT:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-
-                    typ1 = tmp1->typ_konkretne;
-                    typ2 = tmp2->typ_konkretne;
-
-
-                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) ||
-                        (typ1 == k_string && typ2 == k_string)) {
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);
-                    } else if (typ1 == k_integer && typ2 == k_double) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_GT, tmp1->operand, tmp, dest);
-
-                    } else if (typ1 == k_double && typ2 == k_integer) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_GT, tmp1->operand, tmp, dest);
-                    } else {
-                        clear_all();
-                        exit(ERR_SEM_T);
-                    }
-
+                    dest = gen_and_convert(E_GT, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 8;
                 case E_GE:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-
-                    typ1 = tmp1->typ_konkretne;
-                    typ2 = tmp2->typ_konkretne;
-
-
-                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) ||
-                        (typ1 == k_string && typ2 == k_string)) {
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_GT, tmp1->operand, tmp2->operand, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_ORS, NULL, NULL, NULL);
-                        create_3ac(I_POPS, NULL, NULL, dest);
-                    } else if (typ1 == k_integer && typ2 == k_double) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp);
-
-
-                        create_3ac(I_GT, tmp1->operand, tmp, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_ORS, NULL, NULL, NULL);
-                        create_3ac(I_POPS, NULL, NULL, dest);
-
-                    } else if (typ1 == k_double && typ2 == k_integer) {
-
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-
-                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp);
-
-                        create_3ac(I_GT, tmp1->operand, tmp, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
-                        create_3ac(I_PUSHS, NULL, NULL, dest);
-                        create_3ac(I_ORS, NULL, NULL, NULL);
-                        create_3ac(I_POPS, NULL, NULL, dest);
-                    } else {
-                        clear_all();
-                        exit(ERR_SEM_T);
-                    }
-
+                    dest = gen_and_convert(E_GE, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 9;
                 case E_EQ:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-
-                    typ1 = tmp1->typ_konkretne;
-                    typ2 = tmp2->typ_konkretne;
-
-
-                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) ||
-                        (typ1 == k_string && typ2 == k_string)) {
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);
-                    } else if (typ1 == k_integer && typ2 == k_double) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
-
-                    } else if (typ1 == k_double && typ2 == k_integer) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
-                    } else {
-                        clear_all();
-                        exit(ERR_SEM_T);
-                    }
-
+                    dest = gen_and_convert(E_EQ, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 10;
                 case E_NEQ:
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
-
-                    typ1 = tmp1->typ_konkretne;
-                    typ2 = tmp2->typ_konkretne;
-
-
-                    if ((typ1 == k_integer && typ2 == k_integer) || (typ1 == k_double && typ2 == k_double) ||
-                        (typ1 == k_string && typ2 == k_string)) {
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_EQ, tmp1->operand, tmp2->operand, dest);
-                    } else if (typ1 == k_integer && typ2 == k_double) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_FLOAT2R2EINT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
-
-                    } else if (typ1 == k_double && typ2 == k_integer) {
-                        sprintf(tmp, "$E_E%i", get_id());
-                        sprintf(dest, "$E_E%i", new_id);
-                        create_3ac(I_DEFVAR, NULL, NULL, dest);
-                        create_3ac(I_DEFVAR, NULL, NULL, tmp);
-
-                        create_3ac(I_INT2FLOAT, tmp2->operand, NULL, tmp);
-                        create_3ac(I_EQ, tmp1->operand, tmp, dest);
-                    } else {
-                        clear_all();
-                        exit(ERR_SEM_T);
-                    }
-
-
-                    create_3ac(I_NOT, dest, NULL, dest);
-
+                    dest = gen_and_convert(E_NEQ, tmp1, tmp2, new_id);
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 11;
                 default:
                     error(ERR_SYNTA);
-
             }
+            break;
         case E_RPAR:
             input = Stack_pop(stack);
             int i = 0;
@@ -726,7 +436,7 @@ const int precedence_table[17][17] = {
            {LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ,},
 };
 
-void prilep(char *ret, char c, int *top, int *cap) {
+void prilep(char *ret, char c, int *top, int *cap) {    //co to robi???
     if (*cap <= *top + 5) {
         *cap = *top + 20;
         ret = my_realloc(ret, sizeof(char) * (*cap));
@@ -779,17 +489,9 @@ char *token2operand(t_token *token) {
     return result;
 }
 
-
 int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) {
-//    t_token * input = get_token();
-//    ret_sym = input;
     static int was_funct = 0;
     int i = input->token_type;
-
-//    if (was_funct && i != LPAR){
-//        clear_all();
-//        exit(ERR_SEM_P);
-//    }
 
     switch (i) {
         case PLUS:
@@ -955,9 +657,9 @@ int expression(TTable *Table, TTable *local, int typ) {
     } while (!(b == E_DOLLAR && Stack_top(&stack)->type == E_DOLLAR));
 
     Stack_dispose(&stack);
-    char last[130];
-    sprintf(last, "$E_E%i", get_id() - 1);
-    create_3ac(I_PUSHS, NULL, NULL, cat_string("TF@",last));  //vytvorenie operacii
+    char last[256];
+    sprintf(last, "$E_E%i", get_id());  //TODO nefunguje ked sa konvertuje
+    create_3ac(I_PUSHS, NULL, NULL, last);
 
 
     return dollar_source;

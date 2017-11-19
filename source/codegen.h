@@ -74,7 +74,7 @@ int generate_code();
 
 char *cat_string(char *frame, char *variable);
 void call_function(char *name, char *dest);
-void convert_and_gen_op(int operation, Element *l_operand, Element *r_operand, int new_id);
+char *gen_and_convert(int operation, Element *l_operand, Element *r_operand, int new_id);
 bool is_data_type (int typ);
 
 #endif //IFJ_PROJ_CODEGEN_H
