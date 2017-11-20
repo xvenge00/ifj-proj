@@ -50,4 +50,5 @@ int get_id();
 
 int expression(TTable *Table,TTable *tTable, int typ);
 char *cat_string(char *frame, char *variable);
+char *my_strcpy(char *src);
 #endif //IFJ_PROJ_EXPRESSION_H

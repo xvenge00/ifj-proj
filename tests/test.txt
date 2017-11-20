@@ -1,7 +1,5 @@
 Function factorial (n as Integer, b as integer) As Integer
-    Dim tmp As Integer
-    tmp = 5 + 2 + 2
-    Return tmp
+
 End Function
 Scope 'Hlavni telo programu
     Dim a As Integer

@@ -667,8 +667,7 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                     } else if (el->data->data->var->type == k_integer) {
                         i = 2;
                     } else {
-                        clear_all();
-                        exit(ERR_INTER);
+                        internall_err();
                     }
                 }
                 char *type[10] = {"float", "int", "str"};
@@ -827,7 +826,7 @@ int print_params(TTable *Table,TTable *local) {
 }*/
 
 int scope(TTable *Table) {
-    create_3ac(I_LABEL, NULL, NULL, "l_main");
+    create_3ac(I_LABEL, NULL, NULL, "$l_main");
     create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
 
     TTable *local = Tbl_Create(8);    //todo preco tu sa generuje nova tabulka ??????
@@ -843,7 +842,7 @@ int scope(TTable *Table) {
             check_pointer(input);
         }
         if (input->token_type == EMPTY) {
-
+            create_3ac(I_JUMP, NULL, NULL, "$l_end");
             return SUCCESS;
         }
     }

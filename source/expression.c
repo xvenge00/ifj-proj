@@ -157,9 +157,9 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
     int typ1;
     int typ2;
 
-    char tmp[130];
+    char tmp[260];
 
-    Element *arr_el[100] = {NULL,};
+    Element *arr_el = NULL;
 
 
     switch (input->type) {
@@ -260,9 +260,8 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                     if (found->data->data->func->attr_count != 0){
                         semerror(ERR_SEM_T);
                     }
-                    sprintf(dest, "$E_E%i", new_id);
 
-                    call_function(name, dest);
+                    dest = call_function(name,NULL,0);
 
                     check_next_element_type(E_LT, stack);
                     Stack_push(stack, E_E, dest, input->typ_konkretne);
@@ -298,13 +297,8 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                         semerror(ERR_SEM_T);
                                     }
                                     //gen vnutorneho kodu
-                                    sprintf(dest, "$E_E%i", new_id);
-                                    create_3ac(I_PUSHS, NULL, NULL, tmp1->operand);  //vytvorenie operacii
-                                    call_function(input->operand, dest);
-//                                    create_3ac(I_DEFVAR, NULL, NULL, dest);
-//                                    create_3ac(I_CREATEFRAME, NULL, NULL, NULL);  //vytvorenie operacii
-//                                    create_3ac(I_CALL, NULL, NULL, input->operand);  //vytvorenie operacii
-//                                    create_3ac(I_MOVE, "%RETVAL", NULL, dest); //deklarovanie operandu
+                                    dest = call_function(input->operand, tmp1,1);
+
                                     check_next_element_type(E_LT, stack);
                                     Stack_push(stack, E_E, dest, input->typ_konkretne);
                                     return 13;
@@ -312,13 +306,14 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     error(ERR_SYNTA);}
                             }
                         case E_COMMA:
-
-                            arr_el[i++] = tmp1;
-                            arr_el[i++] = check_next_element_type(E_E, stack);
+                            arr_el = my_realloc(arr_el, sizeof(Element)*(i+1));
+                            arr_el[i++] = *tmp1;
+                            arr_el[i++] = *check_next_element_type(E_E, stack);
 
                             input = Stack_pop(stack);
                             while (input->type == E_COMMA) {
-                                arr_el[i++] = check_next_element_type(E_E, stack);
+                                arr_el = my_realloc(arr_el, sizeof(Element)*(i+1));
+                                arr_el[i++] = *check_next_element_type(E_E, stack);
                                 input = Stack_pop(stack);
                             }
                             if (input->type == E_LPAR) {
@@ -326,11 +321,6 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 check_next_element_type(E_LT, stack);
 
                                 char *name = input->operand;
-
-                                sprintf(dest, "$E_E%i", new_id);
-                                create_3ac(I_DEFVAR, NULL, NULL, cat_string("TF@",dest));
-                                create_3ac(I_PUSHFRAME, NULL, NULL, NULL);  //vytvorenie operacii
-
                                 found= Tbl_GetDirect(local,name);
                                 if (found == NULL) {
                                     found = Tbl_GetDirect(Table,name);
@@ -342,26 +332,17 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     semerror(ERR_SEM_T);
                                 }
                                 for (int j = 0; j < i; ++j) {
-                                    create_3ac(I_PUSHS, NULL, NULL, cat_string("LF@",arr_el[j]->operand));  //vytvorenie operacii
                                     //parametre su nacitane v arr_el a su su nacitane od konca
-
                                     // semantika skonrolovat ci funckia pod menon name ma prave i parametrou a ci sa tieto parametre zhoduju ci su prekonvergovatelne implicitne
                                     int paramReturn = found->data->data->func->attributes[i-j-1];
-                                    if(paramReturn == arr_el[j]->typ_konkretne){
-                                        if (paramReturn == k_string){
-
-
-                                        }else{
-
-
-                                        }
+                                    if(paramReturn == arr_el[j].typ_konkretne){
 
                                     }
-                                    else if(paramReturn == k_integer && arr_el[j]->typ_konkretne == k_double){
-
+                                    else if(paramReturn == k_integer && arr_el[j].typ_konkretne == k_double){
+                                        create_3ac(I_FLOAT2R2EINT, arr_el[j].operand, NULL,arr_el[j].operand);
                                     }
-                                    else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer){
-
+                                    else if (paramReturn == k_double && arr_el[j].typ_konkretne == k_integer){
+                                        create_3ac(I_INT2FLOAT, arr_el[j].operand, NULL,arr_el[j].operand);
                                     }else {
                                         semerror(ERR_SEM_T);
                                     }
@@ -369,9 +350,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
 
                                 }
 
-                                create_3ac(I_CALL, NULL, NULL, input->operand);
-                                create_3ac(I_MOVE, "TF@%RETVAL", NULL, cat_string("LF@",dest));
-                                create_3ac(I_POPFRAME, NULL, NULL, NULL);
+                                dest = call_function(name,arr_el, i);
 
                                 Stack_push(stack, E_E, dest, input->typ_konkretne);
                                 return 13;
@@ -388,9 +367,8 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
 
         case E_ID:
             check_next_element_type(E_LT, stack);
-            sprintf(dest, "$E_E%i", new_id);    //generovanie operandu pre vysledok medzisuctu
-            create_3ac(I_DEFVAR, NULL, NULL, cat_string("TF@", dest)); //deklarovanie operandu
-            create_3ac(I_MOVE, tmp2->operand, NULL, cat_string("TF@",dest));
+            dest = gen_temp_var();
+            create_3ac(I_MOVE, cat_string("TF@",tmp2->operand), NULL, dest);
             Stack_push(stack, E_E, dest, tmp2->typ_konkretne);
             return 15;
         default:
