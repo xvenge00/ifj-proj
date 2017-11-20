@@ -6,6 +6,13 @@
 #include "err.h"
 #include "parser.h"
 
+void point_swap(char** p1, char **p2){
+    char *tmp = *p1;
+    *p1 = *p2;
+    *p2 = tmp;
+}
+
+
 char oper[52][15] = {
         "MOVE",
         "CREATEFRAME",
@@ -190,6 +197,8 @@ char *op_add(int operation, Element *l_operand, Element *r_operand){
         }
     } else {               //treba konverziu
         char *tmp = gen_temp_var();
+        point_swap(&tmp, &dest);
+
 
         if (l_typ == k_integer && r_typ == k_double) {
             create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
@@ -229,6 +238,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
         create_3ac(operation, l_op_str, r_op_str, dest);
     } else {                //treba konverziu
         char *tmp = gen_temp_var();
+        point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
             create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
@@ -275,6 +285,7 @@ char *op_div(int operation, Element *l_operand, Element *r_operand){
         }
     } else {                //treba konverziu
         char *tmp = gen_temp_var();
+        point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
             create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
@@ -294,8 +305,9 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand){
         internall_err();
 
     }
-    char *dest = gen_temp_var();
     char *tmp = gen_temp_var();
+
+    char *dest = gen_temp_var();
 
     char *l_op_str = l_operand->operand;
     char *r_op_str = r_operand->operand;
@@ -374,6 +386,7 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand){
         create_3ac(I_LT, l_op_str, r_op_str, dest);
     } else {
         char *tmp = gen_temp_var();
+        point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
             create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
@@ -418,6 +431,7 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
         create_3ac(I_POPS, NULL, NULL, dest);
     } else {
         char *tmp = gen_temp_var();
+        point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
             create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
