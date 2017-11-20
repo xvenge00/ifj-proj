@@ -165,7 +165,7 @@ bool is_num_type(int typ) {
 
 char *gen_temp_var(){
     char *result = malloc(sizeof(char) * BUFFSIZE);
-    snprintf(result, BUFFSIZE, "TF@E_E%i", get_id());
+    snprintf(result, BUFFSIZE, "TF@$E_E%i", get_id());
     create_3ac(I_DEFVAR,NULL,NULL,result);
     return result;
 }
