@@ -341,7 +341,7 @@ int commandsAndVariables(TTable *Table, TTable *local) {
                 semerror(ERR_SEM_P);
             }
             expression(Table, local, el_func->data->data->var->type);
-            create_3ac(I_POPS, NULL, NULL, name);  //vytvorenie operacii
+            create_3ac(I_POPS, NULL, NULL, cat_string("TF@",name));  //vytvorenie operacii
 
         } else if (loaded->token_type == LPAR) {
             create_3ac(I_CREATEFRAME, NULL, NULL, NULL);  //vytvorenie operacii
@@ -676,7 +676,7 @@ int print_params(TTable *Table, TTable *local) {
     int result = expression(Table, local, -2);
     char ret[BUFFSIZE];
     static int print_par = 0;
-    snprintf(ret, BUFFSIZE, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
+    snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
     create_3ac(I_DEFVAR, NULL, NULL, ret);
     create_3ac(I_POPS, NULL, NULL, ret);
     create_3ac(I_WRITE, NULL, NULL, ret);
@@ -684,7 +684,7 @@ int print_params(TTable *Table, TTable *local) {
     while (result == SEMICOLLON) {
         result = expression(Table, local, -2);
         if (result != EOL) {
-            snprintf(ret, BUFFSIZE, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
+            snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
             create_3ac(I_DEFVAR, NULL, NULL, ret); //deklarovanie operandu
             create_3ac(I_POPS, NULL, NULL, ret); //deklarovanie operandu
             create_3ac(I_WRITE, NULL, NULL, ret); //deklarovanie operandu
