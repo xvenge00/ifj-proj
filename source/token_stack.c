@@ -30,10 +30,10 @@ t_token *token_pop(){
 
     if (token_stack_head == NULL){
         return NULL;
-    } else
+    } else {
         token_stack_head = token_stack_head->next;
         return result;
-
+    }
 }
 
 typedef struct s_char_node {

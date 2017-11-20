@@ -77,8 +77,8 @@ int generate_code();
 char *gen_temp_var();
 
 char *cat_string(char *frame, char *variable);
-char *call_function(char *name, Element *params, int param_count);
-char *gen_and_convert(int operation, Element *l_operand, Element *r_operand, int new_id);
+char *call_function(char *name, Element *params, unsigned param_count);
+char *gen_and_convert(int operation, Element *l_operand, Element *r_operand);
 bool is_data_type (int typ);
 
 #endif //IFJ_PROJ_CODEGEN_H

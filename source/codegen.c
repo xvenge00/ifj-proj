@@ -83,8 +83,8 @@ t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
     result->op2 = op2;
     result->dest = dest;
     result->next = NULL;
-    append_3ac(result);
-//    print_operation(result);
+//    append_3ac(result);
+    print_operation(result);
     return result;
 }
 
@@ -111,15 +111,6 @@ void print_operation(t_3ac *code) {
 
 int generate_code() {
     t_3ac j;
-//    j.op1 = j.op2 = NULL;
-//    j.dest = NULL;
-//    j.operation = I_CREATEFRAME;
-//    print_operation(&j);
-//    j.op1 = j.op2 = NULL;
-//    j.dest = NULL;
-//    j.operation = I_PUSHFRAME;
-//    print_operation(&j);
-
     // na zaciatku musi byt .IFJcode17
     j.op1 = j.op2 = j.dest = NULL;
     j.operation = I_HEADER;
@@ -141,11 +132,11 @@ int generate_code() {
 
 }
 
-char *call_function(char *name, Element *params, int param_count) {
+char *call_function(char *name, Element *params, unsigned param_count) {
     char *dest = gen_temp_var();
     char *tmp = my_strcpy(dest);tmp[0] = 'L';
     tmp[1] = 'F';
-    for (int i = 0; i < param_count; ++i) {
+    for (unsigned i = 0; i < param_count; ++i) {
         create_3ac(I_PUSHS, NULL, NULL, params[i].operand);
     }
     create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
@@ -166,8 +157,8 @@ bool is_num_type(int typ) {
 }
 
 char *gen_temp_var(){
-    char *result = my_malloc(sizeof(char) * 260);
-    snprintf(result, 260, "TF@E_E%i", get_id());
+    char *result = malloc(sizeof(char) * BUFFSIZE);
+    snprintf(result, BUFFSIZE, "TF@E_E%i", get_id());
     create_3ac(I_DEFVAR,NULL,NULL,result);
     return result;
 }
@@ -210,8 +201,7 @@ char *op_add(int operation, Element *l_operand, Element *r_operand){
             bad_operands_err();
         }
     }
-
-
+    return dest;
 }
 
 char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
@@ -449,6 +439,7 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
             bad_operands_err();
         }
     }
+    return dest;
 }
 
 
@@ -458,7 +449,7 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
  * funguje len +,-,*,/
  * / sa zacykli!!!
  */
-char *gen_and_convert(int operation, Element *l_operand, Element *r_operand, int new_id) {
+char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
     check_null(l_operand);
     check_null(r_operand);
     char *dest = NULL;
