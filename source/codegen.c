@@ -141,7 +141,8 @@ int generate_code() {
 
 char *call_function(char *name, Element **params, unsigned param_count) {
     char *dest = gen_temp_var();
-    char *tmp = my_strcpy(dest);tmp[0] = 'L';
+    char *tmp = my_strcpy(dest);
+    tmp[0] = 'L';
     tmp[1] = 'F';
     for (unsigned i = 0; i < param_count; ++i) {
         create_3ac(I_PUSHS, NULL, NULL, params[i]->operand);
@@ -460,8 +461,6 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
 
 /*
  * vrati dest, aby sa potom mohlo pushnut na zasobnik
- * funguje len +,-,*,/
- * / sa zacykli!!!
  */
 char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
     check_null(l_operand);
