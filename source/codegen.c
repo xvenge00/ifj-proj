@@ -79,9 +79,9 @@ void append_3ac(t_3ac *code) {
 t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
     t_3ac *result = my_malloc(sizeof(t_3ac));
     result->operation = operation;
-    result->op1 = op1;
-    result->op2 = op2;
-    result->dest = dest;
+    result->op1 = my_strcpy(op1);
+    result->op2 = my_strcpy(op2);
+    result->dest = my_strcpy(dest);
     result->next = NULL;
 //    append_3ac(result);
     print_operation(result);
@@ -132,12 +132,12 @@ int generate_code() {
 
 }
 
-char *call_function(char *name, Element *params, unsigned param_count) {
+char *call_function(char *name, Element **params, unsigned param_count) {
     char *dest = gen_temp_var();
     char *tmp = my_strcpy(dest);tmp[0] = 'L';
     tmp[1] = 'F';
     for (unsigned i = 0; i < param_count; ++i) {
-        create_3ac(I_PUSHS, NULL, NULL, params[i].operand);
+        create_3ac(I_PUSHS, NULL, NULL, params[i]->operand);
     }
     create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
     create_3ac(I_CREATEFRAME, NULL, NULL, NULL);

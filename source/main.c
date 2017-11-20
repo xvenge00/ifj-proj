@@ -4,6 +4,7 @@
 #include "symtable.h"
 #include "codegen.h"
 #include "err.h"
+#include "memwork.h"
 
 #define FILE_ERROR 5
 
@@ -20,6 +21,5 @@ int main(int argc, char** argv) {
     TTable* Table = Tbl_Create(8);
     parse(Table);
     generate_code();
-
     return 0;
 }

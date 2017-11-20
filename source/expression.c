@@ -156,7 +156,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
     Element *tmp2 = input;
     Element *tmp1 = NULL;
 
-    Element *arr_el = NULL;
+    Element **arr_el = NULL;
 
 
     switch (input->type) {
@@ -295,7 +295,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                         semerror(ERR_SEM_T);
                                     }
                                     //gen vnutorneho kodu
-                                    dest = call_function(input->operand, tmp1, 1);
+                                    dest = call_function(input->operand, &tmp1, 1);
 
                                     check_next_element_type(E_LT, stack);
                                     Stack_push(stack, E_E, dest, input->typ_konkretne);
@@ -305,14 +305,14 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 }
                             }
                         case E_COMMA:
-                            arr_el = my_realloc(arr_el, sizeof(Element) * (i + 1));
-                            arr_el[i++] = *tmp1;
-                            arr_el[i++] = *check_next_element_type(E_E, stack);
+                            arr_el = my_realloc(arr_el, sizeof(Element*) * (i + 1));
+                            arr_el[i++] = tmp1;
+                            arr_el[i++] =check_next_element_type(E_E, stack);
 
                             input = Stack_pop(stack);
                             while (input->type == E_COMMA) {
                                 arr_el = my_realloc(arr_el, sizeof(Element) * (i + 1));
-                                arr_el[i++] = *check_next_element_type(E_E, stack);
+                                arr_el[i++] = check_next_element_type(E_E, stack);
                                 input = Stack_pop(stack);
                             }
                             if (input->type == E_LPAR) {
@@ -334,12 +334,12 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     //parametre su nacitane v arr_el a su su nacitane od konca
                                     // semantika skonrolovat ci funckia pod menon name ma prave i parametrou a ci sa tieto parametre zhoduju ci su prekonvergovatelne implicitne
                                     int paramReturn = found->data->data->func->attributes[i - j - 1];
-                                    if (paramReturn == arr_el[j].typ_konkretne) {
+                                    if (paramReturn == arr_el[j]->typ_konkretne) {
 
-                                    } else if (paramReturn == k_integer && arr_el[j].typ_konkretne == k_double) {
-                                        create_3ac(I_FLOAT2R2EINT, arr_el[j].operand, NULL, arr_el[j].operand);
-                                    } else if (paramReturn == k_double && arr_el[j].typ_konkretne == k_integer) {
-                                        create_3ac(I_INT2FLOAT, arr_el[j].operand, NULL, arr_el[j].operand);
+                                    } else if (paramReturn == k_integer && arr_el[j]->typ_konkretne == k_double) {
+                                        create_3ac(I_FLOAT2R2EINT, arr_el[j]->operand, NULL, arr_el[j]->operand);
+                                    } else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer) {
+                                        create_3ac(I_INT2FLOAT, arr_el[j]->operand, NULL, arr_el[j]->operand);
                                     } else {
                                         semerror(ERR_SEM_T);
                                     }
