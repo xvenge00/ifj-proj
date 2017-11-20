@@ -92,7 +92,6 @@ typedef enum {
 
 
 //zaheslovane typ tokenu    //todo zmenit tak aby sedeli s ostatnymy
-//todo skonrolovat ci su to vsetky mozne typy
 /// navratove typy
 typedef enum {
     EMPTY = 0,      //0
@@ -119,15 +118,12 @@ typedef enum {
     KEY_WORD
 } ttype;
 
-
 typedef union {
     int i;
     double d;
     char *s;
 } tdata;
 
-
-//const char *key_world[]; //todo vyhadzuje warning
 /**
  * N -> cele cislo
  * R -> realne cislo

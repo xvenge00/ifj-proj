@@ -4,7 +4,14 @@
 #include "memwork.h"
 #include "expression.h"
 
-void error(int code) {
+/* univerzalna chybova funkcia */
+void error(char *str, int err_code) {
+    fprintf(stderr,"%s\n", str);
+    clear_all();
+    exit(err_code);
+}
+
+void syntax_error(int code) {
     fprintf(stderr, "Error v syntakticke analyze - spatny typ tokenu.\n");
     exit(code);
 }
@@ -15,7 +22,7 @@ void semerror(int code) {
     exit(code);
 }
 
-void is_undefined(char *name) {
+void undefined_err(char *name) {
     fprintf(stderr, "Prvok \"%s\" nebol definovany.\n", name);
     clear_all();
     exit(ERR_SEM_P);

@@ -16,7 +16,6 @@
  * funkciu pouzivam na spojenie frame a mena
  * priklad name = cat_string("LF@", name)
  * ked je variable == NULL vrati NULL
- * !!!maximalna dlzka noveho retazca je 260!!!  //TODO
  */
 char *cat_string(char *frame, char *variable) {
     check_null(frame);
@@ -24,10 +23,10 @@ char *cat_string(char *frame, char *variable) {
         return NULL;
     }
 
-    char *buf = my_malloc(sizeof(char) * 260);
+    char *buf = my_malloc(sizeof(char) * BUFFSIZE);
     buf[0] = 0;
-    buf = strncat(buf, frame, 3);
-    buf = strncat(buf, variable, 256);
+    buf = strncat(buf, frame, 4);
+    buf = strncat(buf, variable, BUFFSIZE-4);   //asi by to mohlo byt 3
 
     return buf;
 }
@@ -138,8 +137,16 @@ Element *check_next_element_type(int type, Stack *stack) {
     if (input->type == type) {
         return input;
     }
-    error(ERR_SYNTA);
+    syntax_error(ERR_SYNTA);
     return NULL;
+}
+
+bool add_FT(char *value) {
+    int res1 = strncmp("int@", value, 4);
+    int res3 = strncmp("float@", value, 6);
+    int res2 = strncmp("string@", value, 7);
+
+    return res1 && res2 && res3;    //strncmp vracia 0 ked sa zhoduju
 }
 
 /*cte elementy zeshora zasobniku dokud nenajde "<", musi overit, jestli je precteny retezec pravidlo
@@ -164,7 +171,6 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
             input = Stack_pop(stack);
 
             //TODO po konverzii sa v generovanom kode pushuje zly vyraz, problem je na konci expression()
-            //TODO doplnit ostatne operacie do gen_and_convert()
             switch (input->type) {
                 case E_PLUS:
                     tmp1 = check_next_element_type(E_E, stack);
@@ -185,7 +191,6 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                     Stack_push(stack, E_E, dest, tmp1->typ_konkretne);
                     return 3;
                 case E_DIV:
-                    //TODO BUG ZACYKLI SA!!!
                     tmp1 = check_next_element_type(E_E, stack);
                     check_next_element_type(E_LT, stack);
                     dest = gen_and_convert(E_DIV, tmp1, tmp2);
@@ -235,7 +240,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 11;
                 default:
-                    error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA);
             }
             break;
         case E_RPAR:
@@ -248,14 +253,21 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
 
                     //semanticky skontrolovat ze tato funkcie ma 0 parametrou jej meno je name
                     TElement *found = Tbl_GetDirect(local, name);
+//                    if (found == NULL) {
+//                        found = Tbl_GetDirect(Table, name);
+//                        if (found == NULL) {
+//                            semerror(ERR_SEM_P);
+//                        }
+//                    }
+                    if (found != NULL) {        //funkcia nemoze byt v local
+                        undefined_err(name);
+                    }
+                    found = Tbl_GetDirect(Table, name);
                     if (found == NULL) {
-                        found = Tbl_GetDirect(Table, name);
-                        if (found == NULL) {
-                            semerror(ERR_SEM_P);
-                        }
+                        undefined_err(name);
                     }
                     if (found->data->data->func->attr_count != 0) {
-                        semerror(ERR_SEM_T);
+                        error("Nespravny pocet parametrov", ERR_SEM_T);
                     }
 
                     dest = call_function(name, NULL, 0);
@@ -301,7 +313,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     Stack_push(stack, E_E, dest, input->typ_konkretne);
                                     return 13;
                                     default:
-                                        error(ERR_SYNTA);
+                                        syntax_error(ERR_SYNTA);
                                 }
                             }
                         case E_COMMA:
@@ -332,7 +344,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 }
                                 for (unsigned j = 0; j < i; ++j) {
                                     //parametre su nacitane v arr_el a su su nacitane od konca
-                                    // semantika skonrolovat ci funckia pod menon name ma prave i parametrou a ci sa tieto parametre zhoduju ci su prekonvergovatelne implicitne
+                                    // semantika skonrolovat ci funckia pod menom name ma prave i parametrov a ci sa tieto parametre zhoduju ci su prekonvergovatelne implicitne
                                     int paramReturn = found->data->data->func->attributes[i - j - 1];
                                     if (paramReturn == arr_el[j]->typ_konkretne) {
 
@@ -352,24 +364,28 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 Stack_push(stack, E_E, dest, input->typ_konkretne);
                                 return 13;
                             } else {
-                                error(ERR_SYNTA);
+                                syntax_error(ERR_SYNTA);
                             }
                     }
-                    error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA);
 
                 default:
-                    error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA);
             }
 
 
         case E_ID:
             check_next_element_type(E_LT, stack);
             dest = gen_temp_var();
-            create_3ac(I_MOVE, cat_string("TF@", tmp2->operand), NULL, dest);
+            if (add_FT(tmp2->operand)) {
+                create_3ac(I_MOVE, cat_string("TF@", tmp2->operand), NULL, dest);
+            } else {
+                create_3ac(I_MOVE, tmp2->operand, NULL, dest);   //TODO ked je tmp2->operand hodnota (int@45) nema sa davat TF@
+            }
             Stack_push(stack, E_E, dest, tmp2->typ_konkretne);
             return 15;
         default:
-            error(ERR_SYNTA);
+            syntax_error(ERR_SYNTA);
     }
     return 0;
 }
@@ -457,7 +473,7 @@ char *token2operand(t_token *token) {
                 i++;
             }
             char *tmp = my_strcpy(result);
-            snprintf(result, size, "str@%s", tmp);
+            snprintf(result, size, "string@%s", tmp);
             break;
         default:
             result[0] = 0;
@@ -581,8 +597,7 @@ int expression(TTable *Table, TTable *local, int typ) {
                 if (el == NULL) {
                     el = Tbl_GetDirect(Table, my_token->data.s);
                     if (el == NULL) {
-                        clear_all();
-                        exit(ERR_SEM_P); //nebolo definovane
+                        undefined_err(my_token->data.s);
                     }
                 }
                 if (el->data->type == ST_Variable) {
@@ -612,11 +627,11 @@ int expression(TTable *Table, TTable *local, int typ) {
                 if (ruleNumber != 0) {
                     //printf("Rule %d\n", ruleNumber);
                 } else {
-                    error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA);
                 }
                 break;
             default:
-                error(ERR_SYNTA);
+                syntax_error(ERR_SYNTA);
 
         }
 

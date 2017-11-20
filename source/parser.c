@@ -27,7 +27,7 @@ t_token *check_next_token_type(int type) {
     check_pointer(input);
 
     if (input->token_type != type) {
-        error(ERR_SYNTA);
+        syntax_error(ERR_SYNTA);
     }
     return input;
 }
@@ -43,7 +43,7 @@ bool check_token_int_value(t_token *input, int value) {
 
 bool check_pointer(void *input) {
     if (input == NULL) {
-        error(ERR_SYNTA);
+        syntax_error(ERR_SYNTA);
     }
     return true;
 }
@@ -81,7 +81,7 @@ int parse(TTable *Table) {
                 if (correct == k_function) { //function
                     return parse(Table);
                 } else {
-                    error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA);
                 }
             }
             case k_scope: //scope
@@ -89,10 +89,10 @@ int parse(TTable *Table) {
                     return SUCCESS;
                 }
             default:
-                error(ERR_SYNTA);
+                syntax_error(ERR_SYNTA);
         }
     } else {
-        error(ERR_SYNTA);
+        syntax_error(ERR_SYNTA);
     }
     return SUCCESS;
 }
@@ -115,20 +115,12 @@ int function(int decDef, TTable *Table, TTable *local) {
     params(local, &attr_count, &attr_types, decDef);                //spracuj parametre a )
     check_token_int_value(check_next_token_type(KEY_WORD), k_as);
     input = check_next_token_type(KEY_WORD);
-    /*if (token_is_data_type(input)) {      //to dole by som nahradil tymto
+    if (token_is_data_type(input)) {      //to dole by som nahradil tymto
         ret_type = input->data.i;
     } else {
-        error(ERR_SYNTA);
-     }*/
-    if (check_token_int_value(input, k_integer)) {
-        ret_type = E_integer;
-    } else if (check_token_int_value(input, k_double)) {
-        ret_type = E_double;
-    } else if (check_token_int_value(input, k_string)) {
-        ret_type = E_string;
-    } else {
-        error(ERR_SYNTA);
+        syntax_error(ERR_SYNTA);
     }
+
     check_next_token_type(EOL);
     /**
      * zapis do symtable
@@ -217,7 +209,7 @@ int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
             (*attributes)[(*attr_count) - 1] = E_string;
             value.s = "";
         } else {
-            error(ERR_SYNTA);
+            syntax_error(ERR_SYNTA);
         }
 
 
@@ -239,86 +231,28 @@ int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
         if (input->token_type == RPAR) {
             return SUCCESS;
         } else if (input->token_type != COMMA) {
-            error(ERR_SYNTA);
+            syntax_error(ERR_SYNTA);
         }
         input = get_token();
     }
-    error(ERR_SYNTA);
+    syntax_error(ERR_SYNTA);
     return 0;
 }
 
-//int params(TFunction *functions, TTable *local, char *name, int decDef) {
-//    t_token *input = check_next_token_type(KEY_WORD);
-//    if (check_token_int_value(input, k_as)) { //as
-//        functions->attr_count++;
-//        functions->attributes = my_realloc(functions->attributes, sizeof(TType) * functions->attr_count);
-//        input = check_next_token_type(KEY_WORD);
-//
-//        if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
-//            check_token_int_value(input, k_string)) //return_type je datovy typ
-//        {
-//            functions->attributes[functions->attr_count - 1] = input->data.i;
-//            if (name != NULL) {
-//                TElement *lElement = Tbl_GetDirect(local, name);
-//
-//                /*create symbol*/
-//                TData *var;
-//                TValue value;
-//                switch (input->data.i) {
-//                    case k_integer:
-//                        value.i = 0;
-//                        break;
-//                    case k_double:
-//                        value.d = 0.0;
-//                        break;
-//                    case k_string:
-//                        value.s = "";
-//                }
-//                var = Var_Create(value, input->token_type);
-//                TSymbol *lSymbol = Sym_Create(ST_Variable, var, name);
-//                lSymbol->isDeclared = true;     //neni v konstruktore
-//
-//                if (lElement != NULL) {
-//                    semerror(ERR_SEM_P);
-//                }
-//
-//                TElement *element = El_Create(lSymbol);
-//                Tbl_Insert(local, element);
-//            }
-//
-//            input = get_token();
-//            check_pointer(input);
-//
-//            if (input->token_type == COMMA) {
-//                input = check_next_token_type(ID);
-//                name = input->data.s;
-//                if (decDef) {
-//                    create_3ac("DEFVAR", NULL, NULL, name); //deklarovanie operandu
-//                    create_3ac("POPS", NULL, NULL, name);  //vytvorenie operacii
-//                }
-//                return params(functions, local, name, decDef);
-//            } else if (input->token_type == RPAR) {
-//                return SUCCESS;
-//            }
-//            error(ERR_SYNTA);
-//        }
-//        error(ERR_SYNTA);
-//    }
-//    error(ERR_SYNTA);
-//}
-
-
 int commandsAndVariables(TTable *Table, TTable *local) {
-    if (local == NULL) {
-        local = Table;
+    if (local == NULL || Table == NULL) {
+        internall_err();
     }
-    create_3ac(-1, NULL, NULL, NULL);
+
+    create_3ac(-1, NULL, NULL, NULL);   //prazdny riadok
+
     unsigned i = 0;
     t_token *input = get_token();
     check_pointer(input);
 
     while (input->token_type == EOL) {
         input = get_token();
+        check_pointer(input);
     }
 
     tdata value = input->data;
@@ -340,8 +274,8 @@ int commandsAndVariables(TTable *Table, TTable *local) {
             if (el_func->data->type != ST_Variable) {
                 semerror(ERR_SEM_P);
             }
-            expression(Table, local, el_func->data->data->var->type);
-            create_3ac(I_POPS, NULL, NULL, cat_string("TF@",name));  //vytvorenie operacii
+            expression(Table, local, el_func->data->data->var->type);   //todo typova kontrola
+            create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));    //vytvorenie operacii
 
         } else if (loaded->token_type == LPAR) {
             create_3ac(I_CREATEFRAME, NULL, NULL, NULL);  //vytvorenie operacii
@@ -427,48 +361,13 @@ int commandsAndVariables(TTable *Table, TTable *local) {
                     break;
                 }
                 loaded = get_token();
-                /*
-              //            if (loaded->token_type == ID) {
-              //                t_token *arr_el[100] = {NULL,};
-              //                unsigned i = 0;
-              //                arr_el[i++] = loaded;
-              //
-              //                check_token_int_value(check_next_token_type(KEY_WORD), k_as);
-              //                t_token *tmp = check_next_token_type(KEY_WORD);
-              //                if (tmp->data.i != k_string && tmp->data.i != k_integer && tmp->data.i != k_double) {
-              //                    clear_all();
-              //                    exit(ERR_SYNTA);
-              //                }
-              //                loaded = get_token();
-              //                while (loaded->token_type != RPAR) {
-              //                    if (loaded->token_type != COMMA) {
-              //                        clear_all();
-              //                        exit(ERR_SYNTA);
-              //                    }
-              //                    loaded = check_next_token_type(ID);
-              //                    arr_el[i++] = loaded;
-              //                    check_token_int_value(check_next_token_type(KEY_WORD), k_as);
-              //                    t_token *tmp = check_next_token_type(KEY_WORD);
-              //                    if (tmp->data.i != k_string && tmp->data.i != k_integer && tmp->data.i != k_double) {
-              //                        clear_all();
-              //                        exit(ERR_SYNTA);
-              //                    }
-              //                    loaded = get_token();
-              //                }
-              //                while (i) {
-              //                    create_3ac("PUSHS", NULL, NULL, arr_el[--i]->data.s);  //vytvorenie operacii
-              //                }
-              */
             }
             if (i != f->attr_count) {
                 semerror(ERR_SEM_P);
             }
             if (loaded->token_type != RPAR) {
-                error(ERR_SYNTA);
-
+                syntax_error(ERR_SYNTA);
             }
-
-
             //todo load function and call
         } else {
             semerror(ERR_SEM_P);
@@ -491,59 +390,52 @@ int commandsAndVariables(TTable *Table, TTable *local) {
                 if (check_token_int_value(input, k_as)) { //AS
                     input = check_next_token_type(KEY_WORD);
                     if (!token_is_data_type(input)) { //typ
-                        error(ERR_SYNTA);
-                    } else {
-                        int type = input->data.i;
-
-                        if (token_is_data_type(input)) {      //to dole by som nahradil tymto
-                            type = input->data.i;
-                        } else {
-                            error(ERR_SYNTA);
-                        }
-                        /* merge z masteru */
-                        t_token *input2 = get_token();
-                        check_pointer(input2);
-                        TValue value;
-
-
-                        if (input2->token_type == EOL) {
-                            switch (input->data.i) {
-                                case k_integer:
-                                    value.i = 0;
-                                    create_3ac(I_MOVE, "int@0", NULL, cat_string("TF@", name));  //vytvorenie operacii
-                                    break;
-                                case k_double:
-                                    value.d = 0.0;
-                                    create_3ac(I_MOVE, "float@0.0", NULL,
-                                               cat_string("TF@", name));  //vytvorenie operacii
-                                    break;
-                                case k_string:
-                                    value.s = "";
-                                    create_3ac(I_MOVE, "string@", NULL, cat_string("TF@", name));  //vytvorenie operacii
-
-                            }
-                        } else if (input2->token_type == EQ) {
-                            expression(Table, local, type);
-                            create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
-                        } else {
-                            error(ERR_SYNTA);
-                        }
-                        /* koniec mergu */
-
-                        if (Tbl_GetDirect(local, name) != NULL) {
-                            semerror(ERR_SEM_P); //druhy raz definovana
-                        }
-
-                        TData *var = Var_Create(value, type);
-                        TSymbol *lSymbol = Sym_Create(ST_Variable, var, name);
-                        lSymbol->isDeclared = true;
-
-                        Tbl_Insert(local, El_Create(lSymbol));
-
-                        return commandsAndVariables(Table, local);
+                        syntax_error(ERR_SYNTA);
                     }
+                    int type = input->data.i;
+
+                    t_token *input2 = get_token();
+                    check_pointer(input2);
+                    TValue value;
+
+                    if (input2->token_type == EOL) {
+                        switch (input->data.i) {
+                            case k_integer:
+                                value.i = 0;
+                                create_3ac(I_MOVE, "int@0", NULL, cat_string("TF@", name));
+                                break;
+                            case k_double:
+                                value.d = 0.0;
+                                create_3ac(I_MOVE, "float@0.0", NULL, cat_string("TF@", name));
+                                break;
+                            case k_string:
+                                value.s = "";
+                                create_3ac(I_MOVE, "string@", NULL, cat_string("TF@", name));
+                                break;
+                            default:
+                                ;
+                        }
+                    } else if (input2->token_type == EQ) {
+                        expression(Table, local, type);             //TODO moze tam byt aj funkcia?
+                        create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
+                    } else {
+                        syntax_error(ERR_SYNTA);
+                    }
+
+                    if (Tbl_GetDirect(local, name) != NULL) {
+                        semerror(ERR_SEM_P); //druhy raz definovana
+                    }
+
+                    TData *var = Var_Create(value, type);
+                    TSymbol *lSymbol = Sym_Create(ST_Variable, var, name);
+                    lSymbol->isDeclared = true;
+
+                    Tbl_Insert(local, El_Create(lSymbol));
+
+                    return commandsAndVariables(Table, local);
+
                 }
-                error(ERR_SYNTA);
+                syntax_error(ERR_SYNTA);
             case k_input: //input
                 tmp1 = check_next_token_type(ID);
                 TElement *el = Tbl_GetDirect(local, tmp1->data.s);
@@ -578,7 +470,7 @@ int commandsAndVariables(TTable *Table, TTable *local) {
                 return commandsAndVariables(Table, local);
             case k_if: //if
                 if (expression(Table, local, -1) != k_then) {
-                    error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA);
                 }
                 create_3ac(I_PUSHS, NULL, NULL, "bool@false");  //vytvorenie operacii
 
@@ -601,18 +493,13 @@ int commandsAndVariables(TTable *Table, TTable *local) {
                         create_3ac(I_LABEL, NULL, NULL, str_pop());
                         return commandsAndVariables(Table, local);
                     } else {
-                        error(ERR_SYNTA);
+                        syntax_error(ERR_SYNTA);
                     }
                 }
-                error(ERR_SYNTA);
+                syntax_error(ERR_SYNTA);
             case k_else: //else
                 check_next_token_type(EOL);
                 return k_else; //vrat else, odchytne si to if a if zavola dalsi prikazy
-
-//                correct = commandsAndVariables(local);
-//                if (correct == k_if) {//skoncilo to end if
-//                }
-                error(ERR_SYNTA);
             case k_end: //end
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, k_if)) { //if
@@ -624,7 +511,7 @@ int commandsAndVariables(TTable *Table, TTable *local) {
                     check_next_token_type(EOL);
                     return k_function;
                 }
-                error(ERR_SYNTA);
+                syntax_error(ERR_SYNTA);
             case k_do: //do
                 input = check_next_token_type(KEY_WORD);
                 if (check_token_int_value(input, k_while)) { //while
@@ -634,7 +521,7 @@ int commandsAndVariables(TTable *Table, TTable *local) {
                     str_push(new_e);
                     create_3ac(I_LABEL, NULL, NULL, cat_string("TF@", new_b));
                     if (expression(Table, local, -1) != EOL) {
-                        error(ERR_SYNTA);
+                        syntax_error(ERR_SYNTA);
                     } //tohle asi nepojede
                     create_3ac(I_PUSHS, NULL, NULL, "bool@false");  //vytvorenie operacii
                     create_3ac(I_JUMPIFEQS, NULL, NULL, new_e);  //vytvorenie operacii
@@ -647,26 +534,24 @@ int commandsAndVariables(TTable *Table, TTable *local) {
 
                         return commandsAndVariables(Table, local);
                     }
-                    error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA);
                 }
-                error(ERR_SYNTA);
+                syntax_error(ERR_SYNTA);
             case k_loop: //loop
                 check_next_token_type(EOL);
                 return k_loop; //tady to ma asi vracet k_loop
             case k_return: //return
 
                 if (local->isScope) {
-                    error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA);
                 } else {
                     expression(Table, local, -2); //todo neviem zistit akeho typu ma byt navrat
                     create_3ac(I_POPS, NULL, NULL, cat_string("TF@", "%RETVAL"));
-//                    create_3ac(I_POPFRAME, NULL, NULL, NULL);
-//                    create_3ac(I_RETURN, NULL, NULL, NULL);
                     return commandsAndVariables(Table, local);
                 }
 
             default:
-                error(ERR_SYNTA);
+                syntax_error(ERR_SYNTA);
         }
     }
     return 0;
@@ -693,34 +578,9 @@ int print_params(TTable *Table, TTable *local) {
     if (result == EOL) {
         return SUCCESS;
     }
-    error(ERR_SYNTA);
+    syntax_error(ERR_SYNTA);
     return 0;
 }
-
-/*parametry funkce, mozna to k necemu bude, mozna ne, zatim se to nidke nepouziva*/
-/*int idList(){
-    t_token * input = get_token();
-    check_pointer(input);
-
-    if(input->token_type == ID){
-        input = get_token();
-        check_pointer(input);
-
-        if(input->token_type == COMMA){
-            return idList();
-        }
-        else if(input->token_type == RPAR){
-            check_next_token_type(EOL);
-            return SUCCESS;
-        }
-        error(ERR_SYNTA);
-    }
-    else if(input->token_type == RPAR){
-        check_next_token_type(EOL);
-        return SUCCESS;
-    }
-    error(ERR_SYNTA);
-}*/
 
 int scope(TTable *Table) {
     create_3ac(I_LABEL, NULL, NULL, "$l_main");
@@ -743,6 +603,6 @@ int scope(TTable *Table) {
             return SUCCESS;
         }
     }
-    error(ERR_SYNTA);
+    syntax_error(ERR_SYNTA);
     return 0;
 }

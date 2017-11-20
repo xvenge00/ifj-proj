@@ -8,9 +8,10 @@
 #define ERR_SEM_E 6
 #define ERR_INTER 99
 
-void error(int code);
+void error(char *str, int err_code);
+void syntax_error(int code);
 void semerror(int code);
-void is_undefined(char *name);
+void undefined_err(char *name);
 void redefine_error(char *name);
 void internall_err();
 void check_null(void *ptr);

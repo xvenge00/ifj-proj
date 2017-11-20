@@ -174,7 +174,7 @@ int Tbl_Insert(TTable *tbl, TElement *el) {
         //cyklime pres prvky se stejnym hashem
         while (active->next != NULL) {
             //stejny key - premazeme data
-            if (active->key == el->key) {
+            if (!strcmp(active->key,el->key)) {
                 active->data = el->data;
                 active->next = el->next;
                 active->hash = el->hash;
@@ -186,7 +186,7 @@ int Tbl_Insert(TTable *tbl, TElement *el) {
             active = active->next;
         }
         //k poslednimu se pres while nedostanu
-        if (active->key == el->key) {
+        if (!strcmp(active->key, el->key)) {
             active->data = el->data;
             active->next = el->next;
             active->hash = el->hash;
@@ -208,18 +208,18 @@ bool Tbl_Search(TTable *tbl, char *name) {
         for (unsigned int i = 0; i < tbl->size; i++) {
             TElement *active = tbl->list_firsts[i];
             if (active != NULL) { //je tam prvni
-                if (active->key == name) {
+                if (!strcmp(active->key, name)) {
                     found = true;
                     return found;
                 }
                 while (active->next != NULL) { //je jich vic
                     active = active->next;
-                    if (active->key == name) {
+                    if (!strcmp(active->key, name)) {
                         found = true;
                         return found;
                     }
                 }
-                if (active->key == name) {
+                if (!strcmp(active->key, name)) {
                     found = true;
                     return found;
                 }
@@ -240,18 +240,18 @@ TElement *Tbl_GetDirect(TTable *tbl, char *name) {
         for (unsigned int i = 0; i < tbl->size; i++) {
             TElement *active = tbl->list_firsts[i];
             if (active != NULL) { //je tam prvni
-                if (*(active->key) == *name) {
+                if (!strcmp(active->key,name)) {
                     found = active;
                     return found;
                 }
                 while (active->next != NULL) { //je jich vic
                     active = active->next;
-                    if (active->key == name) {
+                    if (!strcmp(active->key,name)) {
                         found = active;
                         return found;
                     }
                 }
-                if (active->key == name) {
+                if (!strcmp(active->key,name)) {
                     found = active;
                     return found;
                 }
@@ -286,7 +286,7 @@ void El_Delete(TTable *tbl, char *name) {
         for (unsigned int i = 0; i < tbl->size; i++) {
             TElement *active = tbl->list_firsts[i];
             if (active != NULL) {
-                if (active->key == name) { //mazeme prvni
+                if (!strcmp(active->key,name)) { //mazeme prvni
                     if (active->next != NULL) {
                         tbl->list_firsts[i]->next = active->next;
                         El_Free(active);
@@ -299,7 +299,7 @@ void El_Delete(TTable *tbl, char *name) {
 
                 while (active->next != NULL) {
 
-                    if (active->next->key == name) { //uprostred
+                    if (!strcmp(active->next->key,name)) { //uprostred
                         TElement *tmp = active->next;
                         active->next = active->next->next;
                         El_Free(tmp);
@@ -308,7 +308,7 @@ void El_Delete(TTable *tbl, char *name) {
                     active = active->next;
                 }
 
-                if (active->key == name) { //mazeme posledni
+                if (!strcmp(active->key,name)) { //mazeme posledni
                     tbl->list_firsts[i]->next = active->next;
                     El_Free(active);
                     return;

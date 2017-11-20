@@ -1,56 +1,13 @@
-Function factorial (n as Integer) As Integer
-
-End Function
-Scope 'Hlavni telo programu
-    Dim b as integer
-    b = 2 * 3
-End Scope
-
-/'vystup by mal byt (medzery neriesim, nemusia tam byt)
-    .IFJcode17
-    JUMP l_main
-LABEL factorial
-    DEFVAR TF@n
-    POPS TF@n
-    DEFVAR TF@b
-    POPS TF@b
-
-    DEFVAR TF@tmp
-    MOVE TF@tmp int@0
-
-    DEFVAR TF@$E_E0
-    MOVE TF@$E_E0 int@5
-    PUSHS TF@$E_E0
-    POPS TF@tmp
-
-    DEFVAR TF@$E_E2
-    MOVE TF@$E_E2 TF@tmp
-    PUSHS TF@$E_E2
-    POPS TF@%RETVAL
-
-    RETURN
-LABEL l_main
-    CREATEFRAME
-
-    DEFVAR TF@a
-    MOVE TF@a int@0
-
-    DEFVAR TF@$E_E4	            #parameter1
-    MOVE TF@$E_E4 int@2
-    DEFVAR TF@$E_E5	            #parameter2
-    MOVE TF@$E_E5 int@3
-    PUSHS TF@$E_E5	            #push od posledneho
-    PUSHS TF@$E_E4
-    DEFVAR TF@$E_E6	            #navrat
-    PUSHFRAME
-    CREATEFRAME
-    DEFVAR TF@%RETVAL
-    CALL factorial
-    MOVE LF@$E_E6 TF@%RETVAL
-    POPFRAME
-
-    PUSHS TF@$E_E6
-    POPS TF@a
-
-    WRITE TF@a  #debug
-'/
+' variable definitions
+function foo() as integer
+end function
+scope
+Dim a as     string = !"foo"
+Dim   b as integer = foo()
+foo()
+Dim b0_ as integer =   0045
+Dim c   as double = 78.4
+Dim d as double = 78e4
+Dim   e as double =     8e-4
+Dim f   as double   = 87E4
+end scope
