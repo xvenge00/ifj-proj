@@ -624,7 +624,7 @@ int expression(TTable *Table, TTable *local, int typ) {
 
     Stack_dispose(&stack);
     char last[BUFFSIZE];
-    snprintf(last, BUFFSIZE, "$E_E%i", get_id());  //TODO nefunguje ked sa konvertuje
+    snprintf(last, BUFFSIZE, "TF@$E_E%i", get_id()-1);  //TODO nefunguje ked sa konvertuje
     create_3ac(I_PUSHS, NULL, NULL, last);
 
 

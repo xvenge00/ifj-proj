@@ -90,8 +90,8 @@ t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
     result->op2 = my_strcpy(op2);
     result->dest = my_strcpy(dest);
     result->next = NULL;
-//    append_3ac(result);
-    print_operation(result);
+    append_3ac(result);
+//    print_operation(result);
     return result;
 }
 

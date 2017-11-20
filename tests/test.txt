@@ -1,9 +1,9 @@
-Function factorial (n as Integer, b as integer) As Integer
+Function factorial (n as Integer) As Integer
 
 End Function
 Scope 'Hlavni telo programu
-    Dim a As Integer
-    a = factorial(2, 3)
+    Dim b as integer
+    b = 2 * 3
 End Scope
 
 /'vystup by mal byt (medzery neriesim, nemusia tam byt)
@@ -35,13 +35,13 @@ LABEL l_main
     DEFVAR TF@a
     MOVE TF@a int@0
 
-    DEFVAR TF@$E_E4	#parameter1
+    DEFVAR TF@$E_E4	            #parameter1
     MOVE TF@$E_E4 int@2
-    DEFVAR TF@$E_E5	#parameter2
+    DEFVAR TF@$E_E5	            #parameter2
     MOVE TF@$E_E5 int@3
-    PUSHS TF@$E_E5	#push od posledneho
+    PUSHS TF@$E_E5	            #push od posledneho
     PUSHS TF@$E_E4
-    DEFVAR TF@$E_E6	#navrat
+    DEFVAR TF@$E_E6	            #navrat
     PUSHFRAME
     CREATEFRAME
     DEFVAR TF@%RETVAL
