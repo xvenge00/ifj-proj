@@ -3,6 +3,8 @@
 
 #include "expression.h"
 
+#define BUFFSIZE 150    //"TF@"+256 pre ID + \0
+
 enum {
     I_MOVE = 0,         //0
     I_CREATEFRAME,

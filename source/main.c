@@ -17,22 +17,9 @@ int main(int argc, char** argv) {
     } else {                        //ked neni zadany argument, cita vstup zo stdin
         f = stdin;
     }
-
-
-    int result;     //do premennej sa zapisuju vysledky krokov
-
-
-    //if (result = init()){   //inicializacia struktur
-    //    //osetrenie chyb
-    //}
-
     TTable* Table = Tbl_Create(8);
-    if (result = parse(Table)){
-        //osetrenie chyb
-    }
-    if(result=generate_code()){
-        //osetrenie chyb
-    }
+    parse(Table);
+    generate_code();
 
     return 0;
 }

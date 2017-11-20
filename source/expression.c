@@ -148,7 +148,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
     Element *input = Stack_pop(stack);
     check_pointer(input);
     int new_id = get_id();
-    char *dest = my_malloc(sizeof(char) * 130);
+    char *dest = my_malloc(sizeof(char) * BUFFSIZE);
 
 
     Element *tmp2 = input;
@@ -422,7 +422,7 @@ void prilep(char *ret, char c, int *top, int *cap) {    //co to robi???
 
     if (isspace(c)) {
         char tmp[5];
-        sprintf(tmp, "\\%03i", c);
+        snprintf(tmp, 5, "\\%03i", c);
         ret[(*top)++] = tmp[0];
         ret[(*top)++] = tmp[1];
         ret[(*top)++] = tmp[2];
@@ -438,7 +438,7 @@ char *token2operand(t_token *token) {
     if (token == NULL) {
         return "";
     }
-    int size = 130;
+    int size = BUFFSIZE;
     char *result = my_malloc(sizeof(char) * size);
     unsigned i = 0;
     unsigned j = i;
@@ -447,10 +447,10 @@ char *token2operand(t_token *token) {
             result = my_strcpy(token->data.s);
             break;
         case INT:
-            sprintf(result, "int@%i", token->data.i);
+            snprintf(result, size, "int@%i", token->data.i);
             break;
         case DOUBLE:
-            sprintf(result, "float@%f", token->data.d);
+            snprintf(result, size, "float@%f", token->data.d);
             break;
         case STR:
             while (token->data.s[i] != 0) {
@@ -458,7 +458,7 @@ char *token2operand(t_token *token) {
                 i++;
             }
             char *tmp = my_strcpy(result);
-            sprintf(result, "str@%s", tmp);
+            snprintf(result, size, "str@%s", tmp);
             break;
         default:
             result[0] = 0;
@@ -635,8 +635,8 @@ int expression(TTable *Table, TTable *local, int typ) {
     } while (!(b == E_DOLLAR && Stack_top(&stack)->type == E_DOLLAR));
 
     Stack_dispose(&stack);
-    char last[256];
-    sprintf(last, "$E_E%i", get_id());  //TODO nefunguje ked sa konvertuje
+    char last[BUFFSIZE];
+    snprintf(last, BUFFSIZE, "$E_E%i", get_id());  //TODO nefunguje ked sa konvertuje
     create_3ac(I_PUSHS, NULL, NULL, last);
 
 

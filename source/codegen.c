@@ -167,7 +167,7 @@ bool is_num_type(int typ) {
 
 char *gen_temp_var(){
     char *result = my_malloc(sizeof(char) * 260);
-    sprintf(result, "TF@E_E%i", get_id());
+    snprintf(result, 260, "TF@E_E%i", get_id());
     create_3ac(I_DEFVAR,NULL,NULL,result);
     return result;
 }

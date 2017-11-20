@@ -12,13 +12,12 @@
 
 char *gen_label(char *ret) {
     static int label = 0;
-    char *result = my_malloc(sizeof(char) * 130);
+    char *result = my_malloc(sizeof(char) * BUFFSIZE);
     if (ret == NULL) {
-        sprintf(result, "l_%i", label++);
+        snprintf(result, BUFFSIZE, "l_%i", label++);
     } else {
-        sprintf(result, "l_%s_%i", ret, label++);
+        snprintf(result, BUFFSIZE, "l_%s_%i", ret, label++);
     }
-    result[129] = 0;
 
     return result;
 }
@@ -105,8 +104,6 @@ int function(int decDef, TTable *Table, TTable *local) {
     int ret_type = -1;
     if (decDef == k_function) {
         create_3ac(I_LABEL, NULL, NULL, name_f);
-        //create_3ac(I_DEFVAR, NULL, NULL, cat_string("TF@","%RETVAL"));
-        //create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
     }
     TData *func = NULL;
     TSymbol *sym = NULL;
@@ -115,9 +112,14 @@ int function(int decDef, TTable *Table, TTable *local) {
     unsigned attr_count = 0;
     int *attr_types = NULL;
     check_next_token_type(LPAR);
-    params(local, &attr_count, &attr_types, decDef);
+    params(local, &attr_count, &attr_types, decDef);                //spracuj parametre a )
     check_token_int_value(check_next_token_type(KEY_WORD), k_as);
     input = check_next_token_type(KEY_WORD);
+    /*if (token_is_data_type(input)) {      //to dole by som nahradil tymto
+        ret_type = input->data.i;
+    } else {
+        error(ERR_SYNTA);
+     }*/
     if (check_token_int_value(input, k_integer)) {
         ret_type = E_integer;
     } else if (check_token_int_value(input, k_double)) {
@@ -150,7 +152,6 @@ int function(int decDef, TTable *Table, TTable *local) {
     } else {
         if (getElement->data->type != ST_Function) {
             semerror(ERR_SEM_P);
-
         } else if (getElement->data->isDefined == true && decDef == k_function) {
             semerror(ERR_SEM_P);
         } else if (getElement->data->isDeclared == true && decDef == k_declare) {
@@ -164,114 +165,22 @@ int function(int decDef, TTable *Table, TTable *local) {
         if (f->attr_count != attr_count || f->return_type != ret_type) {
             semerror(ERR_SEM_P);
         }
-        for (int i = 0; i < attr_count; ++i) {
+        for (unsigned i = 0; i < attr_count; ++i) {
             if (f->attributes[i] != attr_types[i]) {
                 semerror(ERR_SEM_P);
             }
         }
     }
 
-    //nacitanie prikazouv ak je toto definicia
-
-     int i ;
+    //nacitanie prikazov ak je toto definicia
+    int i = 0;
     if (decDef == k_function) {
-        i = commandsAndVariables(Table,local);
-        //create_3ac(I_POPFRAME, NULL, NULL, NULL);
+        i = commandsAndVariables(Table, local);
         create_3ac(I_RETURN, NULL, NULL, NULL);
     }
 
-
-
     return i;
 }
-//    int function(int decDef, TTable *Table, TTable *local) {
-//    if (getElement == NULL) {
-//
-//
-//        func = my_malloc(sizeof(TFunction));        //TODO prerob na func_create
-//        sym = my_malloc(sizeof(TSymbol));
-//        sym->data = my_malloc(sizeof(TData));
-//        sym->isDeclared = false;
-//        sym->isDefined = false;
-//        func->attr_count = 0;
-//        func->attributes = my_malloc(sizeof(TType));
-//
-//        func->lok_table = local;
-//
-//        if (decDef == k_declare) {
-//            sym->isDeclared = true;
-//        } else if (decDef == k_function) {
-//            sym->isDefined = true;
-//            create_3ac(I_LABEL, NULL, NULL, input->data.s);  //vytvorenie operacii
-//            create_3ac(I_DEFVAR, NULL, NULL, "%RETVAL"); //deklarovanie operandu
-//            create_3ac(I_PUSHFRAME, NULL, NULL, NULL);  //vytvorenie operacii
-//        }
-//        sym->name = input->data.s;
-//        sym->type = ST_Function;
-//        sym->data->func = func;
-//    } else {
-//        if (getElement->data->isDefined == true && decDef == k_function) {
-//            semerror(ERR_SEM_P);
-//        } else if (getElement->data->isDeclared == true && decDef == k_declare) {
-//            semerror(ERR_SEM_P);
-//        } else if (getElement->data->isDefined == true && decDef == k_declare) {
-//            semerror(ERR_SEM_P);
-//        }
-//        func = my_malloc(sizeof(TFunction));
-//        // func = getElement->data->data->func;
-//        func->attr_count = 0;
-//        func->attributes = my_malloc(sizeof(TType));
-//        sym = getElement->data;
-//
-//    }
-//    check_next_token_type(LPAR);
-//    input = get_token();
-//    check_pointer(input);
-//    char *name;
-//    if (input->token_type == ID) {
-//        if (decDef == k_function) {
-//            name = input->data.s;
-//            create_3ac("DEFVAR", NULL, NULL, name); //deklarovanie operandu
-//            create_3ac("POPS", NULL, NULL, name);  //vytvorenie operacii
-//        }
-//        params(func, local,
-//               name,
-//               decDef); //vraci success, mozna kontrola? ale ono je to celkem jedno, protoze to pri chybe stejne spadne driv
-//    } else if (input->token_type == RPAR) {}
-//    else {
-//        error(ERR_SYNTA);
-//    }
-//
-//    input = check_next_token_type(KEY_WORD);
-//    check_token_int_value(input, k_as); //as
-//
-//    input = check_next_token_type(KEY_WORD);
-//    if (check_token_int_value(input, k_integer) || check_token_int_value(input, k_double) ||
-//        check_token_int_value(input, k_string)) //return_type je datovy typ
-//    {
-//        func->return_type = input->data.i;
-//        check_next_token_type(EOL);
-//        if (getElement != NULL) {
-//            if (func->attr_count == sym->data->func->attr_count
-//                && *(func->attributes) == *(sym->data->func->attributes)
-//                && func->return_type == sym->data->func->return_type) {
-//                sym->isDefined = true;
-//            } else {
-//                semerror(ERR_SEM_P);
-//            }
-//        } else {
-//            Tbl_Insert(Table, El_Create(sym));
-//        }
-//        create_3ac("POPFRAME", NULL, NULL, NULL);   //vytvorenie operacii
-//        create_3ac("RETURN", NULL, NULL, NULL);     //vytvorenie operacii
-//        return SUCCESS;
-//    } else {
-//        error(ERR_SYNTA);
-//    }
-//}
-
-
-
 
 int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
     int start = 1;
@@ -288,13 +197,12 @@ int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
 
         char *name = input->data.s;
         if (Tbl_GetDirect(local, name) != NULL) { //bola premenna uz definovana alebo dekralovana ako func
-            //semerror(ERR_SEM_P);
             redefine_error(name);
         }
 
         check_token_int_value(check_next_token_type(KEY_WORD), k_as);
         input = check_next_token_type(KEY_WORD);
-        //je nacitane sa id as typ
+        //je nacitane id as typ
 
         (*attr_count)++;
         *attributes = my_realloc(*attributes, sizeof(int) * (*attr_count));
@@ -400,12 +308,12 @@ int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
 //}
 
 
-int commandsAndVariables(TTable *Table,TTable *local) {
-    if (local == NULL){
+int commandsAndVariables(TTable *Table, TTable *local) {
+    if (local == NULL) {
         local = Table;
     }
     create_3ac(-1, NULL, NULL, NULL);
-    int i = 0;
+    unsigned i = 0;
     t_token *input = get_token();
     check_pointer(input);
 
@@ -420,7 +328,7 @@ int commandsAndVariables(TTable *Table,TTable *local) {
         char *name;
         name = input->data.s;
         TElement *el_func = Tbl_GetDirect(local, name);
-        if (el_func == NULL){
+        if (el_func == NULL) {
             el_func = Tbl_GetDirect(Table, name);
             if (el_func == NULL) {
                 semerror(ERR_SEM_P);
@@ -429,10 +337,10 @@ int commandsAndVariables(TTable *Table,TTable *local) {
         t_token *loaded = get_token();
 
         if (loaded->token_type == EQ) {
-            if (el_func->data->type != ST_Variable){
+            if (el_func->data->type != ST_Variable) {
                 semerror(ERR_SEM_P);
             }
-            expression(Table,local, el_func->data->data->var->type);
+            expression(Table, local, el_func->data->data->var->type);
             create_3ac(I_POPS, NULL, NULL, name);  //vytvorenie operacii
 
         } else if (loaded->token_type == LPAR) {
@@ -458,55 +366,55 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                         if (tmp == NULL) {
                             semerror(ERR_SEM_P); //premenna nebola definovana
                         }
-                    } if (1) {
-                        if (tmp->data->type == ST_Variable) {
-                            token_push(loaded);
-                            //sem kontrola typu
-                            if (i + 1 > f->attr_count) {
-                                semerror(ERR_SEM_T); // je viac parametrou ako zhltne
-                            } else if (f->attributes[i++] != tmp->data->data->var->type) {
-                                semerror(ERR_SEM_T);
-                            }
-                        } else if (tmp->data->type == ST_Function) {
-                            clear_all();
-                            exit(ERR_SYNTA); //todo parameter je funkcia
-                        } else {
-                            clear_all();
-                            exit(ERR_INTER);
+                    }
+                    if (tmp->data->type == ST_Variable) {
+                        token_push(loaded);
+                        //sem kontrola typu
+                        if (i + 1 > f->attr_count) {
+                            semerror(ERR_SEM_T); // je viac parametrou ako zhltne
+                        } else if (f->attributes[i++] != tmp->data->data->var->type) {
+                            semerror(ERR_SEM_T);
                         }
+                    } else if (tmp->data->type == ST_Function) {
+                        clear_all();
+                        exit(ERR_SYNTA); //todo parameter je funkcia
+                    } else {
+                        clear_all();
+                        exit(ERR_INTER);
                     }
 
-                } else if (loaded->token_type == STR){
+
+                } else if (loaded->token_type == STR) {
                     token_push(loaded);
                     if (i + 1 > f->attr_count) {
                         semerror(ERR_SEM_T); // je viac parametrou ako zhltne
                     } else if (f->attributes[i++] != E_string) {
                         semerror(ERR_SEM_T);
                     }
-                } else if (loaded->token_type == INT){
+                } else if (loaded->token_type == INT) {
                     if (i + 1 > f->attr_count) {
                         semerror(ERR_SEM_T); // je viac parametrou ako zhltne
                     } else if (f->attributes[i++] != E_integer) {
-                        if (f->attributes[i-1] != E_double){
+                        if (f->attributes[i - 1] != E_double) {
                             semerror(ERR_SEM_T);
                         }
-                        char ret[130];
-                        sprintf(ret, "$E_E%i",get_id());
+                        char ret[BUFFSIZE];
+                        snprintf(ret, BUFFSIZE, "$E_E%i", get_id());
                         create_3ac(I_DEFVAR, NULL, NULL, ret);
                         create_3ac(I_INT2FLOAT, token2operand(loaded), NULL, ret);
                         loaded->data.s = ret;
                     }
                     token_push(loaded);
 
-                }else if (loaded->token_type == DOUBLE){
+                } else if (loaded->token_type == DOUBLE) {
                     if (i + 1 > f->attr_count) {
                         semerror(ERR_SEM_T); // je viac parametrou ako zhltne
                     } else if (f->attributes[i++] != E_double) {
-                        if (f->attributes[i-1] != E_integer){
+                        if (f->attributes[i - 1] != E_integer) {
                             semerror(ERR_SEM_T);
                         }
-                        char ret[130];
-                        sprintf(ret, "$E_E%i",get_id());
+                        char ret[BUFFSIZE];
+                        snprintf(ret, BUFFSIZE, "$E_E%i", get_id());
                         create_3ac(I_DEFVAR, NULL, NULL, ret);
                         create_3ac(I_FLOAT2R2EINT, token2operand(loaded), NULL, ret);
                         loaded->data.s = ret;
@@ -515,7 +423,7 @@ int commandsAndVariables(TTable *Table,TTable *local) {
 
                 }
                 loaded = get_token();
-                if (loaded->token_type != COMMA ){
+                if (loaded->token_type != COMMA) {
                     break;
                 }
                 loaded = get_token();
@@ -570,10 +478,7 @@ int commandsAndVariables(TTable *Table,TTable *local) {
         return commandsAndVariables(Table, local);
     }
 
-    t_token *tmp1, *tmp2, *tmp3;
-    tmp1 = NULL;
-    tmp2 = NULL;
-    tmp3 = NULL;
+    t_token *tmp1 = NULL;
 
     if (isCorrect) {
         switch (value.i) {
@@ -583,29 +488,18 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                 char *name = input->data.s;
                 create_3ac(I_DEFVAR, NULL, NULL, cat_string("TF@", name)); //deklarovanie lok. premennej
                 input = check_next_token_type(KEY_WORD);
-                if (check_token_int_value(input, 0)) { //AS
+                if (check_token_int_value(input, k_as)) { //AS
                     input = check_next_token_type(KEY_WORD);
-                    int type = input->data.i;
-                    if (token_is_data_type(input)) { //typ
-                        //check_next_token_type(EOL);
+                    if (!token_is_data_type(input)) { //typ
+                        error(ERR_SYNTA);
+                    } else {
+                        int type = input->data.i;
 
-                        int type = -1;
-
-                        switch (input->data.i) {
-                            case k_integer:
-                                type = k_integer;
-                                break;
-                            case k_double:
-                                type = k_double;
-                                break;
-                            case k_string:
-                                type = k_string;
-                                break;
-                            default:
-                                clear_all();
-                                exit(ERR_INTER);
+                        if (token_is_data_type(input)) {      //to dole by som nahradil tymto
+                            type = input->data.i;
+                        } else {
+                            error(ERR_SYNTA);
                         }
-
                         /* merge z masteru */
                         t_token *input2 = get_token();
                         check_pointer(input2);
@@ -616,26 +510,27 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                             switch (input->data.i) {
                                 case k_integer:
                                     value.i = 0;
-                                    create_3ac(I_MOVE, "int@0", NULL, cat_string("TF@",name));  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "int@0", NULL, cat_string("TF@", name));  //vytvorenie operacii
                                     break;
                                 case k_double:
                                     value.d = 0.0;
-                                    create_3ac(I_MOVE, "float@0.0", NULL, cat_string("TF@",name));  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "float@0.0", NULL,
+                                               cat_string("TF@", name));  //vytvorenie operacii
                                     break;
                                 case k_string:
                                     value.s = "";
-                                    create_3ac(I_MOVE, "string@",NULL, cat_string("TF@",name));  //vytvorenie operacii
+                                    create_3ac(I_MOVE, "string@", NULL, cat_string("TF@", name));  //vytvorenie operacii
 
                             }
                         } else if (input2->token_type == EQ) {
-                            expression(Table,local,type);
-                            create_3ac(I_POPS, NULL, NULL, cat_string("TF@",name));
+                            expression(Table, local, type);
+                            create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
                         } else {
                             error(ERR_SYNTA);
                         }
                         /* koniec mergu */
 
-                        if (Tbl_GetDirect(local, name) != NULL){
+                        if (Tbl_GetDirect(local, name) != NULL) {
                             semerror(ERR_SEM_P); //druhy raz definovana
                         }
 
@@ -659,30 +554,30 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                     if (el == NULL || el->data->type != ST_Variable) {
                         semerror(ERR_SEM_T);
                     }
-                } if (1) {
-                    if (el->data->data->var->type == k_integer) {
-                        i = 1;
-                    } else if (el->data->data->var->type == k_double) {
-                        i = 0;
-                    } else if (el->data->data->var->type == k_integer) {
-                        i = 2;
-                    } else {
-                        internall_err();
-                    }
                 }
+                if (el->data->data->var->type == k_integer) {
+                    i = 1;
+                } else if (el->data->data->var->type == k_double) {
+                    i = 0;
+                } else if (el->data->data->var->type == k_integer) {
+                    i = 2;
+                } else {
+                    internall_err();
+                }
+
                 char *type[10] = {"float", "int", "str"};
 
 
-                create_3ac(I_READ, type[i], NULL, cat_string("TF@",tmp1->data.s)); //deklarovanie operandu
+                create_3ac(I_READ, type[i], NULL, cat_string("TF@", tmp1->data.s)); //deklarovanie operandu
 
                 check_next_token_type(EOL);
 
-                return commandsAndVariables(Table,local);
+                return commandsAndVariables(Table, local);
             case k_print: //print
-                print_params(Table,local); //skonci vcetne EOL
-                return commandsAndVariables(Table,local);
+                print_params(Table, local); //skonci vcetne EOL
+                return commandsAndVariables(Table, local);
             case k_if: //if
-                if (expression(Table,local, -1) != k_then) {
+                if (expression(Table, local, -1) != k_then) {
                     error(ERR_SYNTA);
                 }
                 create_3ac(I_PUSHS, NULL, NULL, "bool@false");  //vytvorenie operacii
@@ -692,20 +587,20 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                 create_3ac(I_JUMPIFEQS, NULL, NULL, label);  //vytvorenie operacii
 
                 check_next_token_type(EOL);
-                int correct = commandsAndVariables(Table,local);
+                int correct = commandsAndVariables(Table, local);
                 if (correct == k_if) {//skoncilo to end if
                     create_3ac(I_LABEL, NULL, NULL, str_pop());
-                    return commandsAndVariables(Table,local);
+                    return commandsAndVariables(Table, local);
                 } else if (correct == k_else) {             //prosel uspesne else
                     char *new = gen_label("else");
                     char *tmp = str_pop();
                     create_3ac(I_JUMP, NULL, NULL, new);
                     str_push(new);
                     create_3ac(I_LABEL, NULL, NULL, tmp);
-                    if (commandsAndVariables(Table,local) == k_if){
+                    if (commandsAndVariables(Table, local) == k_if) {
                         create_3ac(I_LABEL, NULL, NULL, str_pop());
-                        return commandsAndVariables(Table,local);
-                    } else{
+                        return commandsAndVariables(Table, local);
+                    } else {
                         error(ERR_SYNTA);
                     }
                 }
@@ -737,20 +632,20 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                     char *new_e = gen_label("w_e");
                     str_push(new_b);
                     str_push(new_e);
-                    create_3ac(I_LABEL, NULL, NULL, cat_string("TF@",new_b));
-                    if (expression(Table,local, -1) != EOL) {
+                    create_3ac(I_LABEL, NULL, NULL, cat_string("TF@", new_b));
+                    if (expression(Table, local, -1) != EOL) {
                         error(ERR_SYNTA);
                     } //tohle asi nepojede
                     create_3ac(I_PUSHS, NULL, NULL, "bool@false");  //vytvorenie operacii
                     create_3ac(I_JUMPIFEQS, NULL, NULL, new_e);  //vytvorenie operacii
 
-                    if (commandsAndVariables(Table,local) == k_loop) { //skoncilo to loop
+                    if (commandsAndVariables(Table, local) == k_loop) { //skoncilo to loop
                         new_e = str_pop();
                         new_b = str_pop();
                         create_3ac(I_JUMP, NULL, NULL, new_b);  //vytvorenie operacii
                         create_3ac(I_LABEL, NULL, NULL, new_e);  //vytvorenie operacii
 
-                        return commandsAndVariables(Table,local);
+                        return commandsAndVariables(Table, local);
                     }
                     error(ERR_SYNTA);
                 }
@@ -763,32 +658,33 @@ int commandsAndVariables(TTable *Table,TTable *local) {
                 if (local->isScope) {
                     error(ERR_SYNTA);
                 } else {
-                    expression(Table,local, -2); //todo neviem zistit akeho typu ma byt navrat
-                    create_3ac(I_POPS, NULL, NULL, cat_string("TF@","%RETVAL"));
+                    expression(Table, local, -2); //todo neviem zistit akeho typu ma byt navrat
+                    create_3ac(I_POPS, NULL, NULL, cat_string("TF@", "%RETVAL"));
 //                    create_3ac(I_POPFRAME, NULL, NULL, NULL);
 //                    create_3ac(I_RETURN, NULL, NULL, NULL);
-                    return commandsAndVariables(Table,local);
+                    return commandsAndVariables(Table, local);
                 }
 
             default:
                 error(ERR_SYNTA);
         }
     }
+    return 0;
 }
 
-int print_params(TTable *Table,TTable *local) {
-    int result = expression(Table,local, -2);
-    char ret[130];
+int print_params(TTable *Table, TTable *local) {
+    int result = expression(Table, local, -2);
+    char ret[BUFFSIZE];
     static int print_par = 0;
-    sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
+    snprintf(ret, BUFFSIZE, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
     create_3ac(I_DEFVAR, NULL, NULL, ret);
     create_3ac(I_POPS, NULL, NULL, ret);
     create_3ac(I_WRITE, NULL, NULL, ret);
 
     while (result == SEMICOLLON) {
-        result = expression(Table,local, -2);
+        result = expression(Table, local, -2);
         if (result != EOL) {
-            sprintf(ret, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
+            snprintf(ret, BUFFSIZE, "$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
             create_3ac(I_DEFVAR, NULL, NULL, ret); //deklarovanie operandu
             create_3ac(I_POPS, NULL, NULL, ret); //deklarovanie operandu
             create_3ac(I_WRITE, NULL, NULL, ret); //deklarovanie operandu
@@ -798,6 +694,7 @@ int print_params(TTable *Table,TTable *local) {
         return SUCCESS;
     }
     error(ERR_SYNTA);
+    return 0;
 }
 
 /*parametry funkce, mozna to k necemu bude, mozna ne, zatim se to nidke nepouziva*/
@@ -833,7 +730,7 @@ int scope(TTable *Table) {
     local->isScope = true;
 
     check_next_token_type(EOL);
-    int res = commandsAndVariables(Table,local);
+    int res = commandsAndVariables(Table, local);
     if (res == k_scope) {
         t_token *input = get_token();
         check_pointer(input);
@@ -847,4 +744,5 @@ int scope(TTable *Table) {
         }
     }
     error(ERR_SYNTA);
+    return 0;
 }

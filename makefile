@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -pedantic -Wextra -Werror
 SRCS = $(wildcard source/*.c)   #pri odovzdani vymazat source/
 OBJS = $(SRCS:.c=.o)
 PROJ = ifj
