@@ -256,7 +256,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
 //                    if (found == NULL) {
 //                        found = Tbl_GetDirect(Table, name);
 //                        if (found == NULL) {
-//                            semerror(ERR_SEM_P);
+//                            semerror(ERR_SEM_DEF);
 //                        }
 //                    }
                     if (found != NULL) {        //funkcia nemoze byt v local
@@ -267,7 +267,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                         undefined_err(name);
                     }
                     if (found->data->data->func->attr_count != 0) {
-                        error("Nespravny pocet parametrov", ERR_SEM_T);
+                        error("Nespravny pocet parametrov", ERR_SEM_TYPE);
                     }
 
                     dest = call_function(name, NULL, 0);
@@ -293,7 +293,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     if (found == NULL) {
                                         found = Tbl_GetDirect(Table, input->operand);
                                         if (found == NULL) {
-                                            semerror(ERR_SEM_T);
+                                            semerror(ERR_SEM_TYPE);
                                         }
                                     }
                                     if (found->data->data->func->attr_count == 1) {
@@ -301,10 +301,10 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                         if (!((paramReturn == tmp1->typ_konkretne) ||
                                               (paramReturn == k_integer && tmp1->typ_konkretne == k_double)
                                               || (paramReturn == k_double && tmp1->typ_konkretne == k_integer))) {
-                                            semerror(ERR_SEM_T);
+                                            semerror(ERR_SEM_TYPE);
                                         }
                                     } else {
-                                        semerror(ERR_SEM_T);
+                                        semerror(ERR_SEM_TYPE);
                                     }
                                     //gen vnutorneho kodu
                                     dest = call_function(input->operand, &tmp1, 1);
@@ -336,11 +336,11 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 if (found == NULL) {
                                     found = Tbl_GetDirect(Table, name);
                                     if (found == NULL) {
-                                        semerror(ERR_SEM_T);
+                                        semerror(ERR_SEM_TYPE);
                                     }
                                 }
                                 if (found->data->data->func->attr_count != i) {
-                                    semerror(ERR_SEM_T);
+                                    semerror(ERR_SEM_TYPE);
                                 }
                                 for (unsigned j = 0; j < i; ++j) {
                                     //parametre su nacitane v arr_el a su su nacitane od konca
@@ -353,7 +353,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     } else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer) {
                                         create_3ac(I_INT2FLOAT, arr_el[j]->operand, NULL, arr_el[j]->operand);
                                     } else {
-                                        semerror(ERR_SEM_T);
+                                        semerror(ERR_SEM_TYPE);
                                     }
                                     // overenie typu parametru rob tu ja tu potom do toho doplnim premeni urob to obdobne ako to je urobene pri e_plus ...
 
@@ -507,7 +507,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) 
             if (found == NULL) {
                 found = Tbl_GetDirect(Table, input->data.s);
                 if (found == NULL) {
-                    semerror(ERR_SEM_P);
+                    semerror(ERR_SEM_DEF);
                 }
             }
             if (found->data->type == ST_Function && found->data->isDefined) {
@@ -521,7 +521,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) 
 
         }
             //pozreme do symtable
-            semerror(ERR_SEM_P);
+            semerror(ERR_SEM_DEF);
         case INT: //mozna budeme muset mapovat jinak kvuli semanticke
             return E_ID;
         case DOUBLE:

@@ -3,9 +3,9 @@
 
 #define ERR_LEXIK 1
 #define ERR_SYNTA 2
-#define ERR_SEM_P 3
-#define ERR_SEM_T 4
-#define ERR_SEM_E 6
+#define ERR_SEM_DEF 3
+#define ERR_SEM_TYPE 4
+#define ERR_SEM_OTH 6
 #define ERR_INTER 99
 
 void error(char *str, int err_code);

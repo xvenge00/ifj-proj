@@ -21,7 +21,7 @@ typedef union {
 
 typedef struct {
     TValue value; //obsah
-    int type; //viz enum TType
+    int type; //viz enum TType      //TODO preco to nie je aj v func TType???
 } TVariable;
 
 typedef struct {

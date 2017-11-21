@@ -25,13 +25,13 @@ void semerror(int code) {
 void undefined_err(char *name) {
     fprintf(stderr, "Prvok \"%s\" nebol definovany.\n", name);
     clear_all();
-    exit(ERR_SEM_P);
+    exit(ERR_SEM_DEF);
 }
 
 void redefine_error(char *name) {
     fprintf(stderr, "Prvok \"%s\" uz bol raz definovany.\n", name);
     clear_all();
-    exit(ERR_SEM_P);
+    exit(ERR_SEM_DEF);
 }
 
 void internall_err() {
@@ -52,5 +52,5 @@ void check_null(void *ptr) {
 void bad_operands_err() {
     fprintf(stderr, "Nekompatibilne operandy.\n");
     clear_all();
-    exit(ERR_SEM_T);
+    exit(ERR_SEM_TYPE);
 }
