@@ -20,3 +20,16 @@ volanie funkcie je pokazene
 > end scope
 len vytvori frame, nezavola funkciu
 =========================================
+return vo funckii
+    -neskonci funkci ked je return
+    -ked je prazdny return tak popuje bez predchadzajuceho pushu
+function foo(par as integer, par2 as integer) as integer
+dim a as double
+return 5
+a = 2.3
+return a
+end function
+scope
+dim a as integer = 5
+foo(3,a)
+end scope
