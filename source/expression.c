@@ -26,7 +26,7 @@ char *cat_string(char *frame, char *variable) {
     char *buf = my_malloc(sizeof(char) * BUFFSIZE);
     buf[0] = 0;
     buf = strncat(buf, frame, 4);
-    buf = strncat(buf, variable, BUFFSIZE-4);   //asi by to mohlo byt 3
+    buf = strncat(buf, variable, BUFFSIZE - 4);   //asi by to mohlo byt 3
 
     return buf;
 }
@@ -137,7 +137,7 @@ Element *check_next_element_type(int type, Stack *stack) {
     if (input->type == type) {
         return input;
     }
-    syntax_error(ERR_SYNTA,line);
+    syntax_error(ERR_SYNTA, line);
     return NULL;
 }
 
@@ -240,7 +240,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 11;
                 default:
-                    syntax_error(ERR_SYNTA,line);
+                    syntax_error(ERR_SYNTA, line);
             }
             break;
         case E_RPAR:
@@ -260,14 +260,14 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
 //                        }
 //                    }
                     if (found != NULL) {        //funkcia nemoze byt v local
-                        undefined_err(name,line);
+                        undefined_err(name, line);
                     }
                     found = Tbl_GetDirect(Table, name);
                     if (found == NULL) {
-                        undefined_err(name,line);
+                        undefined_err(name, line);
                     }
                     if (found->data->data->func->attr_count != 0) {
-                        error("Nespravny pocet parametrov", ERR_SEM_TYPE,line);
+                        error("Nespravny pocet parametrov", ERR_SEM_TYPE, line);
                     }
 
                     dest = call_function(name, NULL, 0);
@@ -293,7 +293,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     if (found == NULL) {
                                         found = Tbl_GetDirect(Table, input->operand);
                                         if (found == NULL) {
-                                            semerror(ERR_SEM_TYPE,line);
+                                            semerror(ERR_SEM_TYPE, line);
                                         }
                                     }
                                     if (found->data->data->func->attr_count == 1) {
@@ -301,10 +301,10 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                         if (!((paramReturn == tmp1->typ_konkretne) ||
                                               (paramReturn == k_integer && tmp1->typ_konkretne == k_double)
                                               || (paramReturn == k_double && tmp1->typ_konkretne == k_integer))) {
-                                            semerror(ERR_SEM_TYPE,line);
+                                            semerror(ERR_SEM_TYPE, line);
                                         }
                                     } else {
-                                        semerror(ERR_SEM_TYPE,line);
+                                        semerror(ERR_SEM_TYPE, line);
                                     }
                                     //gen vnutorneho kodu
                                     dest = call_function(input->operand, &tmp1, 1);
@@ -313,13 +313,13 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     Stack_push(stack, E_E, dest, input->typ_konkretne);
                                     return 13;
                                     default:
-                                        syntax_error(ERR_SYNTA,line);
+                                        syntax_error(ERR_SYNTA, line);
                                 }
                             }
                         case E_COMMA:
-                            arr_el = my_realloc(arr_el, sizeof(Element*) * (i + 1));
+                            arr_el = my_realloc(arr_el, sizeof(Element *) * (i + 1));
                             arr_el[i++] = tmp1;
-                            arr_el[i++] =check_next_element_type(E_E, stack);
+                            arr_el[i++] = check_next_element_type(E_E, stack);
 
                             input = Stack_pop(stack);
                             while (input->type == E_COMMA) {
@@ -336,11 +336,11 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 if (found == NULL) {
                                     found = Tbl_GetDirect(Table, name);
                                     if (found == NULL) {
-                                        semerror(ERR_SEM_TYPE,line);
+                                        semerror(ERR_SEM_TYPE, line);
                                     }
                                 }
                                 if (found->data->data->func->attr_count != i) {
-                                    semerror(ERR_SEM_TYPE,line);
+                                    semerror(ERR_SEM_TYPE, line);
                                 }
                                 for (unsigned j = 0; j < i; ++j) {
                                     //parametre su nacitane v arr_el a su su nacitane od konca
@@ -353,7 +353,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     } else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer) {
                                         create_3ac(I_INT2FLOAT, arr_el[j]->operand, NULL, arr_el[j]->operand);
                                     } else {
-                                        semerror(ERR_SEM_TYPE,line);
+                                        semerror(ERR_SEM_TYPE, line);
                                     }
                                     // overenie typu parametru rob tu ja tu potom do toho doplnim premeni urob to obdobne ako to je urobene pri e_plus ...
 
@@ -364,13 +364,13 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 Stack_push(stack, E_E, dest, input->typ_konkretne);
                                 return 13;
                             } else {
-                                syntax_error(ERR_SYNTA,line);
+                                syntax_error(ERR_SYNTA, line);
                             }
                     }
-                    syntax_error(ERR_SYNTA,line);
+                    syntax_error(ERR_SYNTA, line);
 
                 default:
-                    syntax_error(ERR_SYNTA,line);
+                    syntax_error(ERR_SYNTA, line);
             }
 
 
@@ -380,52 +380,36 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
             if (add_FT(tmp2->operand)) {
                 create_3ac(I_MOVE, cat_string("TF@", tmp2->operand), NULL, dest);
             } else {
-                create_3ac(I_MOVE, tmp2->operand, NULL, dest);   //TODO ked je tmp2->operand hodnota (int@45) nema sa davat TF@
+                create_3ac(I_MOVE, tmp2->operand, NULL,
+                           dest);   //TODO ked je tmp2->operand hodnota (int@45) nema sa davat TF@
             }
             Stack_push(stack, E_E, dest, tmp2->typ_konkretne);
             return 15;
         default:
-            syntax_error(ERR_SYNTA,line);
+            syntax_error(ERR_SYNTA, line);
     }
     return 0;
 }
 
-// Precedencni tabulka, rozsirena pro FUNEXP
 const int precedence_table[17][17] = {
         /*    +   -   *   /   \   (   )  id   <  <=   >  >=   =  <>   $   f   ,  */
-/* +    */ {GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
-/* -    */
-           {GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
-/* *    */
-           {GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
-/* /    */
-           {GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
-/* \    */
-           {GT, GT, LT, LT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT,},
-/* (    */
-           {LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, xx, LT, EQ,},
-/* )    */
-           {GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT,},
-/* id   */
-           {GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT,}, //ID x ( ma byt xx, tohle je kvuli debugu funkci
-/* <    */
-           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
-/* <=   */
-           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
-/* >    */
-           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
-/* >=   */
-           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
-/* =    */
-           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
-/* <>   */
-           {LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT,},
-/* $    */
-           {LT, LT, LT, LT, LT, LT, xx, LT, LT, LT, LT, LT, LT, LT, xx, LT, xx,},
-/* f    */
-           {xx, xx, xx, xx, xx, EQ, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx,},
-/* ,    */
-           {LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ,},
+/* +    */ { GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* -    */ { GT, GT, LT, LT, LT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* *    */ { GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* /    */ { GT, GT, GT, GT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* \    */ { GT, GT, LT, LT, GT, LT, GT, LT, GT, GT, GT, GT, GT, GT, GT, LT, GT, },
+/* (    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, xx, LT, EQ, },
+/* )    */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, },
+/* id   */ { GT, GT, GT, GT, GT, xx, GT, xx, GT, GT, GT, GT, GT, GT, GT, xx, GT, }, //ID x ( ma byt xx, tohle je kvuli debugu funkci
+/* <    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* <=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* >    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* >=   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* =    */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* <>   */ { LT, LT, LT, LT, LT, LT, GT, LT, xx, xx, xx, xx, xx, xx, GT, LT, GT, },
+/* $    */ { LT, LT, LT, LT, LT, LT, xx, LT, LT, LT, LT, LT, LT, LT, xx, LT, xx, },
+/* f    */ { xx, xx, xx, xx, xx, EQ, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, },
+/* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
 };
 
 void prilep(char *ret, char c, unsigned *top, unsigned *cap) {
@@ -507,7 +491,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) 
             if (found == NULL) {
                 found = Tbl_GetDirect(Table, input->data.s);
                 if (found == NULL) {
-                    semerror(ERR_SEM_DEF,line);
+                    semerror(ERR_SEM_DEF, line);
                 }
             }
             if (found->data->type == ST_Function && found->data->isDefined) {
@@ -521,7 +505,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) 
 
         }
             //pozreme do symtable
-            semerror(ERR_SEM_DEF,line);
+            semerror(ERR_SEM_DEF, line);
         case INT: //mozna budeme muset mapovat jinak kvuli semanticke
             return E_ID;
         case DOUBLE:
@@ -563,8 +547,8 @@ int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) 
  * Priklady takovych tokenu - EOL, Then, Semicolon
  * Pro Then je navratova hodnota tedy 120
  * */
-
-int expression(TTable *Table, TTable *local, int typ) {
+/* typ je aky by mal byt navratovy typ TODO*/
+int expression(TTable *func_table, TTable *local, int typ) {
     Stack stack;
     Stack_init(&stack);
     Stack_push(&stack, E_DOLLAR, NULL, 0);
@@ -578,7 +562,7 @@ int expression(TTable *Table, TTable *local, int typ) {
         return EOL;
     }
 
-    b = code_type(&dollar_source, my_token, local, Table); //prekodovani typu tokenu na index do tabulky
+    b = code_type(&dollar_source, my_token, local, func_table); //prekodovani typu tokenu na index do tabulky
     if (b == E_DOLLAR && dollar_source == EOL) {
         Stack_dispose(&stack);
         return dollar_source;
@@ -597,9 +581,9 @@ int expression(TTable *Table, TTable *local, int typ) {
             } else if (my_token->token_type == ID) {
                 TElement *el = Tbl_GetDirect(local, my_token->data.s);
                 if (el == NULL) {
-                    el = Tbl_GetDirect(Table, my_token->data.s);
+                    el = Tbl_GetDirect(func_table, my_token->data.s);
                     if (el == NULL) {
-                        undefined_err(my_token->data.s,line);
+                        undefined_err(my_token->data.s, line);
                     }
                 }
                 if (el->data->type == ST_Variable) {
@@ -617,17 +601,17 @@ int expression(TTable *Table, TTable *local, int typ) {
                 Stack_push(&stack, b, token2operand(my_token), token_type);
                 my_token = get_token();
                 line = my_token->line;
-                b = code_type(&dollar_source, my_token, local, Table);
+                b = code_type(&dollar_source, my_token, local, func_table);
                 break;
             case LT:
                 Stack_expand(&stack);
                 Stack_push(&stack, b, token2operand(my_token), token_type);
                 my_token = get_token();
                 line = my_token->line;
-                b = code_type(&dollar_source, my_token, local, Table);
+                b = code_type(&dollar_source, my_token, local, func_table);
                 break;
             case GT:
-                ruleNumber = rule(&stack, local, Table);
+                ruleNumber = rule(&stack, local, func_table);
                 if (ruleNumber != 0) {
                     //printf("Rule %d\n", ruleNumber);
                 } else {
@@ -643,7 +627,7 @@ int expression(TTable *Table, TTable *local, int typ) {
 
     Stack_dispose(&stack);
     char last[BUFFSIZE];
-    snprintf(last, BUFFSIZE, "TF@$E_E%i", get_id()-1);  //TODO nefunguje ked sa konvertuje
+    snprintf(last, BUFFSIZE, "TF@$E_E%i", get_id() - 1);
     create_3ac(I_PUSHS, NULL, NULL, last);
 
 

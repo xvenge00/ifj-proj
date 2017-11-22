@@ -67,9 +67,9 @@ int parse(TTable *Table) {
     }
 
     //prvni token musi byt Declare nebo Function nebo SCOPE
-    bool isCorrect = input->token_type == KEY_WORD;
+    bool isKeyWord = input->token_type == KEY_WORD;
     tdata value = input->data;
-    if (isCorrect) {
+    if (isKeyWord) {
         switch (value.i) {
             case k_declare: //declare
                 input = check_next_token_type(KEY_WORD);
@@ -80,9 +80,6 @@ int parse(TTable *Table) {
             case k_function: { //function
                 TTable *local = Tbl_Create(8);
                 int correct = function(k_function, Table, local); //parametry, konci tokenem EOL
-
-//                int correct = commandsAndVariables(local);
-
                 if (correct == k_function) { //function
                     return parse(Table);
                 } else {
@@ -295,7 +292,16 @@ int check_params(TTable *local, TTable *func_table, TFunction *func){
 
     while (loaded->token_type == ID || loaded->token_type == INT || loaded->token_type == STR ||
            loaded->token_type == DOUBLE) {
-        token_push(loaded);
+        //TODO!!!
+        //skontroluj pocet paramtrov
+        //arg_cnt++;
+        //posli expression na parameter
+        //skontroluj navratovy typ
+        //skonvertuj ak treba, potom pushni
+        //TYPE bude ttype zistim ho z funkcie
+        return_token(loaded);
+        int dollar_source = expression(func_table, local, E_integer);
+        /*token_push(loaded);
         if (loaded->token_type == ID) {
             TElement *el_param = Tbl_GetDirect(local, loaded->data.s);
             if (el_param == NULL) {
@@ -307,8 +313,6 @@ int check_params(TTable *local, TTable *func_table, TFunction *func){
             }
 
             if (el_param->data->type == ST_Variable) {
-                token_push(loaded);
-
                 int convert = check_param_cnttype(arg_cnt, func, el_param->data->data->var->type);
                 if (convert) {
                     //todo convert
@@ -324,7 +328,6 @@ int check_params(TTable *local, TTable *func_table, TFunction *func){
                 exit(ERR_INTER);
             }
         } else if (loaded->token_type == STR) {
-            token_push(loaded);
             check_param_cnttype(arg_cnt, func, E_string);
             arg_cnt++;
         } else if (loaded->token_type == INT) {
@@ -337,7 +340,6 @@ int check_params(TTable *local, TTable *func_table, TFunction *func){
                 loaded->data.s = ret;
             }
             arg_cnt++;
-            token_push(loaded);
         } else if (loaded->token_type == DOUBLE) {
             int convert = check_param_cnttype(arg_cnt, func, E_double);
             if (convert) {
@@ -348,7 +350,6 @@ int check_params(TTable *local, TTable *func_table, TFunction *func){
                 loaded->data.s = ret;
             }
             arg_cnt++;
-            token_push(loaded);
         }
         loaded = get_token();
         line = loaded->line;
@@ -356,9 +357,10 @@ int check_params(TTable *local, TTable *func_table, TFunction *func){
             break;
         }
         loaded = get_token();
-        line = loaded->line;
+        line = loaded->line;*/
 
     }
+    return_token(loaded);
     return 0;
 }
 
@@ -392,6 +394,7 @@ int command_func_var(t_token *input, TTable *local, TTable *func_table) {
             return -1;
         }
         check_params(local, func_table, el_func->data->data->func);
+        check_next_token_type(RPAR);
     }
     return 0;   //TODO
 }
