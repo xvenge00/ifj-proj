@@ -208,7 +208,7 @@ int ruleE_E(Stack *stack, Element *tmp2) {
     return -1;
 }
 
-int ruleE_RPAR(Stack *stack, Element *tmp2, TTable *func_table, TTable *local) {
+int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local) {
     Element *input = Stack_pop(stack);
     Element **arr_el = NULL;
     Element *tmp1 = NULL;
@@ -249,12 +249,9 @@ int ruleE_RPAR(Stack *stack, Element *tmp2, TTable *func_table, TTable *local) {
                             return 12;
                         case E_FUNC: { //zmenit pak nejspis na E_FUNCT
                             //skontrolovat sematiku ze tato funkcia sa ma volat s jednym parametrom a to typ tmp1->typ_konktretne ci implicitne prekonvertovatelny typ
-                            found = Tbl_GetDirect(local, input->operand);     //TODO nema hladat v local
+                            found = Tbl_GetDirect(func_table, input->operand);
                             if (found == NULL) {
-                                found = Tbl_GetDirect(func_table, input->operand);
-                                if (found == NULL) {
-                                    semerror(ERR_SEM_TYPE, line);
-                                }
+                                semerror(ERR_SEM_TYPE, line);
                             }
                             if (found->data->data->func->attr_count == 1) {
                                 int paramReturn = found->data->data->func->attributes[0];
@@ -331,7 +328,20 @@ int ruleE_RPAR(Stack *stack, Element *tmp2, TTable *func_table, TTable *local) {
 
         default:
             syntax_error(ERR_SYNTA, line);
+            return -1;
     }
+}
+
+int ruleID(Stack *stack, Element *tmp2){
+    check_next_element_type(E_LT, stack);
+    char *dest = gen_temp_var();
+    if (add_FT(tmp2->operand)) {
+        create_3ac(I_MOVE, cat_string("TF@", tmp2->operand), NULL, dest);
+    } else {
+        create_3ac(I_MOVE, tmp2->operand, NULL, dest);
+    }
+    Stack_push(stack, E_E, dest, tmp2->typ_konkretne);
+    return 15;
 }
 
 /*cte elementy zeshora zasobniku dokud nenajde "<", musi overit, jestli je precteny retezec pravidlo
@@ -342,149 +352,16 @@ int ruleE_RPAR(Stack *stack, Element *tmp2, TTable *func_table, TTable *local) {
 int rule(Stack *stack, TTable *local, TTable *func_table) {
     Element *input = Stack_pop(stack);
     check_pointer(input);
-    char *dest = NULL;
-
 
     Element *tmp2 = input;
-    Element *tmp1 = NULL;
-
-    Element **arr_el = NULL;
-
 
     switch (input->type) {
         case E_E:
             return ruleE_E(stack, tmp2);
         case E_RPAR:
-            return ruleE_RPAR(stack, tmp2, func_table, local);
-            /*input = Stack_pop(stack);
-            unsigned i = 0;
-            switch (input->type) {
-                case E_LPAR:
-                    input = check_next_element_type(E_FUNC, stack);
-                    char *name = input->operand;
-
-                    //semanticky skontrolovat ze tato funkcie ma 0 parametrou jej meno je name
-                    TElement *found = Tbl_GetDirect(func_table, name);
-                    if (found == NULL) {
-                        undefined_err(name, line);
-                        return -1;
-                    }
-                    if (found->data->data->func->attr_count != 0) {
-                        error("Nespravny pocet parametrov", ERR_SEM_TYPE, line);
-                    }
-
-                    dest = call_function(name, NULL, 0);
-
-                    check_next_element_type(E_LT, stack);
-                    Stack_push(stack, E_E, dest, input->typ_konkretne);
-                    return 13;
-                    break;
-                case E_E:
-                    tmp1 = input;
-                    input = Stack_pop(stack);
-                    switch (input->type) {
-                        case E_LPAR:
-                            input = Stack_pop(stack);
-                            check_pointer(input);
-                            switch (input->type) {
-                                case E_LT:
-                                    Stack_push(stack, E_E, tmp1->operand, tmp1->typ_konkretne);
-                                    return 12;
-                                case E_FUNC: { //zmenit pak nejspis na E_FUNCT
-                                    //skontrolovat sematiku ze tato funkcia sa ma volat s jednym parametrom a to typ tmp1->typ_konktretne ci implicitne prekonvertovatelny typ
-                                    found = Tbl_GetDirect(local, input->operand);     //TODO nema hladat v local
-                                    if (found == NULL) {
-                                        found = Tbl_GetDirect(func_table, input->operand);
-                                        if (found == NULL) {
-                                            semerror(ERR_SEM_TYPE, line);
-                                        }
-                                    }
-                                    if (found->data->data->func->attr_count == 1) {
-                                        int paramReturn = found->data->data->func->attributes[0];
-                                        if (!((paramReturn == tmp1->typ_konkretne) ||
-                                              (paramReturn == k_integer && tmp1->typ_konkretne == k_double)
-                                              || (paramReturn == k_double && tmp1->typ_konkretne == k_integer))) {
-                                            semerror(ERR_SEM_TYPE, line);
-                                        }
-                                    } else {
-                                        semerror(ERR_SEM_TYPE, line);
-                                    }
-                                    //gen vnutorneho kodu
-                                    dest = call_function(input->operand, &tmp1, 1);
-
-                                    check_next_element_type(E_LT, stack);
-                                    Stack_push(stack, E_E, dest, input->typ_konkretne);
-                                    return 13;
-                                    default:
-                                        syntax_error(ERR_SYNTA, line);
-                                }
-                            }
-                        case E_COMMA:
-                            arr_el = my_realloc(arr_el, sizeof(Element *) * (i + 1));
-                            arr_el[i++] = tmp1;
-                            arr_el[i++] = check_next_element_type(E_E, stack);
-
-                            input = Stack_pop(stack);
-                            while (input->type == E_COMMA) {
-                                arr_el = my_realloc(arr_el, sizeof(Element) * (i + 1));
-                                arr_el[i++] = check_next_element_type(E_E, stack);
-                                input = Stack_pop(stack);
-                            }
-                            if (input->type == E_LPAR) {
-                                input = check_next_element_type(E_FUNC, stack);
-                                check_next_element_type(E_LT, stack);
-
-                                char *name = input->operand;
-                                found = Tbl_GetDirect(local, name);
-                                if (found == NULL) {
-                                    found = Tbl_GetDirect(func_table, name);
-                                    if (found == NULL) {
-                                        semerror(ERR_SEM_TYPE, line);
-                                    }
-                                }
-                                if (found->data->data->func->attr_count != i) {
-                                    semerror(ERR_SEM_TYPE, line);
-                                }
-                                for (unsigned j = 0; j < i; ++j) {
-                                    //parametre su nacitane v arr_el a su su nacitane od konca
-                                    // semantika skonrolovat ci funckia pod menom name ma prave i parametrov a ci sa tieto parametre zhoduju ci su prekonvergovatelne implicitne
-                                    int paramReturn = found->data->data->func->attributes[i - j - 1];
-                                    if (paramReturn == arr_el[j]->typ_konkretne) {
-
-                                    } else if (paramReturn == k_integer && arr_el[j]->typ_konkretne == k_double) {
-                                        create_3ac(I_FLOAT2R2EINT, arr_el[j]->operand, NULL, arr_el[j]->operand);
-                                    } else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer) {
-                                        create_3ac(I_INT2FLOAT, arr_el[j]->operand, NULL, arr_el[j]->operand);
-                                    } else {
-                                        semerror(ERR_SEM_TYPE, line);
-                                    }
-                                    // overenie typu parametru rob tu ja tu potom do toho doplnim premeni urob to obdobne ako to je urobene pri e_plus ...
-
-                                }
-
-                                dest = call_function(name, arr_el, i);
-
-                                Stack_push(stack, E_E, dest, input->typ_konkretne);
-                                return 13;
-                            } else {
-                                syntax_error(ERR_SYNTA, line);
-                            }
-                    }
-                    syntax_error(ERR_SYNTA, line);
-
-                default:
-                    syntax_error(ERR_SYNTA, line);
-            }*/
+            return ruleE_RPAR(stack, func_table, local);
         case E_ID:
-            check_next_element_type(E_LT, stack);
-            dest = gen_temp_var();
-            if (add_FT(tmp2->operand)) {
-                create_3ac(I_MOVE, cat_string("TF@", tmp2->operand), NULL, dest);
-            } else {
-                create_3ac(I_MOVE, tmp2->operand, NULL, dest);
-            }
-            Stack_push(stack, E_E, dest, tmp2->typ_konkretne);
-            return 15;
+            return ruleID(stack, tmp2);
         default:
             syntax_error(ERR_SYNTA, line);
     }
@@ -683,6 +560,7 @@ int expression(TTable *func_table, TTable *local, int typ) {
                     el = Tbl_GetDirect(func_table, my_token->data.s);
                     if (el == NULL) {
                         undefined_err(my_token->data.s, line);
+                        return -1;
                     }
                 }
                 if (el->data->type == ST_Variable) {
