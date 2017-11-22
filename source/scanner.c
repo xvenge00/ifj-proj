@@ -212,6 +212,7 @@ t_token *create_token(ttype typ, tdata data, unsigned *line) {
  * @return token vytvoreny z f
  */
 t_token *load_token() {
+    //zachovany znak z predchadzajuceho volania
     static int old = 0;
 
     tdata data;
@@ -220,7 +221,7 @@ t_token *load_token() {
     scanner_buff = init_buff();     //priprava bufferu
     static int loaded = 0;                      //inicializacia znaku
     static unsigned line = 1;                   //riadok ktory je spracovavany
-    //zistenie ci neostalo po predchodzom hladany znak
+    //restartovanie pocitadla raidkou pre testi
     if (beginning) {
         beginning = 0;
         line = 1;
