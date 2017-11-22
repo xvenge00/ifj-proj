@@ -159,5 +159,5 @@ t_token *load_token();
  * @return
  */
 t_token *get_token();
-
+void return_token(t_token *token);
 #endif //IFJ_PROJ_SCANNER_H
