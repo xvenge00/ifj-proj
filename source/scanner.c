@@ -51,8 +51,7 @@ void return_token(t_token *token){
 void discard_token(t_token *token){
     if (token == NULL){
         internall_err(__LINE__);
-    }
-    if (token->token_type == ID || token->token_type == STR) {
+    } else if (token->token_type == ID || token->token_type == STR) {
         my_free(token->data.s);
     }
     my_free(token);
@@ -248,14 +247,14 @@ t_token *load_token(){
                 if (isspace(loaded) && (loaded != '\n')){
                     //state = s_START; nerob nic
                 } else if (isalpha(loaded) || (loaded == '_')){ // nasiel sa zaciatok ID
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                     state = s_ID;
                 } else if (loaded == '\''){ // riadkovy komment
                     state = s_line_comment;
                 } else if (loaded == '/'){  //blokovy koment alebo deleno
                     state = s_block_coment_0;
                 } else if (isdigit(loaded)){    // zaciatok INT
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                     state = s_INT;
                 } else if (loaded == '!'){  // mozny retazec
                     state = s_str0;
@@ -293,7 +292,7 @@ t_token *load_token(){
                 } else if (loaded == EOF){
                     return create_token(EMPTY, data,&line);
                 }  else {    //narazil na necakany znak
-                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff, (char)loaded);
                     append_buff(scanner_buff,0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
@@ -341,7 +340,7 @@ t_token *load_token(){
                 break;
             case s_ID:  // ostava pokial nenajde iny znak ako 0..9, a..z, A..Z, _ ak ano vrati token s menom
                 if (isalnum(loaded)||(loaded == '_')){
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                 } else {
 //                    if (!isOperatorOrSpace(loaded)){
 //                        append_buff(scanner_buff,loaded);
@@ -372,13 +371,13 @@ t_token *load_token(){
                 break;
             case s_INT: // bud je int alebo double nacitava pokial je 0..9 ak je . tak prechadza na desatinne ak e na exponent
                 if (isdigit(loaded)){
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                 } else if (loaded == '.'){
                     state = s_double_0;
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                 } else if ((loaded == 'e') || (loaded == 'E')){
                     state = s_double_1;
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                 } else {
                     //vygeneruj token
                     old = loaded;
@@ -394,10 +393,10 @@ t_token *load_token(){
                 break;
             case s_double_0:    // desatinna cast realneho cisla
                 if (isdigit(loaded)){
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                 } else  if ((loaded == 'e')||(loaded == 'E')){
                     state = s_double_1;
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                 } else {
                     old = loaded;
 //                    if (!isValueOrSpace(old)){
@@ -411,23 +410,23 @@ t_token *load_token(){
                 }
                 break;
             case s_double_1:    // exponent prvy znak
-                append_buff(scanner_buff,loaded);
+                append_buff(scanner_buff,(char)loaded);
                 if ((loaded == '+')||(loaded == '-')){
                     state = s_double_2;
                 } else if ( isdigit(loaded)){
                     state = s_double_3;
                 } else {
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                     append_buff(scanner_buff, 0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
                 break;
             case s_double_2: // exponent 2. znak
                 if (isdigit(loaded)){
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                     state = s_double_3;
                 } else {
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
 
                     append_buff(scanner_buff, 0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
@@ -435,7 +434,7 @@ t_token *load_token(){
                 break;
             case s_double_3:// ostavajuce cisla exponentu
                 if (isdigit(loaded)){
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                 } else {
 //                    if (!isValueOrSpace(old)){
 //                        append_buff(scanner_buff,old);
@@ -454,7 +453,7 @@ t_token *load_token(){
                     state = s_strL;
                 } else {
                     append_buff(scanner_buff,'!');
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                     append_buff(scanner_buff, 0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
@@ -470,9 +469,9 @@ t_token *load_token(){
                 } else if (loaded == '\\'){
                     state = s_str_spec;
                 } else if (loaded > 31 && isascii(loaded)){
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                 } else {
-                    append_buff(scanner_buff,loaded);
+                    append_buff(scanner_buff,(char)loaded);
                     append_buff(scanner_buff,0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
@@ -493,7 +492,7 @@ t_token *load_token(){
                 } else if (loaded == '\\'){
                     append_buff(scanner_buff,'\\');
                 } else {
-                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff, (char)loaded);
                     append_buff(scanner_buff,0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
@@ -503,7 +502,7 @@ t_token *load_token(){
                     pom += (loaded - '0') * 10;
                     state = s_str_spec_hexa1;
                 } else {
-                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff, (char)loaded);
                     append_buff(scanner_buff,0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
@@ -512,14 +511,14 @@ t_token *load_token(){
                 if (isdigit(loaded)){
                     pom += (loaded - '0') * 10;
                     if (pom >255){
-                        append_buff(scanner_buff, loaded);
+                        append_buff(scanner_buff, (char)loaded);
                         append_buff(scanner_buff,0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
-                    append_buff(scanner_buff,pom);
+                    append_buff(scanner_buff,(char)pom);
                     state = s_strL;
                 } else {
-                    append_buff(scanner_buff, loaded);
+                    append_buff(scanner_buff, (char)loaded);
                     append_buff(scanner_buff,0);
                     ERR_LEX(state, get_buff(scanner_buff), line);
                 }
