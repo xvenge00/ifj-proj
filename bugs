@@ -33,3 +33,5 @@ scope
 dim a as integer = 5
 foo(3,a)
 end scope
+=========================================
+prazdny subor vyhadzyje syn err
