@@ -87,7 +87,11 @@ typedef enum {
     s_str_spec_hexa1,
     s_LT,
     s_GT,
-    s_OP
+    s_OP,
+    s_Ampersand,
+    s_bin_load,
+    s_hexa_load,
+    s_octa_load,
 } tstate;
 
 

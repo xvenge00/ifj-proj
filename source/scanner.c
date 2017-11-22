@@ -9,9 +9,15 @@
 
 #define key_size 35
 
+/*
+ * zaciatok a konec fronty tokenou
+ */
 t_scanner_node *scanner_head = NULL;
 t_scanner_node *scanner_tail = NULL;
-
+/**
+ * zaradi token na konec fronty
+ * @param token
+ */
 void scanner_append(t_token *token){
     t_scanner_node *result = my_malloc(sizeof(t_scanner_node));
     result->token = token;
@@ -23,7 +29,10 @@ void scanner_append(t_token *token){
         scanner_tail = result;
     }
 }
-
+/**
+ *  zoberie prvy prvok z fronty a vrati token ak je fronta prazdna nacita token
+ * @return token
+ */
 t_token * get_token(){
     t_token *result = NULL;
     if (scanner_head == NULL){
@@ -35,7 +44,10 @@ t_token * get_token(){
     my_free(temp);
     return result;
 }
-
+/**
+ * zaradi token na zaciatok fronty
+ * @param token
+ */
 void return_token(t_token *token){
     if (token != NULL){
         t_scanner_node *result = my_malloc(sizeof(t_scanner_node));
@@ -44,7 +56,10 @@ void return_token(t_token *token){
         scanner_head = result;
     }
 }
-
+/**
+ * uvolny token
+ * @param token
+ */
 void discard_token(t_token *token){
     if (token == NULL){
     } else if (token->token_type == ID || token->token_type == STR) {
@@ -52,7 +67,9 @@ void discard_token(t_token *token){
     }
     my_free(token);
 }
-
+/**
+ * vymenovane klucove slova
+ */
 const char key_word_str[35][20] = {
         "as",       //0
         "asc",
@@ -94,10 +111,7 @@ const char key_word_str[35][20] = {
 
 
 /**
- * funkcia ktora navrhne mozne riesenie lexikalnej chyby a ukonci program
- * @param state
- * @param loaded
- * @param line
+ * chybove hlasenia
  */
 void ERR_LEX(tstate state, char *loaded, int line){
     //TODO chybove hlasenia
@@ -149,7 +163,13 @@ int is_keyword(char *ret){
 
 t_str_buff *scanner_buff = NULL;
 int beginning = 1;
-
+/**
+ * konstruktor tokenu
+ * @param typ akeho typu je token (KEYWORD, ID, ...)
+ * @param data hodnotu ktoru ma obsahovat
+ * @param line riadok z ktoreho bol nacitany
+ * @return token
+ */
 t_token *create_token(ttype typ, tdata data, unsigned *line){
     t_token *tmp = my_malloc(sizeof(t_token));
 
@@ -173,7 +193,10 @@ t_token *create_token(ttype typ, tdata data, unsigned *line){
 }
 
 static int old = 0;
-
+/**
+ * funckia ktore nacitava zo f a vytvara z neho token ktory vyhovuje ak nacita nieco co nevyhovuje vola ERR_LEX a konci
+ * @return token vytvoreny z f
+ */
 t_token *load_token(){
     tdata data;
     data.s = NULL;
@@ -245,6 +268,8 @@ t_token *load_token(){
                     return create_token(SEMICOLLON, data,&line);
                 } else if (loaded == EOF){
                     return create_token(EMPTY, data,&line);
+                } else if (loaded == '&'){
+                    state = s_Ampersand;
                 }  else {    //narazil na necakany znak
                     append_buff(scanner_buff, (char)loaded);
                     append_buff(scanner_buff,0);
@@ -465,6 +490,47 @@ t_token *load_token(){
                 } else {
                     old = loaded;
                     return   create_token(GT,data,&line);
+                }
+                break;
+            case s_Ampersand:
+                if (loaded == 'b'){
+                    state = s_bin_load;
+                } else if (loaded == 'o'){
+                    state = s_octa_load;
+                } else if (loaded == 'h'){
+                    state = s_hexa_load;
+                } else {
+                    ERR_LEX(state, "&",line);
+                }
+                break;
+            case s_bin_load:
+                if (loaded == '0' || loaded == '1'){
+                    append_buff(scanner_buff,(char)loaded);
+                } else {
+                    old = loaded;
+                    append_buff(scanner_buff,0);
+                    data.i = (int)strtol(get_buff(scanner_buff), NULL, 2);
+                    return create_token(INT, data,&line);
+                }
+                break;
+            case s_octa_load:
+                if (loaded >= '0' && loaded <= '8'){
+                    append_buff(scanner_buff,(char)loaded);
+                } else {
+                    old = loaded;
+                    append_buff(scanner_buff,0);
+                    data.i = (int)strtol(get_buff(scanner_buff), NULL, 8);
+                    return create_token(INT, data,&line);
+                }
+                break;
+            case s_hexa_load:
+                if (isdigit(loaded) || (loaded >= 'a' && loaded <= 'f') || (loaded >= 'A' && loaded <= 'F')){
+                    append_buff(scanner_buff,(char)loaded);
+                } else {
+                    old = loaded;
+                    append_buff(scanner_buff,0);
+                    data.i = (int)strtol(get_buff(scanner_buff), NULL, 16);
+                    return create_token(INT, data,&line);
                 }
                 break;
             default:
