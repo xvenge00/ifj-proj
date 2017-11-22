@@ -6,7 +6,7 @@
 
 /* univerzalna chybova funkcia */
 void error(char *str, int err_code, int line) {
-    fprintf(stderr,"%s\n", str);
+    fprintf(stderr,"line: %i %s\n", line, str);
     clear_all();
     exit(err_code);
 }
@@ -23,13 +23,13 @@ void semerror(int code, int line) {
 }
 
 void undefined_err(char *name, int line) {
-    fprintf(stderr, "Prvok \"%s\" nebol definovany na riadku %i.\n", name,line);
+    fprintf(stderr, "Line %i: Prvok \"%s\" nebol definovany.\n", line, name);
     clear_all();
     exit(ERR_SEM_DEF);
 }
 
 void redefine_error(char *name, int line) {
-    fprintf(stderr, "Prvok \"%s\" uz bol raz definovany n riadku %i.\n", name, line);
+    fprintf(stderr, "Line %i: Prvok \"%s\" uz bol raz definovany.\n", line, name);
     clear_all();
     exit(ERR_SEM_DEF);
 }

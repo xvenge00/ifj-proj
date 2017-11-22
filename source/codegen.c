@@ -169,7 +169,7 @@ char *gen_temp_var(){
 }
 
 char *op_add(int operation, Element *l_operand, Element *r_operand){
-    if (operation != E_PLUS){
+    if (operation != I_ADD){
         internall_err(__LINE__);
     }
     char *dest = gen_temp_var();
@@ -460,11 +460,9 @@ char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
     check_null(r_operand);
     char *dest = NULL;
 
-    //TODO zjednotit velkost vsetkych stringov
-
     switch (operation) {
         case E_PLUS:
-            dest = op_add(I_ADD,l_operand, r_operand);
+            dest = op_add(I_ADD, l_operand, r_operand);
             break;
         case E_MINUS:
             dest = op_sub_mul(operation,l_operand, r_operand);

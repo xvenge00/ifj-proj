@@ -8,8 +8,8 @@
 #define SUCCESS 1
 extern int line;
 
-int parse(TTable* Table);
-int function(int decDef,TTable* Table,TTable* local);
+int parse(TTable* func_table);
+int function(int decDef,TTable* func_table,TTable* local);
 //int params(TFunction *functions,TTable* local,char* name, int decDef);
 int params(TTable *local, unsigned *attr_count, int **attributes, int decDef);
 

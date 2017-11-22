@@ -1,17 +1,8 @@
-
-ked mam parameter par vo funkcii kt. volam
-je deklarovanu premennu par, tak vyhlasi chybu  (neviem ci je aktualne
-=========================================
-volanie funkcie je pokazene
-> function foo(par as integer) as integer
-> end function
-> scope
-> foo(3)
-> end scope
-len vytvori frame, nezavola funkciu
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+premenne a funkcie mozu mat rovnake meno
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 =========================================
 return vo funckii
-    -neskonci funkci ked je return
     -ked je prazdny return tak popuje bez predchadzajuceho pushu
 function foo(par as integer, par2 as integer) as integer
 dim a as double
@@ -24,4 +15,58 @@ dim a as integer = 5
 foo(3,a)
 end scope
 =========================================
+neda sa vratit paramenter
+function foo(a as integer) as integer
+return a
+end function
+=========================================
 prazdny subor vyhadzyje syn err
+=========================================
+chýba input pre string
+input ma vypisat ? ako vyzvu
+=========================================
+print netlaci ako ma
+pred cislom ma byt medzera
+
+neprejde kod:
+scope
+ 	print !"Ahoj\nSve'te\\\034";
+end scope
+
+=========================================
+input nebere string
+=========================================
+vstavana funkcia length()
+ked sa zavola tak ju pridame
+=========================================
+funckia ma vratit 151, vrati 0
+function _add_two(_ as integer) as integer
+ 	dim res as integer
+ 	res = _ + 2
+ 	return res
+end function
+
+declare function _multiply(__acv as integer, __foo__ as integer) as integer
+
+function _multiply(_ as integer, __ as integer) as integer
+	return _ * __
+end function
+
+function ____(_______ as integer) as double
+	return _______ * 0.5
+end function
+
+function __compute() as double
+ 	dim res as integer
+	res = _multiply(30, 10)
+ 	res = _add_two(res)
+ 	res = ____(res)
+ 	return res
+end function
+
+scope
+	dim a as double
+ 	a = __compute()
+ 	print a;
+end scope
+

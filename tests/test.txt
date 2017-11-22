@@ -1,6 +1,7 @@
-function foo(par as integer) as integer
+function bar(a as integer) as string
 end function
 scope
-dim a as integer
-a=foo(3+3)
+
+dim bara as integer
+bara = bar(3*6+5)
 end scope
