@@ -1,16 +1,6 @@
 
 ked mam parameter par vo funkcii kt. volam
 je deklarovanu premennu par, tak vyhlasi chybu  (neviem ci je aktualne
-========================================s
-> function foo() as integer
-> a as integer
-> a = 2
-> return a
-> end function
-> scope
-> foo()
-> end scope
--hodi semanticku chybu
 =========================================
 volanie funkcie je pokazene
 > function foo(par as integer) as integer

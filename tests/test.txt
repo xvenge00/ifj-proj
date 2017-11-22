@@ -1,8 +1,8 @@
-function foo(par as integer, par2 as integer) as integer
-dim a as double
-a = 2.3
+function foo(i as integer) as integer
+dim a as integer
+a = 2
+return a
 end function
 scope
-dim a as integer = 5
-foo(3,a)
+foo(5+5)
 end scope
