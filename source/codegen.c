@@ -1,8 +1,5 @@
 #include "codegen.h"
 #include "memwork.h"
-#include "expression.h"
-#include <stdio.h>
-#include "scanner.h"
 #include "err.h"
 #include "parser.h"
 
@@ -172,9 +169,7 @@ char *gen_temp_var(){
 }
 
 char *op_add(int operation, Element *l_operand, Element *r_operand){
-    if (operation == E_PLUS){
-        operation = I_ADD;
-    } else {
+    if (operation != E_PLUS){
         internall_err(__LINE__);
     }
     char *dest = gen_temp_var();
@@ -255,9 +250,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
 }
 
 char *op_div(int operation, Element *l_operand, Element *r_operand){
-    if (operation == E_DIV){
-        operation = I_DIV;
-    } else {
+    if (operation != E_DIV){
         internall_err(__LINE__);
 
     }
