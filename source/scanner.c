@@ -39,6 +39,9 @@ t_token * get_token(){
 }
 
 void return_token(t_token *token){
+    if (token == NULL){
+        internall_err(__LINE__);
+    }
     t_scanner_node *result = my_malloc(sizeof(t_scanner_node));
     result->token = token;
     result->next = scanner_head;
@@ -46,6 +49,9 @@ void return_token(t_token *token){
 }
 
 void discard_token(t_token *token){
+    if (token == NULL){
+        internall_err(__LINE__);
+    }
     if (token->token_type == ID || token->token_type == STR) {
         my_free(token->data.s);
     }
