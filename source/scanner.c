@@ -9,6 +9,42 @@
 
 #define key_size 35
 
+t_scanner_node *scanner_head = NULL;
+t_scanner_node *scanner_tail = NULL;
+
+void scanner_append(t_token *token){
+    t_scanner_node *result = my_malloc(sizeof(t_scanner_node));
+    result->token = token;
+    result->next = NULL;
+    if (scanner_head == NULL){
+        scanner_head = scanner_tail = result;
+            } else {
+        scanner_tail->next = result;
+        scanner_tail = result;
+    }
+}
+
+t_token * get_token(){
+    t_token *result = NULL;
+    if (scanner_head == NULL){
+        result = my_malloc(sizeof(t_token));
+        result->token_type = EMPTY;
+        return result;
+    }
+    result = scanner_head->token;
+    t_scanner_node *temp = scanner_head;
+    scanner_head = scanner_head->next;
+    my_free(temp);
+    return result;
+}
+
+void return_token(t_token *token){
+    t_scanner_node *result = my_malloc(sizeof(t_scanner_node));
+    result->token = token;
+    result->next = scanner_head;
+    scanner_head = result;
+}
+
 void discard_token(t_token *token){
     if (token->token_type == ID || token->token_type == STR) {
         my_free(token->data.s);
@@ -171,7 +207,7 @@ t_token *create_token(ttype typ, tdata data, unsigned *line){
 
 static int old = 0;
 
-t_token *get_token(){
+t_token *load_token(){
 //    t_token *result = NULL;
     tdata data;
     data.s = NULL;
@@ -524,4 +560,15 @@ t_token *get_token(){
     my_free(scanner_buff);
     fprintf(stderr,"ERROR -- lexikalna analyza skoncila zle\n");
     return NULL;
+}
+
+void load_all_token(){
+    scanner_head = NULL;
+    scanner_tail = NULL;
+    t_token *input = NULL;
+    do {
+        input = load_token();
+        scanner_append(input);
+    }while (input->token_type != EMPTY);
+
 }

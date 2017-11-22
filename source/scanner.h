@@ -135,11 +135,20 @@ typedef struct {
     unsigned line; ///riadok z koteho sa token nacital
 } t_token;
 
+typedef struct s_scanner_node {
+    t_token * token;
+    struct s_scanner_node *next;
+}t_scanner_node;
+
+
+
 /**
  * uvolni pamet ktora bola naalokovana pre token
  * @param token
  */
 void discard_token(t_token *token);
+void load_all_token();
+t_token *load_token();
 
 
 

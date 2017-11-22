@@ -52,34 +52,32 @@ TEST_F(scanner_fixture_basic_1, basic_test1){
     int i = 0;
 
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_end);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EMPTY);
-    EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EMPTY);
-    EXPECT_TRUE(tmp->data.s == NULL);
 
 
 
@@ -91,67 +89,65 @@ TEST_F(scanner_fixture_basic_2, basic_test2){
     int i = 0;
 
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_dim);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, ID);
     EXPECT_STREQ(tmp->data.s, "a");
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_as);
 
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_string);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EQ);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, STR);
     EXPECT_STREQ(tmp->data.s, "");
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_end);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EMPTY);
-    EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EMPTY);
-    EXPECT_TRUE(tmp->data.s == NULL);
 
 
 
@@ -161,129 +157,128 @@ TEST_F(scanner_fixture_basic_2, basic_test2){
 TEST_F(scanner_fixture_comment, comment_test){
     t_token *tmp = NULL;
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_string);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_dim);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, ID);
     EXPECT_STREQ(tmp->data.s, "a");
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_as);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_string);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EQ);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, STR);
     EXPECT_STREQ(tmp->data.s, "");
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EOL);
     EXPECT_TRUE(tmp->data.s == NULL);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_end);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, KEY_WORD);
     EXPECT_EQ(tmp->data.i, k_scope);
 
-    tmp = get_token();
+    tmp = load_token();
     EXPECT_EQ(tmp->token_type, EMPTY);
-    EXPECT_TRUE(tmp->data.s == NULL);
 }
 
 namespace {
@@ -304,42 +299,43 @@ namespace {
 }
 
 TEST_F(numbers_fixture, test) {
-    token = get_token();
+
+    token = load_token();
     EXPECT_EQ(token->token_type, INT);
     EXPECT_EQ(token->data.i, 1);
     EXPECT_EQ(token->line, 1);
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, EOL);
 
     //12456789012345678901234567890123456789
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, INT);
 //    EXPECT_EQ(token->data.i, vela); TODO
     EXPECT_EQ(token->line, 2);
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, EOL);
 
     //1.2
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, DOUBLE);
     EXPECT_DOUBLE_EQ(token->data.d, 1.2);
     EXPECT_EQ(token->line, 3);
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, EOL);
 
     //1.0
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, DOUBLE);
     EXPECT_DOUBLE_EQ(token->data.d, 1.0);
     EXPECT_EQ(token->line, 4);
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, EOL);
 
     //1 . 0
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, INT);
     EXPECT_EQ(token->data.i, 1);
-    //token = get_token();
+    //token = load_token();
     //TODO tu ma dat chybu
 }
 
@@ -361,8 +357,9 @@ namespace {
 }
 
 TEST_F(ID_fixture, prvy) {
+
     //a0_ == ID
-    token = get_token();
+    token = load_token();
     EXPECT_EQ(token->token_type, ID);
     EXPECT_TRUE(!strcmp(token->data.s,"a0_"));
     EXPECT_FALSE(!strcmp(token->data.s, "a"));
