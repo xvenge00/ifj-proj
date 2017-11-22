@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
     } else {                        //ked neni zadany argument, cita vstup zo stdin
         f = stdin;
     }
+    load_all_token();
     TTable* Table = Tbl_Create(8);
     parse(Table);
     generate_code();

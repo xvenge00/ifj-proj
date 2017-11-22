@@ -4,5 +4,4 @@ a = 2
 return a
 end function
 scope
-foo(5+5)
 end scope

@@ -8,13 +8,13 @@
 #define ERR_SEM_OTH 6
 #define ERR_INTER 99
 
-void error(char *str, int err_code);
-void syntax_error(int code);
-void semerror(int code);
-void undefined_err(char *name);
-void redefine_error(char *name);
-void internall_err();
+void error(char *str, int err_code, int line);
+void syntax_error(int code, int line);
+void semerror(int code, int line);
+void undefined_err(char *name, int line);
+void redefine_error(char *name, int line);
+void internall_err(int line);
 void check_null(void *ptr);
-void bad_operands_err();
+void bad_operands_err(int line);
 
 #endif //IFJ_PROJ_ERR_H

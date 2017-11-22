@@ -6,6 +6,7 @@
 #include "symtable.h"
 
 #define SUCCESS 1
+extern int line;
 
 int parse(TTable* Table);
 int function(int decDef,TTable* Table,TTable* local);
@@ -23,7 +24,6 @@ int print_params(TTable *Table,TTable *local);
 t_token* check_next_token_type(int type);
 bool check_token_int_value(t_token * input, int value);
 bool check_pointer(void* input);
-void syntax_error(int code);
 
 
 

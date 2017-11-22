@@ -76,7 +76,7 @@ int main() {
     int loaded = 0;
     t_token *tmp = NULL;
     f = fopen("../tests/test.txt","r");
-
+    load_all_token();
     do  {
         tmp = get_token();
         printf("type :%-10s |",op[tmp->token_type]);

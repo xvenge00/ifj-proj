@@ -175,7 +175,7 @@ char *op_add(int operation, Element *l_operand, Element *r_operand){
     if (operation == E_PLUS){
         operation = I_ADD;
     } else {
-        internall_err();
+        internall_err(__LINE__);
     }
     char *dest = gen_temp_var();
 
@@ -187,7 +187,7 @@ char *op_add(int operation, Element *l_operand, Element *r_operand){
 
 
     if (!is_data_type(l_typ) || !is_data_type(r_typ)) {
-        bad_operands_err();
+        bad_operands_err(line);
     }
 
     if (l_typ == r_typ) {   //netreba konverziu
@@ -208,7 +208,7 @@ char *op_add(int operation, Element *l_operand, Element *r_operand){
             create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
             create_3ac(I_ADD, l_op_str, r_op_str, dest);
         } else {    //je tam string
-            bad_operands_err();
+            bad_operands_err(line);
         }
     }
     return dest;
@@ -220,7 +220,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
     } else if (operation == E_MUL) {
         operation = I_MUL;
     } else {
-        internall_err();
+        internall_err(__LINE__);
     }
 
     char *dest = gen_temp_var();
@@ -232,7 +232,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
     int r_typ = r_operand->typ_konkretne;
 
     if (!is_num_type(l_typ) || !is_num_type(r_typ)) {
-        bad_operands_err();
+        bad_operands_err(line);
     }
 
     if (l_typ == r_typ) {   //netreba konverziu
@@ -248,7 +248,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
             create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
             create_3ac(operation, l_op_str, tmp, dest);
         } else {
-            bad_operands_err();
+            bad_operands_err(line);
         }
     }
     return dest;
@@ -258,7 +258,7 @@ char *op_div(int operation, Element *l_operand, Element *r_operand){
     if (operation == E_DIV){
         operation = I_DIV;
     } else {
-        internall_err();
+        internall_err(__LINE__);
 
     }
     char *dest = gen_temp_var();
@@ -270,7 +270,7 @@ char *op_div(int operation, Element *l_operand, Element *r_operand){
     int r_typ = r_operand->typ_konkretne;
 
     if (!is_num_type(l_typ) || !is_num_type(r_typ)) {
-        bad_operands_err();
+        bad_operands_err(line);
     }
 
     if (l_typ == r_typ) {   //netreba konverziu
@@ -295,7 +295,7 @@ char *op_div(int operation, Element *l_operand, Element *r_operand){
             create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
             create_3ac(I_DIV, l_op_str, tmp, dest);
         } else {
-            bad_operands_err();
+            bad_operands_err(line);
         }
     }
     return dest;
@@ -303,7 +303,7 @@ char *op_div(int operation, Element *l_operand, Element *r_operand){
 
 char *op_mod(int operation, Element *l_operand, Element *r_operand){
     if (operation != E_MOD){
-        internall_err();
+        internall_err(__LINE__);
 
     }
     char *tmp = gen_temp_var();
@@ -317,7 +317,7 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand){
     int r_typ = r_operand->typ_konkretne;
 
     if (!is_num_type(l_typ) || !is_num_type(r_typ)) {
-        bad_operands_err();
+        bad_operands_err(line);
     }
 
     if (l_typ == r_typ) {
@@ -368,7 +368,7 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand){
     } else if (operation == E_EQ){
         operation = I_EQ;
     } else {
-        internall_err();
+        internall_err(__LINE__);
 
     }
     char *dest = gen_temp_var();
@@ -380,7 +380,7 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand){
     int r_typ = r_operand->typ_konkretne;
 
     if (!is_data_type(l_typ) || !is_data_type(r_typ)) {
-        bad_operands_err();
+        bad_operands_err(line);
     }
 
     if (l_typ == r_typ) {
@@ -396,7 +396,7 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand){
             create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
             create_3ac(operation, l_op_str, tmp, dest);
         } else {
-            bad_operands_err();
+            bad_operands_err(line);
         }
     }
     return dest;
@@ -408,7 +408,7 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
     } else if (operation == E_GE){
         operation = I_GT;
     } else {
-        internall_err();
+        internall_err(__LINE__);
 
     }
     char *dest = gen_temp_var();
@@ -420,7 +420,7 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
     int r_typ = r_operand->typ_konkretne;
 
     if (!is_data_type(l_typ) || !is_data_type(r_typ)) {
-        bad_operands_err();
+        bad_operands_err(line);
     }
 
     if (l_typ == r_typ) {
@@ -451,7 +451,7 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
             create_3ac(I_ORS, NULL, NULL, NULL);
             create_3ac(I_POPS, NULL, NULL, dest);
         } else {
-            bad_operands_err();
+            bad_operands_err(line);
         }
     }
     return dest;
@@ -505,7 +505,7 @@ char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_NOT, dest, NULL, dest);    //E_EQ ale na koniec zneguj
             break;
         default:
-            internall_err();
+            internall_err(__LINE__);
     }
 
     return dest;

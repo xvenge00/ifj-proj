@@ -137,7 +137,7 @@ Element *check_next_element_type(int type, Stack *stack) {
     if (input->type == type) {
         return input;
     }
-    syntax_error(ERR_SYNTA);
+    syntax_error(ERR_SYNTA,line);
     return NULL;
 }
 
@@ -240,7 +240,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                     Stack_push(stack, E_E, dest, k_boolean);
                     return 11;
                 default:
-                    syntax_error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA,line);
             }
             break;
         case E_RPAR:
@@ -260,14 +260,14 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
 //                        }
 //                    }
                     if (found != NULL) {        //funkcia nemoze byt v local
-                        undefined_err(name);
+                        undefined_err(name,line);
                     }
                     found = Tbl_GetDirect(Table, name);
                     if (found == NULL) {
-                        undefined_err(name);
+                        undefined_err(name,line);
                     }
                     if (found->data->data->func->attr_count != 0) {
-                        error("Nespravny pocet parametrov", ERR_SEM_TYPE);
+                        error("Nespravny pocet parametrov", ERR_SEM_TYPE,line);
                     }
 
                     dest = call_function(name, NULL, 0);
@@ -293,7 +293,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     if (found == NULL) {
                                         found = Tbl_GetDirect(Table, input->operand);
                                         if (found == NULL) {
-                                            semerror(ERR_SEM_TYPE);
+                                            semerror(ERR_SEM_TYPE,line);
                                         }
                                     }
                                     if (found->data->data->func->attr_count == 1) {
@@ -301,10 +301,10 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                         if (!((paramReturn == tmp1->typ_konkretne) ||
                                               (paramReturn == k_integer && tmp1->typ_konkretne == k_double)
                                               || (paramReturn == k_double && tmp1->typ_konkretne == k_integer))) {
-                                            semerror(ERR_SEM_TYPE);
+                                            semerror(ERR_SEM_TYPE,line);
                                         }
                                     } else {
-                                        semerror(ERR_SEM_TYPE);
+                                        semerror(ERR_SEM_TYPE,line);
                                     }
                                     //gen vnutorneho kodu
                                     dest = call_function(input->operand, &tmp1, 1);
@@ -313,7 +313,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     Stack_push(stack, E_E, dest, input->typ_konkretne);
                                     return 13;
                                     default:
-                                        syntax_error(ERR_SYNTA);
+                                        syntax_error(ERR_SYNTA,line);
                                 }
                             }
                         case E_COMMA:
@@ -336,11 +336,11 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 if (found == NULL) {
                                     found = Tbl_GetDirect(Table, name);
                                     if (found == NULL) {
-                                        semerror(ERR_SEM_TYPE);
+                                        semerror(ERR_SEM_TYPE,line);
                                     }
                                 }
                                 if (found->data->data->func->attr_count != i) {
-                                    semerror(ERR_SEM_TYPE);
+                                    semerror(ERR_SEM_TYPE,line);
                                 }
                                 for (unsigned j = 0; j < i; ++j) {
                                     //parametre su nacitane v arr_el a su su nacitane od konca
@@ -353,7 +353,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                     } else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer) {
                                         create_3ac(I_INT2FLOAT, arr_el[j]->operand, NULL, arr_el[j]->operand);
                                     } else {
-                                        semerror(ERR_SEM_TYPE);
+                                        semerror(ERR_SEM_TYPE,line);
                                     }
                                     // overenie typu parametru rob tu ja tu potom do toho doplnim premeni urob to obdobne ako to je urobene pri e_plus ...
 
@@ -364,13 +364,13 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
                                 Stack_push(stack, E_E, dest, input->typ_konkretne);
                                 return 13;
                             } else {
-                                syntax_error(ERR_SYNTA);
+                                syntax_error(ERR_SYNTA,line);
                             }
                     }
-                    syntax_error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA,line);
 
                 default:
-                    syntax_error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA,line);
             }
 
 
@@ -385,7 +385,7 @@ int rule(Stack *stack, TTable *local, TTable *Table) {
             Stack_push(stack, E_E, dest, tmp2->typ_konkretne);
             return 15;
         default:
-            syntax_error(ERR_SYNTA);
+            syntax_error(ERR_SYNTA,line);
     }
     return 0;
 }
@@ -507,7 +507,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) 
             if (found == NULL) {
                 found = Tbl_GetDirect(Table, input->data.s);
                 if (found == NULL) {
-                    semerror(ERR_SEM_DEF);
+                    semerror(ERR_SEM_DEF,line);
                 }
             }
             if (found->data->type == ST_Function && found->data->isDefined) {
@@ -521,7 +521,7 @@ int code_type(int *dollar_source, t_token *input, TTable *table, TTable *Table) 
 
         }
             //pozreme do symtable
-            semerror(ERR_SEM_DEF);
+            semerror(ERR_SEM_DEF,line);
         case INT: //mozna budeme muset mapovat jinak kvuli semanticke
             return E_ID;
         case DOUBLE:
@@ -572,6 +572,8 @@ int expression(TTable *Table, TTable *local, int typ) {
     int b;
     int dollar_source = 0;
     t_token *my_token = get_token();
+    line = my_token->line;
+
     if (my_token->token_type == EOL && typ == -2) {
         return EOL;
     }
@@ -597,7 +599,7 @@ int expression(TTable *Table, TTable *local, int typ) {
                 if (el == NULL) {
                     el = Tbl_GetDirect(Table, my_token->data.s);
                     if (el == NULL) {
-                        undefined_err(my_token->data.s);
+                        undefined_err(my_token->data.s,line);
                     }
                 }
                 if (el->data->type == ST_Variable) {
@@ -614,12 +616,14 @@ int expression(TTable *Table, TTable *local, int typ) {
             case EQ:
                 Stack_push(&stack, b, token2operand(my_token), token_type);
                 my_token = get_token();
+                line = my_token->line;
                 b = code_type(&dollar_source, my_token, local, Table);
                 break;
             case LT:
                 Stack_expand(&stack);
                 Stack_push(&stack, b, token2operand(my_token), token_type);
                 my_token = get_token();
+                line = my_token->line;
                 b = code_type(&dollar_source, my_token, local, Table);
                 break;
             case GT:
@@ -627,11 +631,11 @@ int expression(TTable *Table, TTable *local, int typ) {
                 if (ruleNumber != 0) {
                     //printf("Rule %d\n", ruleNumber);
                 } else {
-                    syntax_error(ERR_SYNTA);
+                    syntax_error(ERR_SYNTA, line);
                 }
                 break;
             default:
-                syntax_error(ERR_SYNTA);
+                syntax_error(ERR_SYNTA, line);
 
         }
 

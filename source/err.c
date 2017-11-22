@@ -5,37 +5,37 @@
 #include "expression.h"
 
 /* univerzalna chybova funkcia */
-void error(char *str, int err_code) {
+void error(char *str, int err_code, int line) {
     fprintf(stderr,"%s\n", str);
     clear_all();
     exit(err_code);
 }
 
-void syntax_error(int code) {
-    fprintf(stderr, "Error v syntakticke analyze - spatny typ tokenu.\n");
+void syntax_error(int code, int line) {
+    fprintf(stderr, "Error v syntakticke analyze - spatny typ tokenu na riadku %i.\n",line);
     exit(code);
 }
 
-void semerror(int code) {
-    fprintf(stderr, "Error v semanticke analyze.\n");
+void semerror(int code, int line) {
+    fprintf(stderr, "Error v semanticke analyze na riadku %i.\n",line);
     clear_all();
     exit(code);
 }
 
-void undefined_err(char *name) {
-    fprintf(stderr, "Prvok \"%s\" nebol definovany.\n", name);
+void undefined_err(char *name, int line) {
+    fprintf(stderr, "Prvok \"%s\" nebol definovany na riadku %i.\n", name,line);
     clear_all();
     exit(ERR_SEM_DEF);
 }
 
-void redefine_error(char *name) {
-    fprintf(stderr, "Prvok \"%s\" uz bol raz definovany.\n", name);
+void redefine_error(char *name, int line) {
+    fprintf(stderr, "Prvok \"%s\" uz bol raz definovany n riadku %i.\n", name, line);
     clear_all();
     exit(ERR_SEM_DEF);
 }
 
-void internall_err() {
-    fprintf(stderr, "Interna chyba prekladaca.\n");
+void internall_err(int line) {
+    fprintf(stderr, "Interna chyba prekladaca riadok %i. zdrojoveho kodu\n",line);
     clear_all();
     exit(ERR_INTER);
 }
@@ -49,8 +49,8 @@ void check_null(void *ptr) {
     exit(ERR_INTER);
 }
 
-void bad_operands_err() {
-    fprintf(stderr, "Nekompatibilne operandy.\n");
+void bad_operands_err(int line) {
+    fprintf(stderr, "Nekompatibilne operandy na riadku %i.\n",line);
     clear_all();
     exit(ERR_SEM_TYPE);
 }
