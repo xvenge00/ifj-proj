@@ -461,7 +461,7 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
             return E_LPAR;
         case RPAR:
             return E_RPAR;
-        case ID: //nutno rozlisit ID funkce a ID promenne, ted neprochazi vyrazy jako ID = ID(ID)   //kontrolujem v rule !!!
+        case ID:
         {
             char *name = input->data.s;
             TElement *found = Tbl_GetDirect(local, name);
@@ -478,11 +478,11 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
                 return E_ID;
             } else {
                 undefined_err(name, line);
-                return -1; //ERR_SEMANTIC
+                return -1;
             }
 
         }
-        case INT: //mozna budeme muset mapovat jinak kvuli semanticke
+        case INT:
             return E_ID;
         case DOUBLE:
             return E_ID;
@@ -524,7 +524,7 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
  * Pro Then je navratova hodnota tedy 120
  * */
 /* typ je aky by mal byt navratovy typ TODO*/
-int expression(TTable *func_table, TTable *local, int typ) {
+int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
     Stack stack;
     Stack_init(&stack);
     Stack_push(&stack, E_DOLLAR, NULL, 0);
@@ -603,10 +603,10 @@ int expression(TTable *func_table, TTable *local, int typ) {
     } while (!(b == E_DOLLAR && Stack_top(&stack)->type == E_DOLLAR));
 
     Stack_dispose(&stack);
-    char last[BUFFSIZE];
+    char *last = my_malloc(sizeof(char) * BUFFSIZE);
     snprintf(last, BUFFSIZE, "TF@$E_E%i", get_id() - 1);
-    create_3ac(I_PUSHS, NULL, NULL, last);
+//    create_3ac(I_PUSHS, NULL, NULL, last);
 
-
+    *ret_var = last;
     return dollar_source;
 }

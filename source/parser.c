@@ -373,20 +373,26 @@ int check_params(TTable *local, TTable *func_table, TFunction *func){
  */
 int command_func_var(t_token *input, TTable *local, TTable *func_table) {
     char *name = input->data.s;
+    char *ret_var = NULL;
+    int dollar_source;
 
     t_token *loaded = get_token();
     line = loaded->line;
     check_pointer(loaded);
     if (loaded->token_type != EQ) {
-        error("funkcia sa moze volat len po priradeni.\n", ERR_SEM_OTH, line);
+        error("Neocakavany symbol.\n", ERR_SEM_OTH, line);
     }
 
     TElement *el_var = Tbl_GetDirect(local, name);
     if (el_var == NULL) {
         undefined_err(name, line);
     }
-    expression(func_table, local, el_var->data->data->var->type);  //TODO navrat a typova kontrola
-    create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
+    dollar_source = expression(func_table, local, el_var->data->data->var->type, &ret_var);  //TODO navrat a typova kontrola
+    if (ret_var == NULL || dollar_source != EOL) {
+        syntax_error(ERR_SYNTA, line);
+    }
+    create_3ac(I_MOVE, ret_var, NULL, cat_string("TF@", name));
+//    create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
 
     return 0;
 }
@@ -394,6 +400,8 @@ int command_func_var(t_token *input, TTable *local, TTable *func_table) {
 int command_keyword(t_token *input, TTable *local, TTable *func_table) {
     t_token *tmp1 = NULL;
     tdata value = input->data;
+    char *ret_var = NULL;
+    int dollar_source;
     switch (value.i) {
         case k_dim: //dim
             input = check_next_token_type(ID);
@@ -437,8 +445,15 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                             ;
                     }
                 } else if (input2->token_type == EQ) {
-                    expression(func_table, local, type);             //TODO moze tam byt aj funkcia?
-                    create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
+                    dollar_source = expression(func_table, local, type, &ret_var);
+                    if (dollar_source != EOL || ret_var == NULL) {
+                        syntax_error(ERR_SYNTA, line);
+                    }
+                    create_3ac(I_MOVE, ret_var, NULL, cat_string("TF@", name));
+//                    if (ret_var != NULL && dollar_source != EOL) {
+//                        create_3ac(I_MOVE, ret_var, NULL, cat_string("TF@", name));
+//                    }
+//                    create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
                 } else {
                     syntax_error(ERR_SYNTA,line);
                 }
@@ -492,7 +507,9 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
             print_params(func_table, local); //skonci vcetne EOL
             return commandsAndVariables(func_table, local);
         case k_if: //if
-            if (expression(func_table, local, -1) != k_then) {
+            dollar_source = expression(func_table, local, -1, &ret_var);
+            create_3ac(I_PUSHS, NULL, NULL, ret_var);
+            if (dollar_source != k_then) {
                 syntax_error(ERR_SYNTA,line);
             }
             create_3ac(I_PUSHS, NULL, NULL, "bool@false");  //vytvorenie operacii
@@ -543,9 +560,10 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                 str_push(new_b);
                 str_push(new_e);
                 create_3ac(I_LABEL, NULL, NULL, cat_string("TF@", new_b));
-                if (expression(func_table, local, -1) != EOL) {
+                if (expression(func_table, local, -1, &ret_var) != EOL) {
                     syntax_error(ERR_SYNTA,line);
                 } //tohle asi nepojede
+                create_3ac(I_PUSHS, NULL, NULL, ret_var);
                 create_3ac(I_PUSHS, NULL, NULL, "bool@false");  //vytvorenie operacii
                 create_3ac(I_JUMPIFEQS, NULL, NULL, new_e);  //vytvorenie operacii
 
@@ -568,8 +586,14 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
             if (local->isScope) {
                 syntax_error(ERR_SYNTA,line);
             } else {
-                expression(func_table, local, -2); //todo neviem zistit akeho typu ma byt navrat
-                create_3ac(I_POPS, NULL, NULL, cat_string("TF@", "%RETVAL"));
+                dollar_source = expression(func_table, local, -2, &ret_var); //todo neviem zistit akeho typu ma byt navrat
+                if (dollar_source != EOL){
+                    syntax_error(ERR_SYNTA, line);
+                }
+                if (ret_var !=NULL) {
+                    create_3ac(I_MOVE, ret_var, NULL, "TF@%RETVAL");
+                }
+//                create_3ac(I_POPS, NULL, NULL, cat_string("TF@", "%RETVAL"));
                 create_3ac(I_RETURN, NULL, NULL, NULL);
                 return commandsAndVariables(func_table, local);
             }
@@ -612,7 +636,9 @@ int commandsAndVariables(TTable *Table, TTable *local) {
 }
 
 int print_params(TTable *Table, TTable *local) {
-    int result = expression(Table, local, -2);
+    char *ret_var = NULL;
+    int result = expression(Table, local, -2, &ret_var);
+    create_3ac(I_PUSHS, NULL, NULL, ret_var);
     char ret[BUFFSIZE];
     static int print_par = 0;
     snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
@@ -621,7 +647,8 @@ int print_params(TTable *Table, TTable *local) {
     create_3ac(I_WRITE, NULL, NULL, ret);
 
     while (result == SEMICOLLON) {
-        result = expression(Table, local, -2);
+        result = expression(Table, local, -2, &ret_var);
+        create_3ac(I_PUSHS, NULL, NULL, ret_var);
         if (result != EOL) {
             snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
             create_3ac(I_DEFVAR, NULL, NULL, ret); //deklarovanie operandu
