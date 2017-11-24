@@ -1,3 +1,0 @@
-scope
-Dim a as integer = 1 + 2
-end scope

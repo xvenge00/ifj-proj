@@ -518,7 +518,7 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
     }
 }
 
-int should_convert(TType first, TType second) {
+int should_convert(int first, int second) {
     if (first == second && is_data_type(first) && is_data_type(second)) {
         return 0;   //nekonvertuj
     }
@@ -529,9 +529,9 @@ int should_convert(TType first, TType second) {
     return -1;      //nekompatibilne
 }
 
-bool check_return_type(TType expected, Element *el) {
-    TType actual_type = el->typ_konkretne;
-    if (expected == E_void) {
+bool check_return_type(int expected, Element *el) {
+    int actual_type = el->typ_konkretne;
+    if (expected == E_void || expected < 0 ) {
         return true;
     }
 
@@ -539,7 +539,7 @@ bool check_return_type(TType expected, Element *el) {
         case 0:
             return true;
         case 1:
-            //convert druhy //TODO
+            //convert druhy //TODO genercia konverzie
             return true;
         default:
             incompatible_types_err(line);
@@ -553,8 +553,7 @@ bool check_return_type(TType expected, Element *el) {
  * navrat musi hlidat volajici funkce v parseru
  * Priklady takovych tokenu - EOL, Then, Semicolon
  * Pro Then je navratova hodnota tedy 120
- * */
-/* typ je aky by mal byt navratovy typ TODO*/
+ * TODO ked je -1 tak moze byt max 1 krat < > = != */
 int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
     Stack stack;
     Stack_init(&stack);
@@ -633,19 +632,17 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
 
     } while (!(b == E_DOLLAR && Stack_top(&stack)->type == E_DOLLAR));
 
-    //type check todo zisti co robi -2
-//    Element *last_el = Stack_pop(&stack);
-//    if (last_el != NULL){               //malo by to platit vzdy
-//        check_return_type(typ, last_el);
-//    } else {
-//        internall_err(__LINE__);
-//    }
+    Element *last_el = Stack_pop(&stack);
+    if (last_el != NULL){               //asi zbytocne malo by to platit vzdy
+        check_return_type(typ, last_el);
+    } else {
+        internall_err(__LINE__);
+    }
 
 
     Stack_dispose(&stack);
     char *last = my_malloc(sizeof(char) * BUFFSIZE);
     snprintf(last, BUFFSIZE, "TF@$E_E%i", get_id() - 1);
-//    create_3ac(I_PUSHS, NULL, NULL, last);
 
     *ret_var = last;
     return dollar_source;
