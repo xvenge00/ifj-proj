@@ -14,7 +14,7 @@ clean:
 	rm -f $(OBJS)
 
 pack:
-	zip -j xvenge00.zip source/Makefile source/*.c source/*.h rozdeleni
+	zip -j xvenge00.zip source/Makefile source/*.c source/*.h rozdeleni rozsireni
 
 clean_all:
 	rm -f $(OBJS) $(EXECUTABLE)
