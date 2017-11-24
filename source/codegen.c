@@ -450,8 +450,6 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
     return dest;
 }
 
-
-
 /*
  * vrati dest, aby sa potom mohlo pushnut na zasobnik
  */

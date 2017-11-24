@@ -1,6 +1,7 @@
+#DEPLOY Makefile
 CC = gcc
 CFLAGS = -Wall -pedantic -Wextra -Werror
-SRCS = $(wildcard source/*.c)   #pri odovzdani vymazat source/
+SRCS = $(wildcard *.c)   #pri odovzdani vymazat source/
 OBJS = $(SRCS:.c=.o)
 PROJ = ifj
 EXECUTABLE = $(PROJ)
@@ -8,12 +9,12 @@ EXECUTABLE = $(PROJ)
 $(EXECUTABLE): $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-.PHONY: clean 
+.PHONY: clean
 clean:
 	rm -f $(OBJS)
-	
+
 pack:
-	zip -j xvenge00.zip makefile source/*.c source/*.h
+	zip -j xvenge00.zip source/Makefile source/*.c source/*.h rozdeleni
 
 clean_all:
 	rm -f $(OBJS) $(EXECUTABLE)

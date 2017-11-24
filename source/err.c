@@ -54,3 +54,9 @@ void bad_operands_err(int line) {
     clear_all();
     exit(ERR_SEM_TYPE);
 }
+
+void incompatible_types_err(int line) {
+    fprintf(stderr, "Line: %i: nekompatibilne typy.\n", line);
+    clear_all();
+    exit(ERR_SEM_TYPE);
+}

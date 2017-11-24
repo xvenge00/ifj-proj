@@ -16,5 +16,6 @@ void redefine_error(char *name, int line);
 void internall_err(int line);
 void check_null(void *ptr);
 void bad_operands_err(int line);
+void incompatible_types_err(int line);
 
 #endif //IFJ_PROJ_ERR_H

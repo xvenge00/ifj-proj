@@ -141,6 +141,10 @@ Element *check_next_element_type(int type, Stack *stack) {
     return NULL;
 }
 
+/*
+ * @brief Rozhoduje ci treba pridat FT@ pred premennu
+ * pozera sa ci je to hodnota alebo premenna
+ */
 bool add_FT(char *value) {
     int res1 = strncmp("int@", value, 4);
     int res3 = strncmp("float@", value, 6);
@@ -332,15 +336,15 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local) {
     }
 }
 
-int ruleID(Stack *stack, Element *tmp2){
+int ruleID(Stack *stack, Element *input){
     check_next_element_type(E_LT, stack);
     char *dest = gen_temp_var();
-    if (add_FT(tmp2->operand)) {
-        create_3ac(I_MOVE, cat_string("TF@", tmp2->operand), NULL, dest);
+    if (add_FT(input->operand)) {
+        create_3ac(I_MOVE, cat_string("TF@", input->operand), NULL, dest);
     } else {
-        create_3ac(I_MOVE, tmp2->operand, NULL, dest);
+        create_3ac(I_MOVE, input->operand, NULL, dest);
     }
-    Stack_push(stack, E_E, dest, tmp2->typ_konkretne);
+    Stack_push(stack, E_E, dest, input->typ_konkretne);
     return 15;
 }
 
@@ -353,19 +357,17 @@ int rule(Stack *stack, TTable *local, TTable *func_table) {
     Element *input = Stack_pop(stack);
     check_pointer(input);
 
-    Element *tmp2 = input;
-
     switch (input->type) {
         case E_E:
-            return ruleE_E(stack, tmp2);
+            return ruleE_E(stack, input);
         case E_RPAR:
             return ruleE_RPAR(stack, func_table, local);
         case E_ID:
-            return ruleID(stack, tmp2);
+            return ruleID(stack, input);
         default:
             syntax_error(ERR_SYNTA, line);
     }
-    return 0;
+    return -1;
 }
 
 const int precedence_table[17][17] = {
@@ -516,6 +518,35 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
     }
 }
 
+int should_convert(TType first, TType second) {
+    if (first == second && is_data_type(first) && is_data_type(second)) {
+        return 0;   //nekonvertuj
+    }
+    if ((first == E_integer && second == E_double) ||
+            (first == E_double && second == E_integer)) {
+        return 1;   //konvertuj
+    }
+    return -1;      //nekompatibilne
+}
+
+bool check_return_type(TType expected, Element *el) {
+    TType actual_type = el->typ_konkretne;
+    if (expected == E_void) {
+        return true;
+    }
+
+    switch (should_convert(expected, actual_type)) {
+        case 0:
+            return true;
+        case 1:
+            //convert druhy //TODO
+            return true;
+        default:
+            incompatible_types_err(line);
+            return false;
+    }
+}
+
 
 /* Vraci kod tokenu, ktery ukoncil vyraz.
  * Pro klicova slova vraci data.i + 100, abychom se vyhli kolizi
@@ -601,6 +632,15 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
         }
 
     } while (!(b == E_DOLLAR && Stack_top(&stack)->type == E_DOLLAR));
+
+    //type check todo zisti co robi -2
+//    Element *last_el = Stack_pop(&stack);
+//    if (last_el != NULL){               //malo by to platit vzdy
+//        check_return_type(typ, last_el);
+//    } else {
+//        internall_err(__LINE__);
+//    }
+
 
     Stack_dispose(&stack);
     char *last = my_malloc(sizeof(char) * BUFFSIZE);

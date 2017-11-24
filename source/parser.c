@@ -245,130 +245,6 @@ int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
 }
 
 /*
- * @brief funckia skontroluje typ a pocet parametrov
- * zistuje ci sedi typ parametru a ci sa zatial neprekrocil definovany pocet parametrov
- * @return vrati 1, ked je treba skonvertovat, 0 ked netreba
- * ked nesedia parametre skonci program, ked typ nie je ani string ani double ani string vrati -1
- */
-/*
-int check_param_cnttype(unsigned arg_cnt, TFunction *func, TType typ) {
-    if (arg_cnt + 1 > func->attr_count) {
-        error("Prilis vela parametrov.\n", ERR_SEM_TYPE,line);
-    }
-
-    switch (typ) {
-        case E_string:
-            if (func->attributes[arg_cnt] != E_string) {
-                error("Nevhodny typ parametru.\n", ERR_SEM_TYPE,line);
-            }
-            return 0;
-        case E_double:
-            if (func->attributes[arg_cnt] == E_double) {
-                return 0;
-            } else if (func->attributes[arg_cnt] == E_integer) {
-                return 1;
-            } else {
-                error("Nevhodny typ parametru.\n", ERR_SEM_TYPE,line);
-            }
-        case E_integer:
-            if (func->attributes[arg_cnt] == E_integer) {
-                return 0;
-            } else if (func->attributes[arg_cnt] == E_double) {
-                return 1;
-            } else {
-                error("Nevhodny typ parametru.\n", ERR_SEM_TYPE,line);
-            }
-        default:
-            return -1;
-    }
-}*/
-
-/*
- * @brief Kontrola parametrov pri volani funkcie.
- */
-/*
-int check_params(TTable *local, TTable *func_table, TFunction *func){
-    t_token *loaded = get_token();
-    line = loaded->line;
-    unsigned arg_cnt = 0;
-
-    while (loaded->token_type == ID || loaded->token_type == INT || loaded->token_type == STR ||
-           loaded->token_type == DOUBLE) {
-        //TODO!!!
-        //skontroluj pocet paramtrov
-        //arg_cnt++;
-        //posli expression na parameter
-        //skontroluj navratovy typ
-        //skonvertuj ak treba, potom pushni
-        //TYPE bude ttype zistim ho z funkcie
-        //return_token(loaded);
-        int dollar_source = expression(func_table, local, E_integer);
-
-        token_push(loaded);
-        if (loaded->token_type == ID) {
-            TElement *el_param = Tbl_GetDirect(local, loaded->data.s);
-            if (el_param == NULL) {
-                el_param = Tbl_GetDirect(func_table, loaded->data.s);
-                if (el_param == NULL) {
-                    undefined_err(loaded->data.s,line);
-                    return 0;
-                }
-            }
-
-            if (el_param->data->type == ST_Variable) {
-                int convert = check_param_cnttype(arg_cnt, func, el_param->data->data->var->type);
-                if (convert) {
-                    //todo convert
-                }
-                arg_cnt++;
-            } else if (el_param->data->type == ST_Function) {
-                //asi call function
-                //check_params
-                clear_all();
-                exit(ERR_SYNTA); //todo parameter je funkcia
-            } else {
-                clear_all();
-                exit(ERR_INTER);
-            }
-        } else if (loaded->token_type == STR) {
-            check_param_cnttype(arg_cnt, func, E_string);
-            arg_cnt++;
-        } else if (loaded->token_type == INT) {
-            int convert = check_param_cnttype(arg_cnt, func, E_integer);
-            if (convert){
-                char *ret = my_malloc(sizeof(char) * BUFFSIZE);
-                snprintf(ret, BUFFSIZE, "$E_E%i", get_id());
-                create_3ac(I_DEFVAR, NULL, NULL, ret);
-                create_3ac(I_INT2FLOAT, token2operand(loaded), NULL, ret);
-                loaded->data.s = ret;
-            }
-            arg_cnt++;
-        } else if (loaded->token_type == DOUBLE) {
-            int convert = check_param_cnttype(arg_cnt, func, E_double);
-            if (convert) {
-                char *ret = my_malloc(sizeof(char) * BUFFSIZE);
-                snprintf(ret, BUFFSIZE, "$E_E%i", get_id());
-                create_3ac(I_DEFVAR, NULL, NULL, ret);
-                create_3ac(I_FLOAT2R2EINT, token2operand(loaded), NULL, ret);
-                loaded->data.s = ret;
-            }
-            arg_cnt++;
-        }
-        loaded = get_token();
-        line = loaded->line;
-        if (loaded->token_type != COMMA) {
-            break;
-        }
-        loaded = get_token();
-        line = loaded->line;
-
-    }
-    check_token_int_value(loaded, RPAR);
-    return_token(loaded);
-    return 0;
-}*/
-
-/*
  * @brief Spracovanie volania funkcie alebo priradenia premennej.
  */
 int command_func_var(t_token *input, TTable *local, TTable *func_table) {
@@ -387,7 +263,7 @@ int command_func_var(t_token *input, TTable *local, TTable *func_table) {
     if (el_var == NULL) {
         undefined_err(name, line);
     }
-    dollar_source = expression(func_table, local, el_var->data->data->var->type, &ret_var);  //TODO navrat a typova kontrola
+    dollar_source = expression(func_table, local, el_var->data->data->var->type, &ret_var);
     if (ret_var == NULL || dollar_source != EOL) {
         syntax_error(ERR_SYNTA, line);
     }
@@ -450,10 +326,6 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                         syntax_error(ERR_SYNTA, line);
                     }
                     create_3ac(I_MOVE, ret_var, NULL, cat_string("TF@", name));
-//                    if (ret_var != NULL && dollar_source != EOL) {
-//                        create_3ac(I_MOVE, ret_var, NULL, cat_string("TF@", name));
-//                    }
-//                    create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
                 } else {
                     syntax_error(ERR_SYNTA,line);
                 }
@@ -465,7 +337,6 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                 TData *var = Var_Create(value, type);
                 TSymbol *lSymbol = Sym_Create(ST_Variable, var, name);
                 lSymbol->isDeclared = true;
-                //TODO ked sa definovala??
 
                 Tbl_Insert(local, El_Create(lSymbol));
 
