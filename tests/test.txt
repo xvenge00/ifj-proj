@@ -1,0 +1,4 @@
+scope 
+dim a as integer
+print a;
+end scope

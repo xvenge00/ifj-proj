@@ -1,29 +1,6 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-premenne a funkcie mozu mat rovnake meno
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-=========================================
-return vo funckii
-    -ked je prazdny return tak popuje bez predchadzajuceho pushu
-function foo(par as integer, par2 as integer) as integer
-dim a as double
-return 5
-a = 2.3
-return a
-end function
-scope
-dim a as integer = 5
-foo(3,a)
-end scope
-=========================================
-neda sa vratit paramenter
-function foo(a as integer) as integer
-return a
-end function
+!!!!!!!!!!!!nejdu zaporne cisla
 =========================================
 prazdny subor vyhadzyje syn err
-=========================================
-chýba input pre string
-input ma vypisat ? ako vyzvu
 =========================================
 print netlaci ako ma
 pred cislom ma byt medzera
@@ -36,7 +13,7 @@ end scope
 =========================================
 input nebere string
 =========================================
-vstavana funkcia length()
+vstavana funkcia length() a ostane vstavane
 ked sa zavola tak ju pridame
 =========================================
 funckia ma vratit 151, vrati 0
@@ -70,3 +47,7 @@ scope
  	print a;
 end scope
 ====================================
+!"\256"
+malo by vratit err 1
+====================================
+prejde print 10; 10 (neni tam posledny ;)

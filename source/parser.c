@@ -115,7 +115,7 @@ int function(int decDef, TTable *func_table, TTable *local) {
     int *attr_types = NULL;
 
     check_next_token_type(LPAR);
-    params(local, &attr_count, &attr_types, decDef);                //spracuj parametre a )
+    params(func_table, local, &attr_count, &attr_types, decDef);                //spracuj parametre a )
     check_token_int_value(check_next_token_type(KEY_WORD), k_as);
     input = check_next_token_type(KEY_WORD);
     if (token_is_data_type(input)) {
@@ -176,7 +176,8 @@ int function(int decDef, TTable *func_table, TTable *local) {
     return i;
 }
 
-int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
+//TODO pridaj func_table a pozri sa aj tam ci uz neexistuje funckia s rovn menom
+int params(TTable *func_table, TTable *local, unsigned *attr_count, int **attributes, int decDef) {
     int start = 1;
     TValue value;
     TData *var = NULL;
@@ -191,7 +192,7 @@ int params(TTable *local, unsigned *attr_count, int **attributes, int decDef) {
     while (input->token_type == ID) {
 
         char *name = input->data.s;
-        if (Tbl_GetDirect(local, name) != NULL) { //bola premenna uz definovana alebo dekralovana ako func
+        if (Tbl_GetDirect(local, name) != NULL || Tbl_GetDirect(func_table, name) != NULL) {
             redefine_error(name,line);
         }
 
@@ -256,7 +257,7 @@ int command_func_var(t_token *input, TTable *local, TTable *func_table) {
     line = loaded->line;
     check_pointer(loaded);
     if (loaded->token_type != EQ) {
-        error("Neocakavany symbol.\n", ERR_SEM_OTH, line);
+        error("Neocakavany symbol.\n", ERR_SEM_DEF, line);  //zmena z oth
     }
 
     TElement *el_var = Tbl_GetDirect(local, name);
@@ -352,7 +353,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
             if (el == NULL || el->data->type != ST_Variable) {
                 el = Tbl_GetDirect(func_table, tmp1->data.s);
                 if (el == NULL || el->data->type != ST_Variable) {
-                    semerror(ERR_SEM_TYPE,line);
+                    undefined_err(tmp1->data.s, line);
                     return -1;
                 }
             }
@@ -360,15 +361,15 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                 i = 1;
             } else if (el->data->data->var->type == k_double) {
                 i = 0;
-            } else if (el->data->data->var->type == k_integer) {
+            } else if (el->data->data->var->type == k_string) {
                 i = 2;
             } else {
                 internall_err(__LINE__);
             }
 
-            char *type[10] = {"float", "int", "str"};
+            char *type[10] = {"float", "int", "string"};
 
-
+            create_3ac(I_WRITE, "string@?\\032", NULL, NULL);
             create_3ac(I_READ, type[i], NULL, cat_string("TF@", tmp1->data.s)); //deklarovanie operandu
 
             check_next_token_type(EOL);
@@ -506,13 +507,20 @@ int commandsAndVariables(TTable *Table, TTable *local) {
     return -1;
 }
 
+//TODO prejde print a; b (za poslednym neni ;)
 int print_params(TTable *Table, TTable *local) {
     char *ret_var = NULL;
-    int result = expression(Table, local, -2, &ret_var);
-    create_3ac(I_PUSHS, NULL, NULL, ret_var);
     char ret[BUFFSIZE];
     static int print_par = 0;
-    snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
+
+    int result = expression(Table, local, -2, &ret_var);
+    if (result != SEMICOLLON){
+        syntax_error(ERR_SYNTA, line);
+    }
+
+    //TODO prerob na I_MOVE
+    create_3ac(I_PUSHS, NULL, NULL, ret_var);
+    snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);
     create_3ac(I_DEFVAR, NULL, NULL, ret);
     create_3ac(I_POPS, NULL, NULL, ret);
     create_3ac(I_WRITE, NULL, NULL, ret);
@@ -521,10 +529,10 @@ int print_params(TTable *Table, TTable *local) {
         result = expression(Table, local, -2, &ret_var);
         create_3ac(I_PUSHS, NULL, NULL, ret_var);
         if (result != EOL) {
-            snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);    //generovanie operandu pre vysledok medzisuctu
-            create_3ac(I_DEFVAR, NULL, NULL, ret); //deklarovanie operandu
-            create_3ac(I_POPS, NULL, NULL, ret); //deklarovanie operandu
-            create_3ac(I_WRITE, NULL, NULL, ret); //deklarovanie operandu
+            snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);
+            create_3ac(I_DEFVAR, NULL, NULL, ret);
+            create_3ac(I_POPS, NULL, NULL, ret);
+            create_3ac(I_WRITE, NULL, NULL, ret);
         }
     }
     if (result == EOL) {

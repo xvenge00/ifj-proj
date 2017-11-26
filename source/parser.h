@@ -11,7 +11,7 @@ extern int line;
 int parse(TTable* func_table);
 int function(int decDef,TTable* func_table,TTable* local);
 //int params(TFunction *functions,TTable* local,char* name, int decDef);
-int params(TTable *local, unsigned *attr_count, int **attributes, int decDef);
+int params(TTable *func_table, TTable *local, unsigned *attr_count, int **attributes, int decDef);
 
 
 int commandsAndVariables(TTable *Table,TTable *local);

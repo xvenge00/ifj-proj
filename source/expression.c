@@ -391,7 +391,7 @@ const int precedence_table[17][17] = {
 /* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
 };
 
-void prilep(char *ret, char c, unsigned *top, unsigned *cap) {
+void prilep(char *ret, char c, unsigned *top, unsigned *cap) {  //TODO !!!!nefunguje !!!!!!!
     if (*cap <= *top + 5) {
         *cap = *top + 20;
         ret = my_realloc(ret, sizeof(char) * (*cap));
@@ -539,7 +539,7 @@ bool check_return_type(int expected, Element *el) {
         case 0:
             return true;
         case 1:
-            //convert druhy //TODO genercia konverzie
+            //convert druhy //TODO generacia konverzie
             return true;
         default:
             incompatible_types_err(line);
