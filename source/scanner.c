@@ -275,6 +275,9 @@ t_token *load_token() {
                 } else if (loaded == '<') {// operacia porovnania moyne vysledky <> <= <
                     state = s_LT;
                 } else if (loaded == '\n') { //EOL
+
+                    while (isspace(old = fgetc(f)));    //odstranuje zbytocne medzery a parzdne riadky
+
                     return create_token(EOL, data, &line);
                 } else if (loaded == '(') {
                     return create_token(LPAR, data, &line);
