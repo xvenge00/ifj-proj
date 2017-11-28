@@ -2,13 +2,6 @@
 =========================================
 prazdny subor vyhadzyje syn err
 =========================================
-print netlaci ako ma
-pred cislom ma byt medzera
-
-neprejde kod:
-scope
- 	print !"Ahoj\nSve'te\\\034";
-end scope
 
 =========================================
 input nebere string
@@ -47,7 +40,6 @@ scope
  	print a;
 end scope
 ====================================
-!"\256"
-malo by vratit err 1
+
 ====================================
 prejde print 10; 10 (neni tam posledny ;)
