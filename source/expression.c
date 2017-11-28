@@ -397,7 +397,7 @@ void prilep(char *ret, char c, unsigned *top, unsigned *cap) {  //TODO !!!!nefun
         ret = my_realloc(ret, sizeof(char) * (*cap));
     }
 
-    if (isspace(c) || loaded == '\\') {
+    if (isspace(c)) {
         char tmp[5];
         snprintf(tmp, 5, "\\%03i", c);
         ret[(*top)++] = tmp[0];

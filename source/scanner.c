@@ -460,6 +460,7 @@ t_token *load_token() {
                     }
                     return create_token(STR, data, &line);
                 } else if (loaded == '\\') {
+                    append_buff(scanner_buff, (char)loaded);
                     state = s_str_spec;
                 } else if (loaded > 31 && isascii(loaded)) {
                     append_buff(scanner_buff, (char) loaded);
@@ -474,18 +475,28 @@ t_token *load_token() {
             case s_str_spec:    /* zistovanie o typu kodovania znaku za \ */
                 if (isdigit(loaded)) {
                     pom = (loaded - '0')*100;
+                    append_buff(scanner_buff, loaded);
                     state = s_str_spec_hexa0;
                 } else if (loaded == 'n') {
-                    append_buff(scanner_buff, '\n');
+                    append_buff(scanner_buff, '0');
+                    append_buff(scanner_buff,'1');
+                    append_buff(scanner_buff,'0');
                     state = s_strL;
                 } else if (loaded == '"') {
-                    append_buff(scanner_buff, '"');
+                    append_buff(scanner_buff, '0');
+                    append_buff(scanner_buff,'3');
+                    append_buff(scanner_buff,'4');
                     state = s_strL;
                 } else if (loaded == 't') {
-                    append_buff(scanner_buff, '\t');
+                    append_buff(scanner_buff, '0');
+                    append_buff(scanner_buff,'0');
+                    append_buff(scanner_buff,'9');
                     state = s_strL;
                 } else if (loaded == '\\') {
-                    append_buff(scanner_buff, '\\');
+                    append_buff(scanner_buff, '0');
+                    append_buff(scanner_buff,'9');
+                    append_buff(scanner_buff,'2');
+                    state = s_strL;
                 } else {
                     append_buff(scanner_buff, (char) loaded);
                     append_buff(scanner_buff, 0);
@@ -497,6 +508,7 @@ t_token *load_token() {
             case s_str_spec_hexa0:  // druhy znak cislenho kodovania
                 if (isdigit(loaded)) {
                     pom += (loaded - '0') * 10;
+                    append_buff(scanner_buff, (char)loaded);
                     state = s_str_spec_hexa1;
                 } else {
                     append_buff(scanner_buff, (char) loaded);
@@ -509,12 +521,11 @@ t_token *load_token() {
             case s_str_spec_hexa1:  // treti znak ciselneho kodovania
                 if (isdigit(loaded)) {
                     pom += (loaded - '0');
+                    append_buff(scanner_buff, (char) loaded);
                     if (pom > 255) {
-                        append_buff(scanner_buff, (char) loaded);
                         append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
-                    append_buff(scanner_buff, (char) pom);
                     state = s_strL;
                 } else {
                     append_buff(scanner_buff, (char) loaded);
