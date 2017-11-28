@@ -473,7 +473,7 @@ t_token *load_token() {
 
             case s_str_spec:    /* zistovanie o typu kodovania znaku za \ */
                 if (isdigit(loaded)) {
-                    pom = (loaded - '0') * 10;
+                    pom = (loaded - '0')*100;
                     state = s_str_spec_hexa0;
                 } else if (loaded == 'n') {
                     append_buff(scanner_buff, '\n');
@@ -508,7 +508,7 @@ t_token *load_token() {
 
             case s_str_spec_hexa1:  // treti znak ciselneho kodovania
                 if (isdigit(loaded)) {
-                    pom += (loaded - '0') * 10;
+                    pom += (loaded - '0');
                     if (pom > 255) {
                         append_buff(scanner_buff, (char) loaded);
                         append_buff(scanner_buff, 0);
