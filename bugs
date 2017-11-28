@@ -40,6 +40,7 @@ scope
  	print a;
 end scope
 ====================================
-
+treba definovat vstavane funckie a potom ich nakodit v ifjcode (mozu sa vypisovat hned na zaciatok ked sa bude vykonavat kod alebo az ked sa najde
+funkcia ktora hu vola)
 ====================================
 prejde print 10; 10 (neni tam posledny ;)
