@@ -515,18 +515,22 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
             if (input->data.i == k_length){
                 input->token_type = ID;
                 input->data.s = "length";
+                used_length = 1;
                 return E_FUNC;
             } else if (input->data.i == k_subStr){
                 input->token_type = ID;
                 input->data.s = "substr";
+                used_substr = 1;
                 return E_FUNC;
             } else if (input->data.i == k_asc){
                 input->token_type = ID;
                 input->data.s = "asc";
+                used_asc = 1;
                 return E_FUNC;
             } else if (input->data.i == k_chr){
                 input->token_type = ID;
                 input->data.s = "chr";
+                used_chr = 1;
                 return E_FUNC;
             }
             *dollar_source = input->data.i;

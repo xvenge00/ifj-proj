@@ -3,6 +3,11 @@
 
 #include "expression.h"
 
+extern int used_length;
+extern int used_substr;
+extern int used_asc;
+extern int used_chr;
+
 #define BUFFSIZE 150    //"TF@"+256 pre ID + \0
 
 enum {

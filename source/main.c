@@ -20,6 +20,53 @@ int main(int argc, char** argv) {
     }
 
     TTable* func_table = Tbl_Create(8);
+
+    /**
+     * deklaracia vstavanych f
+     */
+    int *type_att = NULL;
+    TData *func = NULL;
+    TSymbol *symb = NULL;
+    TElement *ele = NULL;
+
+    //Length(s As String) As Integer
+    type_att = my_malloc(sizeof(int));
+    *type_att = k_string;
+    func = Func_Create(k_integer,1,type_att);
+    symb = Sym_Create(ST_Function, func, "length");
+    ele = El_Create(symb);
+    Tbl_Insert(func_table, ele);
+
+    //SubStr(s As String, i As Integer, n As Integer) As String
+    type_att = my_malloc(sizeof(int)*3);
+    type_att[0] = k_string;
+    type_att[1] = k_integer;
+    type_att[2] = k_integer;
+    func = Func_Create(k_string,3,type_att);
+    symb = Sym_Create(ST_Function, func, "substr");
+    ele = El_Create(symb);
+    Tbl_Insert(func_table, ele);
+
+
+    //Asc(s As String, i As Integer) As Integer
+    type_att = my_malloc(sizeof(int)*2);
+    type_att[0] = k_string;
+    type_att[1] = k_integer;
+    func = Func_Create(k_integer,2,type_att);
+    symb = Sym_Create(ST_Function, func, "asc");
+    ele = El_Create(symb);
+    Tbl_Insert(func_table, ele);
+
+    //Chr(i As Integer) As String
+    type_att = my_malloc(sizeof(int));
+    *type_att = k_integer;
+    func = Func_Create(k_string,1,type_att);
+    symb = Sym_Create(ST_Function, func, "chr");
+    ele = El_Create(symb);
+    Tbl_Insert(func_table, ele);
+
+
+
     parse(func_table);
     generate_code();
     return 0;

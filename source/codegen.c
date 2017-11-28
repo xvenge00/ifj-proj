@@ -3,6 +3,38 @@
 #include "err.h"
 #include "parser.h"
 
+int used_length = 0;
+int used_substr = 0;
+int used_asc = 0;
+int used_chr = 0;
+
+void define_length(){
+    if (used_length){
+        //todo definovat funkciu length(s as string)as integer
+    }
+}
+
+void define_substr(){
+    if (used_substr){
+        //todo definovat f substr(s as string, a as integer, b as integer) as string
+    }
+}
+
+void define_asc(){
+    if (used_asc){
+        //todo def f asc(...
+    }
+}
+
+void define_chr(){
+    if (used_chr){
+        //todo def f chr(q as integer) as string
+    }
+}
+
+
+
+
 void point_swap(char** p1, char **p2){
     char *tmp = *p1;
     *p1 = *p2;
@@ -123,6 +155,11 @@ int generate_code() {
     j.dest = "$l_main";
     j.operation = I_JUMP;
     print_operation(&j);
+
+    define_length();
+    define_substr();
+    define_asc();
+    define_chr();
 
     t_3ac *i = head;
     while (i != NULL) {
