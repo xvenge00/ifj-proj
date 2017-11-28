@@ -105,7 +105,7 @@ const char key_word_str[35][20] = {
         "return",
         "scope",
         "string",
-        "subStr",
+        "substr",
         "then",     //20
         "while",
         "and",

@@ -511,6 +511,24 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
             *dollar_source = SEMICOLLON;
             return E_DOLLAR;
         case KEY_WORD:
+            //rezervovane slova
+            if (input->data.i == k_length){
+                input->token_type = ID;
+                input->data.s = "length";
+                return E_FUNC;
+            } else if (input->data.i == k_subStr){
+                input->token_type = ID;
+                input->data.s = "substr";
+                return E_FUNC;
+            } else if (input->data.i == k_asc){
+                input->token_type = ID;
+                input->data.s = "asc";
+                return E_FUNC;
+            } else if (input->data.i == k_chr){
+                input->token_type = ID;
+                input->data.s = "chr";
+                return E_FUNC;
+            }
             *dollar_source = input->data.i;
             return E_DOLLAR;
         default:
