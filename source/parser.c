@@ -156,7 +156,9 @@ int function(int decDef, TTable *func_table, TTable *local) {
         getElement->data->isDefined = true;
         getElement->data->isDeclared = true;
         f = getElement->data->data->func;
-        if (f->attr_count != attr_count || f->return_type != ret_type) {
+        if (f->attr_count != attr_count){
+            semerror(ERR_SEM_DEF,line);
+        } else if( f->return_type != ret_type) {
             semerror(ERR_SEM_TYPE,line);
         }
         for (unsigned i = 0; i < attr_count; ++i) {
