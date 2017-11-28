@@ -463,7 +463,16 @@ t_token *load_token() {
                     append_buff(scanner_buff, (char)loaded);
                     state = s_str_spec;
                 } else if (loaded > 31 && isascii(loaded)) {
-                    append_buff(scanner_buff, (char) loaded);
+                    if (isalnum(loaded)){
+                        append_buff(scanner_buff, (char) loaded);
+                    } else {
+                        char esc_code[5];
+                        snprintf(esc_code, 4, "%03i", loaded);
+                        append_buff(scanner_buff,'\\');
+                        append_buff(scanner_buff, esc_code[0]);
+                        append_buff(scanner_buff,esc_code[1]);
+                        append_buff(scanner_buff, esc_code[2]);
+                    }
                 } else {
                     append_buff(scanner_buff, (char) loaded);
                     append_buff(scanner_buff, 0);
