@@ -391,24 +391,24 @@ const int precedence_table[17][17] = {
 /* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
 };
 
-void prilep(char *ret, char c, unsigned *top, unsigned *cap) {  //TODO !!!!nefunguje !!!!!!!
+void prilep(char **ret, char c, unsigned *top, unsigned *cap) {  //TODO !!!!nefunguje !!!!!!!
     if (*cap <= *top + 5) {
         *cap = *top + 20;
-        ret = my_realloc(ret, sizeof(char) * (*cap));
+        *ret = my_realloc(*ret, sizeof(char) * (*cap));
     }
 
     if (isspace(c)) {
         char tmp[5];
         snprintf(tmp, 5, "\\%03i", c);
-        ret[(*top)++] = tmp[0];
-        ret[(*top)++] = tmp[1];
-        ret[(*top)++] = tmp[2];
-        ret[(*top)++] = tmp[3];
+        (*ret)[(*top)++] = tmp[0];
+        (*ret)[(*top)++] = tmp[1];
+        (*ret)[(*top)++] = tmp[2];
+        (*ret)[(*top)++] = tmp[3];
 
     } else {
-        ret[(*top)++] = c;
+        (*ret)[(*top)++] = c;
     }
-    ret[(*top)] = 0;
+    (*ret)[(*top)] = 0;
 }
 
 char *token2operand(t_token *token) {
@@ -432,7 +432,7 @@ char *token2operand(t_token *token) {
             break;
         case STR:
             while (token->data.s[i] != 0) {
-                prilep(result, token->data.s[i], &j, &size);
+                prilep(&result, token->data.s[i], &j, &size);
                 i++;
             }
             char *tmp = my_strcpy(result);
