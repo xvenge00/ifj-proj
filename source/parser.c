@@ -519,20 +519,12 @@ int print_params(TTable *Table, TTable *local) {
     }
 
     //TODO prerob na I_MOVE
-    create_3ac(I_PUSHS, NULL, NULL, ret_var);
-    snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);
-    create_3ac(I_DEFVAR, NULL, NULL, ret);
-    create_3ac(I_POPS, NULL, NULL, ret);
-    create_3ac(I_WRITE, NULL, NULL, ret);
+    create_3ac(I_WRITE, NULL, NULL, ret_var);
 
     while (result == SEMICOLLON) {
         result = expression(Table, local, -2, &ret_var);
-        create_3ac(I_PUSHS, NULL, NULL, ret_var);
         if (result != EOL) {
-            snprintf(ret, BUFFSIZE, "TF@$P_E%i", print_par++);
-            create_3ac(I_DEFVAR, NULL, NULL, ret);
-            create_3ac(I_POPS, NULL, NULL, ret);
-            create_3ac(I_WRITE, NULL, NULL, ret);
+            create_3ac(I_WRITE, NULL, NULL, ret_var);
         }
     }
     if (result == EOL) {
