@@ -373,7 +373,7 @@ t_token *load_token() {
                 if (isdigit(loaded)) {
                     append_buff(scanner_buff, (char) loaded);
                 } else if (loaded == '.') {
-                    state = s_double_0;
+                    state = s_double_comma;
                     append_buff(scanner_buff, (char) loaded);
                 } else if ((loaded == 'e') || (loaded == 'E')) {
                     state = s_double_1;
@@ -387,6 +387,18 @@ t_token *load_token() {
                 }
                 break;
                 /*****************************************************************************************************/
+            case s_double_comma:    // desatinna cast realneho cisla
+                if (isdigit(loaded)) {
+                    append_buff(scanner_buff, (char) loaded);
+                    state = s_double_0;
+                } else {
+                    old = loaded;
+                    append_buff(scanner_buff, 0);
+                    ERR_LEX(state, get_buff(scanner_buff),&line);
+                }
+                break;
+                /*****************************************************************************************************/
+
 
             case s_double_0:    // desatinna cast realneho cisla
                 if (isdigit(loaded)) {
@@ -534,7 +546,7 @@ t_token *load_token() {
                 if (isdigit(loaded)) {
                     pom += (loaded - '0');
                     append_buff(scanner_buff, (char) loaded);
-                    if (pom > 255) {
+                    if (pom > 255 || pom < 32) {
                         append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }

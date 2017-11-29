@@ -1,3 +1,3 @@
-scope
- 	print !"\256";
-end scope
+ scope
+  print 𝓑;
+ end scope

@@ -76,6 +76,7 @@ typedef enum {
     s_block_coment_2,
     s_line_comment,
     s_INT,
+    s_double_comma,
     s_double_0,
     s_double_1,
     s_double_2,
