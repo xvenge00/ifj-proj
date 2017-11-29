@@ -90,7 +90,70 @@ void define_substr(){
         j.dest = "TF@n";
         print_operation(&j);
 
+        j.operation = I_MOVE;
+        j.op1 = "str@";
+        j.op2 = NULL;
+        j.dest = "TF@%RETVAL";
+        print_operation(&j);
+
         //todo definovat f substr(s as string, a as integer, b as integer) as string
+
+
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        char *label = gen_label("length");
+        char *back = gen_label("back");
+
+        j.operation = I_LABEL;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = back;
+        print_operation(&j);
+
+        j.operation = I_JUMPIFEQ;
+        j.op1 = "TF@n";
+        j.op2 = "TF@i";
+        j.dest = label;
+        print_operation(&j);
+
+        j.operation = I_GETCHAR;
+        j.op1 = "TF@s";
+        j.op2 = "TF@i";
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_ADD;
+        j.op1 = "int@1";
+        j.op2 = "TF@i";
+        j.dest = "TF@i";
+        print_operation(&j);
+
+        j.operation = I_CONCAT;
+        j.op2 = "TF@temp";
+        j.op1 = "TF@%RETVAL";
+        j.dest = "TF@%RETVAL";
+        print_operation(&j);
+
+        j.operation = I_JUMP;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = back;
+        print_operation(&j);
+
+        j.operation = I_LABEL;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = label;
+        print_operation(&j);
+
+
+    //konec def
+
+
 
 
 
@@ -137,6 +200,8 @@ void define_asc(){
         print_operation(&j);
 
         //todo def f asc(...
+        //konec def
+
 
         j.operation = I_RETURN;
         j.op1 = NULL;

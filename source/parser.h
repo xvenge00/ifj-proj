@@ -16,6 +16,7 @@ int params(TTable *func_table, TTable *local, unsigned *attr_count, int **attrib
 
 int commandsAndVariables(TTable *Table,TTable *local);
 
+char *gen_label(char *ret);
 //int expression();
 int expressionOrFunction();
 int idList();

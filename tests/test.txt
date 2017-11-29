@@ -1,3 +1,7 @@
 scope
- 	dim str0 as string = !"\001\255\\\n"
-end scope
+ 	dim retezec as string = !"ahoj ahoj ahoj"
+ 	retezec = substr(retezec, 6, 10)
+ 	dim a as integer
+ 	a = length(retezec)
+ 	print a;
+ end scope
