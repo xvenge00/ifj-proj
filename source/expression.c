@@ -587,6 +587,7 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
     line = my_token->line;
 
     if (my_token->token_type == EOL && typ == -2) {
+        *ret_var = NULL;
         return EOL;
     }
 

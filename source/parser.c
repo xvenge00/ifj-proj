@@ -525,6 +525,8 @@ int print_params(TTable *Table, TTable *local) {
         result = expression(Table, local, -2, &ret_var);
         if (result != EOL) {
             create_3ac(I_WRITE, NULL, NULL, ret_var);
+        } else if (ret_var != NULL){
+            syntax_error(ERR_SYNTA, line);
         }
     }
     if (result == EOL) {
