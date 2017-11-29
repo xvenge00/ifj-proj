@@ -78,143 +78,204 @@ void define_substr(){
         j.dest = "TF@i";
         print_operation(&j);
 
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@n";
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@n";
-        print_operation(&j);
-
-        j.operation = I_MOVE;
-        j.op1 = "str@";
-        j.op2 = NULL;
-        j.dest = "TF@%RETVAL";
-        print_operation(&j);
-
-        //todo definovat f substr(s as string, a as integer, b as integer) as string
-
-
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        char *label = gen_label("length");
-        char *back = gen_label("back");
-
-        j.operation = I_LT;
-        j.op1 = "TF@i";
-        j.op2 = "int@0";
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_JUMPIFEQ;
-        j.op1 = "TF@temp";
-        j.op2 = "boolean@TRUE";
-        j.dest = label;
-        print_operation(&j);
-
-        j.operation = I_STRLEN;
-        j.op1 = "TF@s";
-        j.op2 = NULL;
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_PUSHS;
-        j.op2 = NULL;
-        j.op1 = NULL;
-        j.dest = "TF@temp";
-        print_operation(&j);
-
         j.operation = I_SUB;
-        j.op1 = "TF@temp";
-        j.op2 = "TF@i";
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        char *change_s = gen_label("change_s");
-        j.operation = I_GT;
-        j.op2 = "TF@temp";
-        j.op1 = "TF@n";
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_JUMPIFEQ;
-        j.op1 = "TF@temp";
-        j.op2 = "boolean@TRUE";
-        j.dest = change_s;
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op2 = NULL;
-        j.op1 = NULL;
-        j.dest = "TF@n";
-        print_operation(&j);
-
-        j.operation = I_LABEL;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = change_s;
-        print_operation(&j);
-
-        //
-
-        j.operation = I_LABEL;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = back;
-        print_operation(&j);
-
-        j.operation = I_JUMPIFEQ;
-        j.op1 = "TF@n";
-        j.op2 = "int@0";
-        j.dest = label;
-        print_operation(&j);
-
-        j.operation = I_GETCHAR;
-        j.op1 = "TF@s";
-        j.op2 = "TF@i";
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_ADD;
-        j.op1 = "int@1";
-        j.op2 = "TF@i";
+        j.op1 = "TF@i";
+        j.op2 = "int@1";
         j.dest = "TF@i";
         print_operation(&j);
 
-        j.operation = I_SUB;
-        j.op1 = "TF@n";
-        j.op2 = "int@1";
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
         j.dest = "TF@n";
         print_operation(&j);
 
-        j.operation = I_CONCAT;
-        j.op2 = "TF@temp";
-        j.op1 = "TF@%RETVAL";
-        j.dest = "TF@%RETVAL";
-        print_operation(&j);
-
-        j.operation = I_JUMP;
+        j.operation = I_POPS;
         j.op1 = NULL;
         j.op2 = NULL;
-        j.dest = back;
+        j.dest = "TF@n";
         print_operation(&j);
 
-        j.operation = I_LABEL;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = label;
-        print_operation(&j);
+//        j.operation = I_MOVE;
+//        j.op1 = "str@";
+//        j.op2 = NULL;
+//        j.dest = "TF@%RETVAL";
+//        print_operation(&j);
+
+        //todo definovat f substr(s as string, a as integer, b as integer) as string
+        char *ret_o = gen_label("return0");
+        char *n_ok = gen_label("back");
+
+        printf("DEFVAR TF@tlac\n"
+                       "MOVE TF@tlac string@\n"
+                       "\n"
+                       "DEFVAR TF@temp\n"
+                       "\n"
+                       "DEFVAR TF@len\n"
+                       "STRLEN TF@len TF@s\n"
+                       "SUB TF@len TF@len TF@i\n"
+                       "\n"
+                       "LT TF@temp TF@i int@0\n"
+                       "JUMPIFEQ l_return0_0 TF@temp bool@true\n"
+                       "\n"
+                       "LT TF@temp TF@len int@1\n"
+                       "JUMPIFEQ l_return0_0 TF@temp bool@true\n"
+                       "\n"
+                       "\n"
+                       "GT TF@temp TF@n int@-1\n"
+                       "PUSHS TF@temp\n"
+                       "LT TF@temp TF@n TF@len\n"
+                       "PUSHS TF@temp\n"
+                       "EQ TF@temp TF@n TF@len\n"
+                       "PUSHS TF@temp\n"
+                       "\n"
+                       "ORS\n"
+                       "ANDS\n"
+                       "POPS TF@temp\n"
+                       "\n"
+                       "\n"
+                       "JUMPIFEQ l_back_1 TF@temp bool@true\n"
+                       "\n"
+                       "MOVE TF@n TF@len\n"
+                       "\n"
+                       "LABEL l_back_1\n"
+                       "\n"
+                       "\n"
+                       "LABEL $substr_while\n"
+                       "GT TF@temp TF@n int@0\n"
+                       "JUMPIFEQ $substr_end_while TF@temp bool@false\n"
+                       "GETCHAR TF@temp TF@s TF@i\n"
+                       "\n"
+                       "ADD TF@i TF@i int@1\n"
+                       "SUB TF@n TF@n int@1\n"
+                       "\n"
+                       "CONCAT TF@tlac  TF@tlac TF@temp\n"
+                       "JUMP $substr_while\n"
+                       "\n"
+                       "LABEL $substr_end_while\n"
+                       "LABEL l_return0_0\n"
+                       "\n"
+                       "\n"
+                       "\n"
+                       "MOVE TF@%RETVAL TF@tlac\n");
 
 
-    //konec def
+//        j.operation = I_DEFVAR;
+//        j.op1 = NULL;
+//        j.op2 = NULL;
+//        j.dest = "TF@temp";
+//        print_operation(&j);
+//
+//        char *label = gen_label("length");
+//        char *back = gen_label("back");
+//
+//        j.operation = I_LT;
+//        j.op1 = "TF@i";
+//        j.op2 = "int@0";
+//        j.dest = "TF@temp";
+//        print_operation(&j);
+//
+//        j.operation = I_JUMPIFEQ;
+//        j.op1 = "TF@temp";
+//        j.op2 = "boolean@TRUE";
+//        j.dest = label;
+//        print_operation(&j);
+//
+//        j.operation = I_STRLEN;
+//        j.op1 = "TF@s";
+//        j.op2 = NULL;
+//        j.dest = "TF@temp";
+//        print_operation(&j);
+//
+//        j.operation = I_PUSHS;
+//        j.op2 = NULL;
+//        j.op1 = NULL;
+//        j.dest = "TF@temp";
+//        print_operation(&j);
+//
+//        j.operation = I_SUB;
+//        j.op1 = "TF@temp";
+//        j.op2 = "TF@i";
+//        j.dest = "TF@temp";
+//        print_operation(&j);
+//
+//        char *change_s = gen_label("change_s");
+//        j.operation = I_GT;
+//        j.op2 = "TF@temp";
+//        j.op1 = "TF@n";
+//        j.dest = "TF@temp";
+//        print_operation(&j);
+//
+//        j.operation = I_JUMPIFEQ;
+//        j.op1 = "TF@temp";
+//        j.op2 = "boolean@TRUE";
+//        j.dest = change_s;
+//        print_operation(&j);
+//
+//        j.operation = I_POPS;
+//        j.op2 = NULL;
+//        j.op1 = NULL;
+//        j.dest = "TF@n";
+//        print_operation(&j);
+//
+//        j.operation = I_LABEL;
+//        j.op1 = NULL;
+//        j.op2 = NULL;
+//        j.dest = change_s;
+//        print_operation(&j);
+//
+//        //
+//
+//        j.operation = I_LABEL;
+//        j.op1 = NULL;
+//        j.op2 = NULL;
+//        j.dest = back;
+//        print_operation(&j);
+//
+//        j.operation = I_JUMPIFEQ;
+//        j.op1 = "TF@n";
+//        j.op2 = "int@0";
+//        j.dest = label;
+//        print_operation(&j);
+//
+//        j.operation = I_GETCHAR;
+//        j.op1 = "TF@s";
+//        j.op2 = "TF@i";
+//        j.dest = "TF@temp";
+//        print_operation(&j);
+//
+//        j.operation = I_ADD;
+//        j.op1 = "int@1";
+//        j.op2 = "TF@i";
+//        j.dest = "TF@i";
+//        print_operation(&j);
+//
+//        j.operation = I_SUB;
+//        j.op1 = "TF@n";
+//        j.op2 = "int@1";
+//        j.dest = "TF@n";
+//        print_operation(&j);
+//
+//        j.operation = I_CONCAT;
+//        j.op2 = "TF@temp";
+//        j.op1 = "TF@%RETVAL";
+//        j.dest = "TF@%RETVAL";
+//        print_operation(&j);
+//
+//        j.operation = I_JUMP;
+//        j.op1 = NULL;
+//        j.op2 = NULL;
+//        j.dest = back;
+//        print_operation(&j);
+//
+//        j.operation = I_LABEL;
+//        j.op1 = NULL;
+//        j.op2 = NULL;
+//        j.dest = label;
+//        print_operation(&j);
+//
+//
+//    //konec def
 
 
 
