@@ -206,7 +206,7 @@ char *gen_temp_var(){
 }
 
 char *op_add(int operation, Element *l_operand, Element *r_operand){
-    if (operation != I_ADD){
+    if (operation != E_PLUS){
         internall_err(__LINE__);
     }
     char *dest = gen_temp_var();
@@ -497,7 +497,7 @@ char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
 
     switch (operation) {
         case E_PLUS:
-            dest = op_add(I_ADD, l_operand, r_operand);
+            dest = op_add(operation, l_operand, r_operand);
             break;
         case E_MINUS:
             dest = op_sub_mul(operation,l_operand, r_operand);
