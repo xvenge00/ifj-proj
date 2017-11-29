@@ -108,6 +108,63 @@ void define_substr(){
         char *label = gen_label("length");
         char *back = gen_label("back");
 
+        j.operation = I_LT;
+        j.op1 = "TF@i";
+        j.op2 = "int@0";
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_JUMPIFEQ;
+        j.op1 = "TF@temp";
+        j.op2 = "boolean@TRUE";
+        j.dest = label;
+        print_operation(&j);
+
+        j.operation = I_STRLEN;
+        j.op1 = "TF@s";
+        j.op2 = NULL;
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_PUSHS;
+        j.op2 = NULL;
+        j.op1 = NULL;
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_SUB;
+        j.op1 = "TF@temp";
+        j.op2 = "TF@i";
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        char *change_s = gen_label("change_s");
+        j.operation = I_GT;
+        j.op2 = "TF@temp";
+        j.op1 = "TF@n";
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_JUMPIFEQ;
+        j.op1 = "TF@temp";
+        j.op2 = "boolean@TRUE";
+        j.dest = change_s;
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op2 = NULL;
+        j.op1 = NULL;
+        j.dest = "TF@n";
+        print_operation(&j);
+
+        j.operation = I_LABEL;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = change_s;
+        print_operation(&j);
+
+        //
+
         j.operation = I_LABEL;
         j.op1 = NULL;
         j.op2 = NULL;
@@ -116,7 +173,7 @@ void define_substr(){
 
         j.operation = I_JUMPIFEQ;
         j.op1 = "TF@n";
-        j.op2 = "TF@i";
+        j.op2 = "int@0";
         j.dest = label;
         print_operation(&j);
 
@@ -130,6 +187,12 @@ void define_substr(){
         j.op1 = "int@1";
         j.op2 = "TF@i";
         j.dest = "TF@i";
+        print_operation(&j);
+
+        j.operation = I_SUB;
+        j.op1 = "TF@n";
+        j.op2 = "int@1";
+        j.dest = "TF@n";
         print_operation(&j);
 
         j.operation = I_CONCAT;
@@ -201,6 +264,85 @@ void define_asc(){
 
         //todo def f asc(...
         //konec def
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_STRLEN;
+        j.op1 = "TF@s";
+        j.op2 = NULL;
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_SUB;
+        j.op1 = "TF@temp";
+        j.op2 = NULL;
+        j.dest = "TF@i";
+        print_operation(&j);
+
+        char *ret_0 = gen_label("change_s");
+        j.operation = I_LT;
+        j.op2 = "TF@temp";
+        j.op1 = "TF@0";
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_PUSHS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_LT;
+        j.op2 = "TF@i";
+        j.op1 = "TF@1";
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_PUSHS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_ORS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = NULL;
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_JUMPIFEQ;
+        j.op1 = "TF@temp";
+        j.op2 = "boolean@TRUE";
+        j.dest = ret_0;
+        print_operation(&j);
+
+        j.operation = I_GETCHAR;
+        j.op1 = "TF@s";
+        j.op2 = "TF@i";
+        j.dest = "TF@temp";
+        print_operation(&j);
+
+        j.operation = I_STRI2INT;
+        j.op1 = "TF@s";
+        j.op2 = "TF@i";
+        j.dest = "TF@%RETVAL";
+        print_operation(&j);
+
+
+        j.operation = I_LABEL;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = ret_0;
+        print_operation(&j);
 
 
         j.operation = I_RETURN;
