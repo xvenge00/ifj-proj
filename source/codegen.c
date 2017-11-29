@@ -653,16 +653,18 @@ char *op_add(int operation, Element *l_operand, Element *r_operand){
         char *tmp = gen_temp_var();
         point_swap(&tmp, &dest);
 
-
         if (l_typ == k_integer && r_typ == k_double) {
-            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
-            create_3ac(I_ADD, l_op_str, tmp, dest);
+
+            create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
+            create_3ac(I_ADD, tmp, r_op_str, dest);
         } else if (l_typ == k_double && r_typ == k_integer) {
             create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
             create_3ac(I_ADD, l_op_str, r_op_str, dest);
         } else {    //je tam string
             bad_operands_err(line);
         }
+        l_operand->typ_konkretne = k_double;
+
     }
     return dest;
 }
@@ -695,14 +697,16 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
         point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
-            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
-            create_3ac(operation, l_op_str, tmp, dest);
+            create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
+            create_3ac(operation, tmp, r_op_str, dest);
         } else if (l_typ == k_double && r_typ == k_integer) {
             create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
             create_3ac(operation, l_op_str, tmp, dest);
         } else {
             bad_operands_err(line);
         }
+        l_operand->typ_konkretne = k_double;
+
     }
     return dest;
 }
@@ -841,14 +845,16 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand){
         point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
-            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
-            create_3ac(operation, l_op_str, tmp, dest);
+            create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
+            create_3ac(operation, tmp, r_op_str, dest);
         } else if (l_typ == k_double && r_typ == k_integer) {
             create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
             create_3ac(operation, l_op_str, tmp, dest);
         } else {
             bad_operands_err(line);
         }
+        l_operand->typ_konkretne = k_double;
+
     }
     return dest;
 }
@@ -886,15 +892,15 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
         point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
-            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
-            create_3ac(operation, l_op_str, tmp, dest);
+            create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
+            create_3ac(operation, tmp, r_op_str, dest);
             create_3ac(I_PUSHS, NULL, NULL, dest);
-            create_3ac(I_EQ, l_op_str, tmp, dest);
+            create_3ac(I_EQ, tmp, r_op_str, dest);
             create_3ac(I_PUSHS, NULL, NULL, dest);
             create_3ac(I_ORS, NULL, NULL, NULL);
             create_3ac(I_POPS, NULL, NULL, dest);
         } else if (l_typ == k_double && r_typ == k_integer) {
-            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
+            create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
             create_3ac(operation, l_op_str, tmp, dest);
             create_3ac(I_PUSHS, NULL, NULL, dest);
             create_3ac(I_EQ, l_op_str, tmp, dest);
@@ -904,6 +910,8 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
         } else {
             bad_operands_err(line);
         }
+        l_operand->typ_konkretne = k_double;
+
     }
     return dest;
 }

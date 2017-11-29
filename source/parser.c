@@ -88,6 +88,8 @@ int parse(TTable *func_table) {
             }
             case k_scope: //scope
                 if (scope(func_table) == SUCCESS) {
+                    //todo skontrolovat ze vsetky deklarovane funkcie su aj definovate
+
                     return SUCCESS;
                 }
             default:

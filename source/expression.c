@@ -229,6 +229,8 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) 
     Element *tmp1 = NULL;
     char *dest = NULL;
 
+    TElement *found = NULL;
+
     unsigned i = 0;
     switch (input->type) {
         case E_LPAR:
@@ -236,7 +238,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) 
             char *name = input->operand;
 
             //semanticky skontrolovat ze tato funkcie ma 0 parametrou jej meno je name
-            TElement *found = Tbl_GetDirect(func_table, name);
+            found = Tbl_GetDirect(func_table, name);
             if (found == NULL) {
                 undefined_err(name, line);
                 return -1;
@@ -275,6 +277,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) 
                                       (paramReturn == k_integer && tmp1->typ_konkretne == k_double)
                                       || (paramReturn == k_double && tmp1->typ_konkretne == k_integer))) {
                                     semerror(ERR_SEM_TYPE, line);
+                                    //todo konverzia
                                 }
                             } else {
                                 semerror(ERR_SEM_TYPE, line);
