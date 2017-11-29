@@ -10,25 +10,175 @@ int used_chr = 0;
 
 void define_length(){
     if (used_length){
-        //todo definovat funkciu length(s as string)as integer
+        t_3ac j;
+
+        j.operation = I_LABEL;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "length";
+        print_operation(&j);
+
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@s";
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@s";
+        print_operation(&j);
+
+        j.operation = I_STRLEN;
+        j.op1 = "TF@s";
+        j.op2 = NULL;
+        j.dest = "TF@%RETVAL";
+        print_operation(&j);
+
+        j.operation = I_RETURN;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = NULL;
+        print_operation(&j);
     }
 }
 
 void define_substr(){
     if (used_substr){
+        t_3ac j;
+
+        j.operation = I_LABEL;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "substr";
+        print_operation(&j);
+
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@s";
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@s";
+        print_operation(&j);
+
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@i";
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@i";
+        print_operation(&j);
+
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@n";
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@n";
+        print_operation(&j);
+
         //todo definovat f substr(s as string, a as integer, b as integer) as string
+
+
+
+        j.operation = I_RETURN;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = NULL;
+        print_operation(&j);
     }
 }
 
 void define_asc(){
     if (used_asc){
+        t_3ac j;
+
+        j.operation = I_LABEL;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "substr";
+        print_operation(&j);
+
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@s";
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@s";
+        print_operation(&j);
+
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@i";
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@i";
+        print_operation(&j);
+
         //todo def f asc(...
+
+        j.operation = I_RETURN;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = NULL;
+        print_operation(&j);
     }
 }
 
 void define_chr(){
     if (used_chr){
-        //todo def f chr(q as integer) as string
+        t_3ac j;
+
+        j.operation = I_LABEL;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "chr";
+        print_operation(&j);
+
+        j.operation = I_DEFVAR;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@s";
+        print_operation(&j);
+
+        j.operation = I_POPS;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = "TF@s";
+        print_operation(&j);
+
+        j.operation = I_INT2CHAR;
+        j.op1 = "TF@s";
+        j.op2 = NULL;
+        j.dest = "TF@%RETVAL";
+        print_operation(&j);
+
+        j.operation = I_RETURN;
+        j.op1 = NULL;
+        j.op2 = NULL;
+        j.dest = NULL;
+        print_operation(&j);
     }
 }
 
@@ -111,6 +261,9 @@ void append_3ac(t_3ac *code) {
         tail = code;
     }
 }
+
+
+
 
 t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
     t_3ac *result = my_malloc(sizeof(t_3ac));

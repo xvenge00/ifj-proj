@@ -394,7 +394,7 @@ t_token *load_token() {
                 } else {
                     old = loaded;
                     append_buff(scanner_buff, 0);
-                    ERR_LEX(state, get_buff(scanner_buff),&line);
+                    ERR_LEX(state, get_buff(scanner_buff),line);
                 }
                 break;
                 /*****************************************************************************************************/
@@ -546,7 +546,7 @@ t_token *load_token() {
                 if (isdigit(loaded)) {
                     pom += (loaded - '0');
                     append_buff(scanner_buff, (char) loaded);
-                    if (pom > 255 || pom < 32) {
+                    if (pom > 255 || pom <=0) {
                         append_buff(scanner_buff, 0);
                         ERR_LEX(state, get_buff(scanner_buff), line);
                     }
