@@ -3,463 +3,6 @@
 #include "err.h"
 #include "parser.h"
 
-int used_length = 0;
-int used_substr = 0;
-int used_asc = 0;
-int used_chr = 0;
-
-void define_length(){
-    if (used_length){
-        t_3ac j;
-
-        j.operation = I_LABEL;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "length";
-        print_operation(&j);
-
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@s";
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@s";
-        print_operation(&j);
-
-        j.operation = I_STRLEN;
-        j.op1 = "TF@s";
-        j.op2 = NULL;
-        j.dest = "TF@%RETVAL";
-        print_operation(&j);
-
-        j.operation = I_RETURN;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = NULL;
-        print_operation(&j);
-    }
-}
-
-void define_substr(){
-    if (used_substr){
-        t_3ac j;
-
-        j.operation = I_LABEL;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "substr";
-        print_operation(&j);
-
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@s";
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@s";
-        print_operation(&j);
-
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@i";
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@i";
-        print_operation(&j);
-
-        j.operation = I_SUB;
-        j.op1 = "TF@i";
-        j.op2 = "int@1";
-        j.dest = "TF@i";
-        print_operation(&j);
-
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@n";
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@n";
-        print_operation(&j);
-
-//        j.operation = I_MOVE;
-//        j.op1 = "str@";
-//        j.op2 = NULL;
-//        j.dest = "TF@%RETVAL";
-//        print_operation(&j);
-
-        //todo definovat f substr(s as string, a as integer, b as integer) as string
-        char *ret_o = gen_label("return0");
-        char *n_ok = gen_label("back");
-
-        printf("DEFVAR TF@tlac\n"
-                       "MOVE TF@tlac string@\n"
-                       "\n"
-                       "DEFVAR TF@temp\n"
-                       "\n"
-                       "DEFVAR TF@len\n"
-                       "STRLEN TF@len TF@s\n"
-                       "SUB TF@len TF@len TF@i\n"
-                       "\n"
-                       "LT TF@temp TF@i int@0\n"
-                       "JUMPIFEQ l_return0_0 TF@temp bool@true\n"
-                       "\n"
-                       "LT TF@temp TF@len int@1\n"
-                       "JUMPIFEQ l_return0_0 TF@temp bool@true\n"
-                       "\n"
-                       "\n"
-                       "GT TF@temp TF@n int@-1\n"
-                       "PUSHS TF@temp\n"
-                       "LT TF@temp TF@n TF@len\n"
-                       "PUSHS TF@temp\n"
-                       "EQ TF@temp TF@n TF@len\n"
-                       "PUSHS TF@temp\n"
-                       "\n"
-                       "ORS\n"
-                       "ANDS\n"
-                       "POPS TF@temp\n"
-                       "\n"
-                       "\n"
-                       "JUMPIFEQ l_back_1 TF@temp bool@true\n"
-                       "\n"
-                       "MOVE TF@n TF@len\n"
-                       "\n"
-                       "LABEL l_back_1\n"
-                       "\n"
-                       "\n"
-                       "LABEL $substr_while\n"
-                       "GT TF@temp TF@n int@0\n"
-                       "JUMPIFEQ $substr_end_while TF@temp bool@false\n"
-                       "GETCHAR TF@temp TF@s TF@i\n"
-                       "\n"
-                       "ADD TF@i TF@i int@1\n"
-                       "SUB TF@n TF@n int@1\n"
-                       "\n"
-                       "CONCAT TF@tlac  TF@tlac TF@temp\n"
-                       "JUMP $substr_while\n"
-                       "\n"
-                       "LABEL $substr_end_while\n"
-                       "LABEL l_return0_0\n"
-                       "\n"
-                       "\n"
-                       "\n"
-                       "MOVE TF@%RETVAL TF@tlac\n");
-
-
-//        j.operation = I_DEFVAR;
-//        j.op1 = NULL;
-//        j.op2 = NULL;
-//        j.dest = "TF@temp";
-//        print_operation(&j);
-//
-//        char *label = gen_label("length");
-//        char *back = gen_label("back");
-//
-//        j.operation = I_LT;
-//        j.op1 = "TF@i";
-//        j.op2 = "int@0";
-//        j.dest = "TF@temp";
-//        print_operation(&j);
-//
-//        j.operation = I_JUMPIFEQ;
-//        j.op1 = "TF@temp";
-//        j.op2 = "boolean@TRUE";
-//        j.dest = label;
-//        print_operation(&j);
-//
-//        j.operation = I_STRLEN;
-//        j.op1 = "TF@s";
-//        j.op2 = NULL;
-//        j.dest = "TF@temp";
-//        print_operation(&j);
-//
-//        j.operation = I_PUSHS;
-//        j.op2 = NULL;
-//        j.op1 = NULL;
-//        j.dest = "TF@temp";
-//        print_operation(&j);
-//
-//        j.operation = I_SUB;
-//        j.op1 = "TF@temp";
-//        j.op2 = "TF@i";
-//        j.dest = "TF@temp";
-//        print_operation(&j);
-//
-//        char *change_s = gen_label("change_s");
-//        j.operation = I_GT;
-//        j.op2 = "TF@temp";
-//        j.op1 = "TF@n";
-//        j.dest = "TF@temp";
-//        print_operation(&j);
-//
-//        j.operation = I_JUMPIFEQ;
-//        j.op1 = "TF@temp";
-//        j.op2 = "boolean@TRUE";
-//        j.dest = change_s;
-//        print_operation(&j);
-//
-//        j.operation = I_POPS;
-//        j.op2 = NULL;
-//        j.op1 = NULL;
-//        j.dest = "TF@n";
-//        print_operation(&j);
-//
-//        j.operation = I_LABEL;
-//        j.op1 = NULL;
-//        j.op2 = NULL;
-//        j.dest = change_s;
-//        print_operation(&j);
-//
-//        //
-//
-//        j.operation = I_LABEL;
-//        j.op1 = NULL;
-//        j.op2 = NULL;
-//        j.dest = back;
-//        print_operation(&j);
-//
-//        j.operation = I_JUMPIFEQ;
-//        j.op1 = "TF@n";
-//        j.op2 = "int@0";
-//        j.dest = label;
-//        print_operation(&j);
-//
-//        j.operation = I_GETCHAR;
-//        j.op1 = "TF@s";
-//        j.op2 = "TF@i";
-//        j.dest = "TF@temp";
-//        print_operation(&j);
-//
-//        j.operation = I_ADD;
-//        j.op1 = "int@1";
-//        j.op2 = "TF@i";
-//        j.dest = "TF@i";
-//        print_operation(&j);
-//
-//        j.operation = I_SUB;
-//        j.op1 = "TF@n";
-//        j.op2 = "int@1";
-//        j.dest = "TF@n";
-//        print_operation(&j);
-//
-//        j.operation = I_CONCAT;
-//        j.op2 = "TF@temp";
-//        j.op1 = "TF@%RETVAL";
-//        j.dest = "TF@%RETVAL";
-//        print_operation(&j);
-//
-//        j.operation = I_JUMP;
-//        j.op1 = NULL;
-//        j.op2 = NULL;
-//        j.dest = back;
-//        print_operation(&j);
-//
-//        j.operation = I_LABEL;
-//        j.op1 = NULL;
-//        j.op2 = NULL;
-//        j.dest = label;
-//        print_operation(&j);
-//
-//
-//    //konec def
-
-
-
-
-
-        j.operation = I_RETURN;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = NULL;
-        print_operation(&j);
-    }
-}
-
-void define_asc(){
-    if (used_asc){
-        t_3ac j;
-
-        j.operation = I_LABEL;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "substr";
-        print_operation(&j);
-
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@s";
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@s";
-        print_operation(&j);
-
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@i";
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@i";
-        print_operation(&j);
-
-        //todo def f asc(...
-        //konec def
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_STRLEN;
-        j.op1 = "TF@s";
-        j.op2 = NULL;
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_SUB;
-        j.op1 = "TF@temp";
-        j.op2 = NULL;
-        j.dest = "TF@i";
-        print_operation(&j);
-
-        char *ret_0 = gen_label("change_s");
-        j.operation = I_LT;
-        j.op2 = "TF@temp";
-        j.op1 = "TF@0";
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_PUSHS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_LT;
-        j.op2 = "TF@i";
-        j.op1 = "TF@1";
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_PUSHS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_ORS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = NULL;
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_JUMPIFEQ;
-        j.op1 = "TF@temp";
-        j.op2 = "boolean@TRUE";
-        j.dest = ret_0;
-        print_operation(&j);
-
-        j.operation = I_GETCHAR;
-        j.op1 = "TF@s";
-        j.op2 = "TF@i";
-        j.dest = "TF@temp";
-        print_operation(&j);
-
-        j.operation = I_STRI2INT;
-        j.op1 = "TF@s";
-        j.op2 = "TF@i";
-        j.dest = "TF@%RETVAL";
-        print_operation(&j);
-
-
-        j.operation = I_LABEL;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = ret_0;
-        print_operation(&j);
-
-
-        j.operation = I_RETURN;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = NULL;
-        print_operation(&j);
-    }
-}
-
-void define_chr(){
-    if (used_chr){
-        t_3ac j;
-
-        j.operation = I_LABEL;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "chr";
-        print_operation(&j);
-
-        j.operation = I_DEFVAR;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@s";
-        print_operation(&j);
-
-        j.operation = I_POPS;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = "TF@s";
-        print_operation(&j);
-
-        j.operation = I_INT2CHAR;
-        j.op1 = "TF@s";
-        j.op2 = NULL;
-        j.dest = "TF@%RETVAL";
-        print_operation(&j);
-
-        j.operation = I_RETURN;
-        j.op1 = NULL;
-        j.op2 = NULL;
-        j.dest = NULL;
-        print_operation(&j);
-    }
-}
-
-
-
-
-void point_swap(char** p1, char **p2){
-    char *tmp = *p1;
-    *p1 = *p2;
-    *p2 = tmp;
-}
-
-
 char oper[52][15] = {
         "MOVE",
         "CREATEFRAME",
@@ -515,6 +58,128 @@ char oper[52][15] = {
         "#"
 };
 
+int used_length = 0;
+int used_substr = 0;
+int used_asc = 0;
+int used_chr = 0;
+
+//printf("DEFVAR ");
+//printf("POPS ");
+void define_length() {
+    if (used_length) {
+        printf("LABEL length\n");
+        printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
+        printf("STRLEN TF@%RETVAL TF@s\n");
+        printf("RETURN\n");
+    }
+}
+
+void define_substr() {
+    if (used_substr) {
+        t_3ac j;
+        printf("LABEL substr\n");
+        printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
+        printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
+        printf("DEFVAR %s\n POPS %s\n", "TF@n", "TF@n");
+
+        printf("SUB TF@i TF@i int@1\n");
+
+        char *ret_o = gen_label("return0");
+        char *n_ok = gen_label("back");
+
+        printf("DEFVAR TF@tlac\n");
+        printf("MOVE TF@tlac string@\n");
+        printf("DEFVAR TF@temp\n");
+        printf("DEFVAR TF@len\n");
+        printf("STRLEN TF@len TF@s\n");
+        printf("SUB TF@len TF@len TF@i\n");
+        printf("LT TF@temp TF@i int@0\n");
+        printf("JUMPIFEQ l_return0_0 TF@temp bool@true\n");
+        printf("LT TF@temp TF@len int@1\n");
+        printf("JUMPIFEQ l_return0_0 TF@temp bool@true\n");
+        printf("GT TF@temp TF@n int@-1\n");
+        printf("PUSHS TF@temp\n");
+        printf("LT TF@temp TF@n TF@len\n");
+        printf("PUSHS TF@temp\n");
+        printf("EQ TF@temp TF@n TF@len\n");
+        printf("PUSHS TF@temp\n");
+        printf("ORS\n");
+        printf("ANDS\n");
+        printf("POPS TF@temp\n");
+        printf("JUMPIFEQ l_back_1 TF@temp bool@true\n");
+        printf("MOVE TF@n TF@len\n");
+        printf("LABEL l_back_1\n");
+        printf("LABEL $substr_while\n");
+        printf("GT TF@temp TF@n int@0\n");
+        printf("JUMPIFEQ $substr_end_while TF@temp bool@false\n");
+        printf("GETCHAR TF@temp TF@s TF@i\n");
+        printf("ADD TF@i TF@i int@1\n");
+        printf("SUB TF@n TF@n int@1\n");
+        printf("CONCAT TF@tlac  TF@tlac TF@temp\n");
+        printf("JUMP $substr_while\n");
+        printf("LABEL $substr_end_while\n");
+        printf("LABEL l_return0_0\n");
+        printf("MOVE TF@%RETVAL TF@tlac\n");
+
+
+        printf("RETURN\n");
+
+    }
+}
+
+void define_asc() {
+    if (used_asc) {
+        printf("LABEL asc\n");
+        printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
+        printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
+
+
+        //todo def f asc(...
+        //konec def
+        printf("DEFVAR TF@temp\n");
+        printf("DEFVAR TF@len\n");
+
+
+        printf("STRLEN TF@len TF@s\n");
+        printf("SUB TF@len TF@len int@1");
+
+        printf("LT TF@temp TF@i int@0\n");
+        printf("PUSHS TF@temp\n");
+        printf("GT TF@temp TF@i int@len\n");
+        printf("PUSHS TF@temp\n");
+        printf("ORS\n");
+        printf("POPS TF@temp\n");
+
+
+        char *ret_0 = gen_label("change_s");
+
+
+        printf("JUMPIFEQ %s TF@temp boolean@TRUE", ret_0);
+
+        printf("STRI2INT TF@%RETVAL TF@temp TF@i");
+
+        printf("LABEL %s\n", ret_0);
+        printf("RETURN\n");
+
+    }
+}
+
+void define_chr() {
+    if (used_chr) {
+        printf("LABEL chr\n");
+        printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
+        printf("INT2CHAR TF@%RETVAL TF@i\n");
+        printf("RETURN\n");
+    }
+}
+
+
+void point_swap(char **p1, char **p2) {
+    char *tmp = *p1;
+    *p1 = *p2;
+    *p2 = tmp;
+}
+
 
 t_3ac *head = NULL;
 t_3ac *tail = NULL;
@@ -529,8 +194,6 @@ void append_3ac(t_3ac *code) {
         tail = code;
     }
 }
-
-
 
 
 t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
@@ -567,29 +230,32 @@ void print_operation(t_3ac *code) {
 
 
 int generate_code() {
-    t_3ac j;
     // na zaciatku musi byt .IFJcode17
-    j.op1 = j.op2 = j.dest = NULL;
-    j.operation = I_HEADER;
-    print_operation(&j);
-
-    j.dest = "$l_main";
-    j.operation = I_JUMP;
-    print_operation(&j);
+    printf("%s\n", oper[I_HEADER]);
+    printf("JUMP $l_main");
+    printf("# --------------------------------------------------------------\n");
+    printf("# ---------------------TU-SA-DEF-BUILT-IN-----------------------\n");
+    printf("# --------------------------------------------------------------\n");
 
     define_length();
     define_substr();
     define_asc();
     define_chr();
 
+    printf("# --------------------------------------------------------------\n");
+    printf("# ---------------------TU-SA-DEF-ZDROJ--------------------------\n");
+    printf("# --------------------------------------------------------------\n");
+
+
     t_3ac *i = head;
     while (i != NULL) {
         print_operation(i);
         i = i->next;
     }
-    j.dest = "$l_end";
-    j.operation = I_LABEL;
-    print_operation(&j);
+
+    printf("# ---------------------KONEC-ZDROJU------------------------------\n");
+
+    printf("LABEL $l_end");
     return 0;
 
 }
@@ -619,15 +285,15 @@ bool is_num_type(int typ) {
     return typ == k_integer || typ == k_double;
 }
 
-char *gen_temp_var(){
+char *gen_temp_var() {
     char *result = malloc(sizeof(char) * BUFFSIZE);
     snprintf(result, BUFFSIZE, "TF@$E_E%i", get_id());
-    create_3ac(I_DEFVAR,NULL,NULL,result);
+    create_3ac(I_DEFVAR, NULL, NULL, result);
     return result;
 }
 
-char *op_add(int operation, Element *l_operand, Element *r_operand){
-    if (operation != E_PLUS){
+char *op_add(int operation, Element *l_operand, Element *r_operand) {
+    if (operation != E_PLUS) {
         internall_err(__LINE__);
     }
     char *dest = gen_temp_var();
@@ -669,8 +335,8 @@ char *op_add(int operation, Element *l_operand, Element *r_operand){
     return dest;
 }
 
-char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
-    if (operation == E_MINUS){
+char *op_sub_mul(int operation, Element *l_operand, Element *r_operand) {
+    if (operation == E_MINUS) {
         operation = I_SUB;
     } else if (operation == E_MUL) {
         operation = I_MUL;
@@ -711,8 +377,8 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand){
     return dest;
 }
 
-char *op_div(int operation, Element *l_operand, Element *r_operand){
-    if (operation != E_DIV){
+char *op_div(int operation, Element *l_operand, Element *r_operand) {
+    if (operation != E_DIV) {
         internall_err(__LINE__);
 
     }
@@ -756,8 +422,8 @@ char *op_div(int operation, Element *l_operand, Element *r_operand){
     return dest;
 }
 
-char *op_mod(int operation, Element *l_operand, Element *r_operand){
-    if (operation != E_MOD){
+char *op_mod(int operation, Element *l_operand, Element *r_operand) {
+    if (operation != E_MOD) {
         internall_err(__LINE__);
 
     }
@@ -815,12 +481,12 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand){
     return dest;
 }
 
-char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand){
-    if (operation == E_LT){
+char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand) {
+    if (operation == E_LT) {
         operation = I_LT;
-    } else if (operation == E_GT){
+    } else if (operation == E_GT) {
         operation = I_GT;
-    } else if (operation == E_EQ){
+    } else if (operation == E_EQ) {
         operation = I_EQ;
     } else {
         internall_err(__LINE__);
@@ -859,10 +525,10 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand){
     return dest;
 }
 
-char *op_le_ge(int operation, Element *l_operand, Element *r_operand){
-    if (operation == E_LE){
+char *op_le_ge(int operation, Element *l_operand, Element *r_operand) {
+    if (operation == E_LE) {
         operation = I_LT;
-    } else if (operation == E_GE){
+    } else if (operation == E_GE) {
         operation = I_GT;
     } else {
         internall_err(__LINE__);
@@ -929,34 +595,34 @@ char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
             dest = op_add(operation, l_operand, r_operand);
             break;
         case E_MINUS:
-            dest = op_sub_mul(operation,l_operand, r_operand);
+            dest = op_sub_mul(operation, l_operand, r_operand);
             break;
         case E_MUL:
-            dest = op_sub_mul(operation,l_operand, r_operand);
+            dest = op_sub_mul(operation, l_operand, r_operand);
             break;
         case E_DIV:
-            dest = op_div(operation,l_operand, r_operand);
+            dest = op_div(operation, l_operand, r_operand);
             break;
         case E_MOD:     //!!!netestovane, len skopirovane z expression.c
-            dest = op_mod(operation,l_operand, r_operand);
+            dest = op_mod(operation, l_operand, r_operand);
             break;
         case E_LT:
             dest = op_lt_gt_eq(operation, l_operand, r_operand);
             break;
         case E_LE:
-            dest = op_le_ge(operation,l_operand,r_operand);
+            dest = op_le_ge(operation, l_operand, r_operand);
             break;
         case E_GT:
-            dest = op_lt_gt_eq(operation,l_operand, r_operand);
+            dest = op_lt_gt_eq(operation, l_operand, r_operand);
             break;
         case E_GE:
-            dest =  op_le_ge(operation,l_operand,r_operand);
+            dest = op_le_ge(operation, l_operand, r_operand);
             break;
         case E_EQ:
-            dest = op_lt_gt_eq(operation,l_operand, r_operand);
+            dest = op_lt_gt_eq(operation, l_operand, r_operand);
             break;
         case E_NEQ:
-            dest = op_lt_gt_eq(operation,l_operand, r_operand);
+            dest = op_lt_gt_eq(operation, l_operand, r_operand);
             create_3ac(I_NOT, dest, NULL, dest);    //E_EQ ale na koniec zneguj
             break;
         default:
