@@ -492,7 +492,7 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
                     return -1;
                 }
             }
-            if (found->data->type == ST_Function && found->data->isDefined) {
+            if (found->data->type == ST_Function && found->data->isDeclared) { //todo na konci parse overit ci vsetky f boli def
                 return E_FUNC;
             } else if (found->data->type == ST_Variable && found->data->isDeclared) {
                 return E_ID;

@@ -232,7 +232,7 @@ void print_operation(t_3ac *code) {
 int generate_code() {
     // na zaciatku musi byt .IFJcode17
     printf("%s\n", oper[I_HEADER]);
-    printf("JUMP $l_main");
+    printf("JUMP $l_main\n");
     printf("# --------------------------------------------------------------\n");
     printf("# ---------------------TU-SA-DEF-BUILT-IN-----------------------\n");
     printf("# --------------------------------------------------------------\n");
@@ -271,6 +271,7 @@ char *call_function(char *name, Element **params, unsigned param_count) {
     create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
     create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
     create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
+    create_3ac(I_MOVE, "int@0", NULL, "TF@%RETVAL");
     create_3ac(I_CALL, NULL, NULL, name);
     create_3ac(I_MOVE, "TF@%RETVAL", NULL, tmp);
     create_3ac(I_POPFRAME, NULL, NULL, NULL);
