@@ -288,12 +288,26 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                             }
                             if (found->data->data->func->attr_count == 1) {
                                 int paramReturn = found->data->data->func->attributes[0];
-                                if (!((paramReturn == tmp1->typ_konkretne) ||
-                                      (paramReturn == k_integer && tmp1->typ_konkretne == k_double)
-                                      || (paramReturn == k_double && tmp1->typ_konkretne == k_integer))) {
+
+                                char *result = my_strcpy(tmp1->operand);
+
+                                if (paramReturn == tmp1->typ_konkretne){
+
+                                } else if (paramReturn == k_integer && tmp1->typ_konkretne == k_double){
+                                    if (result[0]!= 'T' || result[1]!= 'F' ||result[2]!= '@' || result[3]!= '$'){
+                                        tmp1->operand = gen_temp_var();
+                                    }
+                                    create_3ac(I_FLOAT2R2EINT, result, NULL, tmp1->operand);
+                                } else if (paramReturn == k_double && tmp1->typ_konkretne == k_integer){
+                                    if (result[0]!= 'T' || result[1]!= 'F' ||result[2]!= '@' || result[3]!= '$'){
+                                        tmp1->operand = gen_temp_var();
+                                    }
+                                    create_3ac(I_INT2FLOAT, result, NULL, tmp1->operand);
+                                } else {
                                     semerror(ERR_SEM_TYPE, line);
-                                    //todo konverzia
+
                                 }
+
                             } else {
                                 semerror(ERR_SEM_TYPE, line);
                             }
