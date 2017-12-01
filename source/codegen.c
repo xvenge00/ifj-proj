@@ -271,7 +271,6 @@ char *call_function(char *name, Element **params, unsigned param_count) {
     create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
     create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
     create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
-    create_3ac(I_MOVE, "int@0", NULL, "TF@%RETVAL");
     create_3ac(I_CALL, NULL, NULL, name);
     create_3ac(I_MOVE, "TF@%RETVAL", NULL, tmp);
     create_3ac(I_POPFRAME, NULL, NULL, NULL);

@@ -192,6 +192,18 @@ int function(int decDef, TTable *func_table, TTable *local) {
     int i = 0;
     if (decDef == k_function) {
         act_type = ret_type;
+        switch (ret_type){
+            case k_integer:
+                create_3ac(I_MOVE, "int@0", NULL, "TF@%RETVAL");
+                break;
+            case k_double:
+                create_3ac(I_MOVE, "float@0", NULL, "TF@%RETVAL");
+                break;
+            case k_string:
+                create_3ac(I_MOVE, "string@", NULL, "TF@%RETVAL");
+        }
+
+
         i = commandsAndVariables(func_table, local);
         act_type = -1;
         create_3ac(I_RETURN, NULL, NULL, NULL);

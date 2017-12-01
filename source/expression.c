@@ -708,15 +708,15 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
     if (typ != -2){
         if (typ != last_type){
             char *result = my_strcpy(*ret_var);
-            if (result[0]!= 'T' || result[1]!= 'F' ||result[2]!= '@'){
-//                *ret_var = gen_temp_var();
+            if (result[0]!= 'T' || result[1]!= 'F' ||result[2]!= '@' || result[3]!= '$'){
+                *ret_var = gen_temp_var();
             }
             if (typ == k_double && last_type == k_integer){
-//                create_3ac(I_FLOAT2R2EINT, result, NULL, *ret_var);
+                create_3ac(I_INT2FLOAT, result, NULL, *ret_var);
             } else if (typ == k_integer && last_type == k_double){
-//                create_3ac(I_INT2FLOAT, result, NULL, *ret_var);
+                create_3ac(I_FLOAT2R2EINT, result, NULL, *ret_var);
             } else {
-//                semerror(ERR_SEM_TYPE, line );
+                semerror(ERR_SEM_TYPE, line );
             }
         }
     }
