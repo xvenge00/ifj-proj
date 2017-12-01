@@ -317,7 +317,7 @@ char *op_add(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_ADD, l_op_str, r_op_str, dest);
         }
     } else {               //treba konverziu
-        char *tmp = gen_temp_var();
+        char *tmp = dest;
         point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
@@ -360,7 +360,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand) {
     if (l_typ == r_typ) {   //netreba konverziu
         create_3ac(operation, l_op_str, r_op_str, dest);
     } else {                //treba konverziu
-        char *tmp = gen_temp_var();
+        char *tmp = dest;
         point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
@@ -407,7 +407,7 @@ char *op_div(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_DIV, l_op_str, r_op_str, dest);
         }
     } else {                //treba konverziu
-        char *tmp = gen_temp_var();
+        char *tmp = dest;
         point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {
@@ -508,7 +508,7 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand) {
     if (l_typ == r_typ) {
         create_3ac(I_LT, l_op_str, r_op_str, dest);
     } else {
-        char *tmp = gen_temp_var();
+        char *tmp = dest;
         point_swap(&tmp, &dest);
 
         if (l_typ == k_integer && r_typ == k_double) {

@@ -153,7 +153,7 @@ bool add_FT(char *value) {
     return res1 && res2 && res3;    //strncmp vracia 0 ked sa zhoduju
 }
 
-int ruleE_E(Stack *stack, Element *tmp2, char **ret_var) {
+int ruleE_E(Stack *stack, Element *tmp2, char **ret_var,int *last_type) {
     Element *input = Stack_pop(stack);
     Element *tmp1 = NULL;
     char *dest = NULL;
@@ -165,56 +165,69 @@ int ruleE_E(Stack *stack, Element *tmp2, char **ret_var) {
         case E_PLUS:
             dest = gen_and_convert(E_PLUS, tmp1, tmp2);
             Stack_push(stack, E_E, dest, tmp1->typ_konkretne);
+            *last_type = tmp1->typ_konkretne;
             *ret_var = dest;
             return 1;
         case E_MINUS:
             dest = gen_and_convert(E_MINUS, tmp1, tmp2);
             Stack_push(stack, E_E, dest, tmp1->typ_konkretne);
+            *last_type = tmp1->typ_konkretne;
             *ret_var = dest;
             return 2;
         case E_MUL:
             dest = gen_and_convert(E_MUL, tmp1, tmp2);
             Stack_push(stack, E_E, dest, tmp1->typ_konkretne);
-            *ret_var = dest;
+            *last_type = tmp1->typ_konkretne;
             *ret_var = dest;
             return 3;
         case E_DIV:
             dest = gen_and_convert(E_DIV, tmp1, tmp2);
             Stack_push(stack, E_E, dest, k_double);
             *ret_var = dest;
+            *last_type = k_double;
+
             return 4;
         case E_MOD:
             dest = gen_and_convert(E_MOD, tmp1, tmp2);
             Stack_push(stack, E_E, dest, k_integer);
+            *ret_var = dest;
+            *last_type = k_integer;
             return 5;
         case E_LT:
             dest = gen_and_convert(E_LT, tmp1, tmp2);
             Stack_push(stack, E_E, dest, k_boolean);
             *ret_var = dest;
+            *last_type = k_boolean;
+
             return 6;
         case E_LE:
             dest = gen_and_convert(E_LE, tmp1, tmp2);
             Stack_push(stack, E_E, dest, k_boolean);
             *ret_var = dest;
+            *last_type = k_boolean;
             return 7;
         case E_GT:
             dest = gen_and_convert(E_GT, tmp1, tmp2);
             Stack_push(stack, E_E, dest, k_boolean);
+            *last_type = k_boolean;
             *ret_var = dest;
             return 8;
         case E_GE:
             dest = gen_and_convert(E_GE, tmp1, tmp2);
             Stack_push(stack, E_E, dest, k_boolean);
+            *last_type = k_boolean;
             *ret_var = dest;
             return 9;
         case E_EQ:
             dest = gen_and_convert(E_EQ, tmp1, tmp2);
             Stack_push(stack, E_E, dest, k_boolean);
+            *last_type = k_boolean;
             *ret_var = dest;
             return 10;
         case E_NEQ:
             dest = gen_and_convert(E_NEQ, tmp1, tmp2);
             Stack_push(stack, E_E, dest, k_boolean);
+            *last_type = k_boolean;
             *ret_var = dest;
             return 11;
         default:
@@ -223,7 +236,7 @@ int ruleE_E(Stack *stack, Element *tmp2, char **ret_var) {
     return -1;
 }
 
-int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) {
+int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,int *last_type) {
     Element *input = Stack_pop(stack);
     Element **arr_el = NULL;
     Element *tmp1 = NULL;
@@ -251,6 +264,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) 
 
             check_next_element_type(E_LT, stack);
             Stack_push(stack, E_E, dest, input->typ_konkretne);
+            *last_type = input->typ_konkretne;
             *ret_var = dest;
             return 13;
             break;
@@ -264,6 +278,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) 
                     switch (input->type) {
                         case E_LT:
                             Stack_push(stack, E_E, tmp1->operand, tmp1->typ_konkretne);
+                            *last_type = tmp1->typ_konkretne;
                             return 12;
                         case E_FUNC: { //zmenit pak nejspis na E_FUNCT
                             //skontrolovat sematiku ze tato funkcia sa ma volat s jednym parametrom a to typ tmp1->typ_konktretne ci implicitne prekonvertovatelny typ
@@ -287,6 +302,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) 
 
                             check_next_element_type(E_LT, stack);
                             Stack_push(stack, E_E, dest, input->typ_konkretne);
+                            *last_type = input->typ_konkretne;
                             *ret_var = dest;
                             return 13;
                             default:
@@ -339,6 +355,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) 
                         dest = call_function(name, arr_el, i);
 
                         Stack_push(stack, E_E, dest, input->typ_konkretne);
+                        *last_type = input->typ_konkretne;
                         *ret_var = dest;
                         return 13;
                     } else {
@@ -353,7 +370,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var) 
     }
 }
 
-int ruleID(Stack *stack, Element *input, char **ret_var){
+int ruleID(Stack *stack, Element *input, char **ret_var,int *last_type){
     check_next_element_type(E_LT, stack);
     char *dest = NULL;
     if (add_FT(input->operand)) {
@@ -362,6 +379,7 @@ int ruleID(Stack *stack, Element *input, char **ret_var){
         dest= input->operand;
     }
     Stack_push(stack, E_E, dest, input->typ_konkretne);
+    *last_type = input->typ_konkretne;
     *ret_var = dest;
     return 15;
 }
@@ -371,17 +389,17 @@ int ruleID(Stack *stack, Element *input, char **ret_var){
  * priklad: pravidlo: E -> E + E
  *          zasobnik:  $E+id+<E+E
  *          vysledek na zasobniku: $E+id+E  */
-int rule(Stack *stack, TTable *local, TTable *func_table, char **ret_var) {
+int rule(Stack *stack, TTable *local, TTable *func_table, char **ret_var,int *last_type) {
     Element *input = Stack_pop(stack);
     check_pointer(input);
 
     switch (input->type) {
         case E_E:
-            return ruleE_E(stack, input, ret_var);
+            return ruleE_E(stack, input, ret_var, last_type);
         case E_RPAR:
-            return ruleE_RPAR(stack, func_table, local,ret_var);
+            return ruleE_RPAR(stack, func_table, local,ret_var, last_type);
         case E_ID:
-            return ruleID(stack, input,ret_var);
+            return ruleID(stack, input,ret_var, last_type);
         default:
             syntax_error(ERR_SYNTA, line);
     }
@@ -604,6 +622,8 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
     t_token *my_token = get_token();
     line = my_token->line;
 
+    int last_type = -2;
+
     if (my_token->token_type == EOL && typ == -2) {
         *ret_var = NULL;
         return EOL;
@@ -659,7 +679,7 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
                 b = code_type(&dollar_source, my_token, local, func_table);
                 break;
             case GT:
-                ruleNumber = rule(&stack, local, func_table, ret_var);
+                ruleNumber = rule(&stack, local, func_table, ret_var, &last_type);
                 if (ruleNumber != 0) {
                     //printf("Rule %d\n", ruleNumber);
                 } else {
@@ -682,9 +702,24 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
 
 
     Stack_dispose(&stack);
-    char *last = my_malloc(sizeof(char) * BUFFSIZE);
-    snprintf(last, BUFFSIZE, "TF@$E_E%i", get_id() - 1);
+    if (typ == -1){
+        typ = k_boolean;
+    }
+    if (typ != -2){
+        if (typ != last_type){
+            char *result = my_strcpy(*ret_var);
+            if (result[0]!= 'T' || result[1]!= 'F' ||result[2]!= '@'){
+//                *ret_var = gen_temp_var();
+            }
+            if (typ == k_double && last_type == k_integer){
+//                create_3ac(I_FLOAT2R2EINT, result, NULL, *ret_var);
+            } else if (typ == k_integer && last_type == k_double){
+//                create_3ac(I_INT2FLOAT, result, NULL, *ret_var);
+            } else {
+//                semerror(ERR_SEM_TYPE, line );
+            }
+        }
+    }
 
-    //*ret_var = last;
     return dollar_source;
 }

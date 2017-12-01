@@ -11,7 +11,7 @@
 #include "token_stack.h"
 
 int line = 0;
-
+int act_type = -1;
 char *gen_label(char *ret) {
     static int label = 0;
     char *result = my_malloc(sizeof(char) * BUFFSIZE);
@@ -56,6 +56,26 @@ bool token_is_data_type(t_token *input) {
     return is_data_type(input->data.i);
 }
 
+int all_defined(TTable *tbl){
+    if (tbl != NULL) {
+        for (unsigned int i = 0; i < tbl->size; i++) {
+            TElement *active = tbl->list_firsts[i];
+            if (active != NULL) { //je tam prvni
+
+                while (active->next != NULL) { //je jich vic
+                    active = active->next;
+                    if (active->data->isDefined != true) {
+                        semerror(ERR_SEM_DEF, line); //neni definovana funckia
+                    }
+                }
+                if (active->data->isDefined != true) {
+                    semerror(ERR_SEM_DEF, line); //neni definovana funckia
+                }
+            }
+        }
+    }
+}
+
 int parse(TTable *func_table) {
     t_token *input = get_token();
     line = input->line;
@@ -89,7 +109,7 @@ int parse(TTable *func_table) {
             case k_scope: //scope
                 if (scope(func_table) == SUCCESS) {
                     //todo skontrolovat ze vsetky deklarovane funkcie su aj definovate
-
+                    all_defined(func_table);
                     return SUCCESS;
                 }
             default:
@@ -171,7 +191,9 @@ int function(int decDef, TTable *func_table, TTable *local) {
     //nacitanie prikazov ak je toto definicia
     int i = 0;
     if (decDef == k_function) {
+        act_type = ret_type;
         i = commandsAndVariables(func_table, local);
+        act_type = -1;
         create_3ac(I_RETURN, NULL, NULL, NULL);
     }
 
@@ -460,7 +482,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
             if (local->isScope) {
                 syntax_error(ERR_SYNTA,line);
             } else {
-                dollar_source = expression(func_table, local, -2, &ret_var); //todo neviem zistit akeho typu ma byt navrat
+                dollar_source = expression(func_table, local, act_type, &ret_var); //todo neviem zistit akeho typu ma byt navrat
                 if (dollar_source != EOL){
                     syntax_error(ERR_SYNTA, line);
                 }
