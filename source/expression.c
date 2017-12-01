@@ -279,6 +279,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                         case E_LT:
                             Stack_push(stack, E_E, tmp1->operand, tmp1->typ_konkretne);
                             *last_type = tmp1->typ_konkretne;
+                            *ret_var = tmp1->operand;
                             return 12;
                         case E_FUNC: { //zmenit pak nejspis na E_FUNCT
                             //skontrolovat sematiku ze tato funkcia sa ma volat s jednym parametrom a to typ tmp1->typ_konktretne ci implicitne prekonvertovatelny typ
