@@ -48,4 +48,6 @@ int get_id();
 int expression(TTable *func_table,TTable *local, int typ, char **ret_var);
 char *cat_string(char *frame, char *variable);
 char *my_strcpy(char *src);
+bool is_imm_val(char *value);
+
 #endif //IFJ_PROJ_EXPRESSION_H

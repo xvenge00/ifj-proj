@@ -145,12 +145,12 @@ Element *check_next_element_type(int type, Stack *stack) {
  * @brief Rozhoduje ci treba pridat FT@ pred premennu
  * pozera sa ci je to hodnota alebo premenna
  */
-bool add_FT(char *value) {
+bool is_imm_val(char *value) {
     int res1 = strncmp("int@", value, 4);
     int res3 = strncmp("float@", value, 6);
     int res2 = strncmp("string@", value, 7);
 
-    return res1 && res2 && res3;    //strncmp vracia 0 ked sa zhoduju
+    return !(res1 && res2 && res3);    //strncmp vracia 0 ked sa zhoduju
 }
 
 int ruleE_E(Stack *stack, Element *tmp2, char **ret_var,int *last_type) {
@@ -236,6 +236,14 @@ int ruleE_E(Stack *stack, Element *tmp2, char **ret_var,int *last_type) {
     return -1;
 }
 
+void imm2var(Element *el){
+    char *new_var = gen_temp_var();
+
+    create_3ac(I_MOVE, el->operand, NULL, new_var);
+    el->operand = new_var;
+}
+
+
 int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,int *last_type) {
     Element *input = Stack_pop(stack);
     Element **arr_el = NULL;
@@ -303,7 +311,8 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                                     if (result[0]!= 'T' || result[1]!= 'F' ||result[2]!= '@' || result[3]!= '$'){
                                         tmp1->operand = gen_temp_var();
                                     }
-                                    create_3ac(I_INT2FLOAT, result, NULL, tmp1->operand);
+                                    //todo mozno imm2var
+                                    convert(I_INT2FLOAT, result, tmp1->operand);
                                 } else {
                                     semerror(ERR_SEM_TYPE, line);
 
@@ -359,7 +368,10 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                             } else if (paramReturn == k_integer && arr_el[j]->typ_konkretne == k_double) {
                                 create_3ac(I_FLOAT2R2EINT, arr_el[j]->operand, NULL, arr_el[j]->operand);
                             } else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer) {
-                                create_3ac(I_INT2FLOAT, arr_el[j]->operand, NULL, arr_el[j]->operand);
+                                if(is_imm_val(arr_el[j]->operand)){
+                                    imm2var(arr_el[j]);
+                                }
+                                convert(I_INT2FLOAT, arr_el[j]->operand, arr_el[j]->operand);
                             } else {
                                 semerror(ERR_SEM_TYPE, line);
                             }
@@ -388,7 +400,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
 int ruleID(Stack *stack, Element *input, char **ret_var,int *last_type){
     check_next_element_type(E_LT, stack);
     char *dest = NULL;
-    if (add_FT(input->operand)) {
+    if (!is_imm_val(input->operand)) {
         dest = cat_string("TF@", input->operand);
     } else {
         dest= input->operand;
@@ -727,7 +739,7 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
                 *ret_var = gen_temp_var();
             }
             if (typ == k_double && last_type == k_integer){
-                create_3ac(I_INT2FLOAT, result, NULL, *ret_var);
+                convert(I_INT2FLOAT, result, *ret_var);
             } else if (typ == k_integer && last_type == k_double){
                 create_3ac(I_FLOAT2R2EINT, result, NULL, *ret_var);
             } else {
