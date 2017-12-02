@@ -311,7 +311,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                                     if (result[0]!= 'T' || result[1]!= 'F' ||result[2]!= '@' || result[3]!= '$'){
                                         tmp1->operand = gen_temp_var();
                                     }
-                                    convert(I_INT2FLOAT, result, tmp1->operand);
+                                    create_3ac(I_INT2FLOAT, result, NULL, tmp1->operand);
                                 } else {
                                     semerror(ERR_SEM_TYPE, line);
 
@@ -373,7 +373,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                                 if(is_imm_val(arr_el[j]->operand)){
                                     imm2var(arr_el[j]);
                                 }
-                                convert(I_INT2FLOAT, arr_el[j]->operand, arr_el[j]->operand);
+                                create_3ac(I_INT2FLOAT, arr_el[j]->operand, NULL, arr_el[j]->operand);
                             } else {
                                 semerror(ERR_SEM_TYPE, line);
                             }
@@ -741,7 +741,7 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
                 *ret_var = gen_temp_var();
             }
             if (typ == k_double && last_type == k_integer){
-                convert(I_INT2FLOAT, result, *ret_var);
+                create_3ac(I_INT2FLOAT, result, NULL, *ret_var);
             } else if (typ == k_integer && last_type == k_double){
                 create_3ac(I_FLOAT2R2EINT, result, NULL, *ret_var);
             } else {

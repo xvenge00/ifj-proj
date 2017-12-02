@@ -85,6 +85,5 @@ char *cat_string(char *frame, char *variable);
 char *call_function(char *name, Element **params, unsigned param_count);
 char *gen_and_convert(int operation, Element *l_operand, Element *r_operand);
 bool is_data_type (int typ);
-void convert(int operation, char *symbol, char *dest);
 
 #endif //IFJ_PROJ_CODEGEN_H
