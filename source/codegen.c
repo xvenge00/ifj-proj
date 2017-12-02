@@ -422,9 +422,11 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand) {
         internall_err(__LINE__);
 
     }
-    char *tmp = gen_temp_var();
 
     char *dest = gen_temp_var();
+
+    char *tmp = dest;
+
 
     char *l_op_str = l_operand->operand;
     char *r_op_str = r_operand->operand;
