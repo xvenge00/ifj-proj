@@ -130,36 +130,31 @@ void define_substr() {
 void define_asc() {
     if (used_asc) {
         printf("LABEL asc\n");
-        printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
-        printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
+        printf("    DEFVAR %s\n    POPS %s\n", "TF@s", "TF@s");
+        printf("    DEFVAR %s\n    POPS %s\n", "TF@i", "TF@i");
 
+        printf("    DEFVAR TF@temp\n");
+        printf("    DEFVAR TF@len\n");
 
-        //todo def f asc(...
-        //konec def
-        printf("DEFVAR TF@temp\n");
-        printf("DEFVAR TF@len\n");
+        printf("    STRLEN TF@len TF@s\n");
+        printf("    SUB TF@len TF@len int@1\n");
 
-
-        printf("STRLEN TF@len TF@s\n");
-        printf("SUB TF@len TF@len int@1");
-
-        printf("LT TF@temp TF@i int@0\n");
-        printf("PUSHS TF@temp\n");
-        printf("GT TF@temp TF@i int@len\n");
-        printf("PUSHS TF@temp\n");
-        printf("ORS\n");
-        printf("POPS TF@temp\n");
-
+        printf("    LT TF@temp TF@i int@0\n");
+        printf("    PUSHS TF@temp\n");
+        printf("    GT TF@temp TF@i TF@len\n");
+        printf("    PUSHS TF@temp\n");
+        printf("    ORS\n");
+        printf("    POPS TF@temp\n");
 
         char *ret_0 = gen_label("change_s");
 
+        printf("    JUMPIFEQ %s TF@temp bool@TRUE\n", ret_0);
 
-        printf("JUMPIFEQ %s TF@temp boolean@TRUE", ret_0);
-
-        printf("STRI2INT TF@%%RETVAL TF@temp TF@i");
+        printf("    SUB TF@i TF@i int@1\n");
+        printf("    STRI2INT TF@%%RETVAL TF@s TF@i\n");
 
         printf("LABEL %s\n", ret_0);
-        printf("RETURN\n");
+        printf("    RETURN\n");
 
     }
 }
@@ -292,12 +287,12 @@ char *gen_temp_var() {
     return result;
 }
 
-void convert(int operation, char *symbol, char *dest){
-    char *conv_help = "GF@$conv_help";
-    if (is_imm_val(symbol)){
-        create_3ac(I_MOVE, symbol, NULL, conv_help);
-        symbol = conv_help;
-    }
+void convert(int operation, char *symbol, char *dest){  //TODO je to tu zbytocne, bola chyba v interprete
+//    char *conv_help = "GF@$conv_help";
+//    if (is_imm_val(symbol)){
+//        create_3ac(I_MOVE, symbol, NULL, conv_help);
+//        symbol = conv_help;
+//    }
     create_3ac(operation, symbol, NULL, dest);
 }
 

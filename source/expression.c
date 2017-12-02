@@ -311,7 +311,6 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                                     if (result[0]!= 'T' || result[1]!= 'F' ||result[2]!= '@' || result[3]!= '$'){
                                         tmp1->operand = gen_temp_var();
                                     }
-                                    //todo mozno imm2var
                                     convert(I_INT2FLOAT, result, tmp1->operand);
                                 } else {
                                     semerror(ERR_SEM_TYPE, line);
@@ -366,6 +365,9 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                             if (paramReturn == arr_el[j]->typ_konkretne) {
 
                             } else if (paramReturn == k_integer && arr_el[j]->typ_konkretne == k_double) {
+                                if (is_imm_val(arr_el[j]->operand)){
+                                    imm2var(arr_el[j]);
+                                }
                                 create_3ac(I_FLOAT2R2EINT, arr_el[j]->operand, NULL, arr_el[j]->operand);
                             } else if (paramReturn == k_double && arr_el[j]->typ_konkretne == k_integer) {
                                 if(is_imm_val(arr_el[j]->operand)){
