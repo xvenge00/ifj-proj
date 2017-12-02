@@ -69,14 +69,14 @@ void define_length() {
     if (used_length) {
         printf("LABEL length\n");
         printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
-        printf("STRLEN TF@%RETVAL TF@s\n");
+        printf("STRLEN TF@%%RETVAL TF@s\n");
         printf("RETURN\n");
     }
 }
 
 void define_substr() {
     if (used_substr) {
-        t_3ac j;
+        //  t_3ac j;
         printf("LABEL substr\n");
         printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
         printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
@@ -84,8 +84,8 @@ void define_substr() {
 
         printf("SUB TF@i TF@i int@1\n");
 
-        char *ret_o = gen_label("return0");
-        char *n_ok = gen_label("back");
+        //char *ret_o = gen_label("return0");
+        //char *n_ok = gen_label("back");
 
         printf("DEFVAR TF@tlac\n");
         printf("MOVE TF@tlac string@\n");
@@ -119,7 +119,7 @@ void define_substr() {
         printf("JUMP $substr_while\n");
         printf("LABEL $substr_end_while\n");
         printf("LABEL l_return0_0\n");
-        printf("MOVE TF@%RETVAL TF@tlac\n");
+        printf("MOVE TF@%%RETVAL TF@tlac\n");
 
 
         printf("RETURN\n");
@@ -156,7 +156,7 @@ void define_asc() {
 
         printf("JUMPIFEQ %s TF@temp boolean@TRUE", ret_0);
 
-        printf("STRI2INT TF@%RETVAL TF@temp TF@i");
+        printf("STRI2INT TF@%%RETVAL TF@temp TF@i");
 
         printf("LABEL %s\n", ret_0);
         printf("RETURN\n");
@@ -168,7 +168,7 @@ void define_chr() {
     if (used_chr) {
         printf("LABEL chr\n");
         printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
-        printf("INT2CHAR TF@%RETVAL TF@i\n");
+        printf("INT2CHAR TF@%%RETVAL TF@i\n");
         printf("RETURN\n");
     }
 }
@@ -325,7 +325,7 @@ char *op_add(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_ADD, tmp, r_op_str, dest);
         } else if (l_typ == k_double && r_typ == k_integer) {
             create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
-            create_3ac(I_ADD, l_op_str, r_op_str, dest);
+            create_3ac(I_ADD, l_op_str, tmp, dest);
         } else {    //je tam string
             bad_operands_err(line);
         }

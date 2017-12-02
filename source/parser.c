@@ -56,7 +56,7 @@ bool token_is_data_type(t_token *input) {
     return is_data_type(input->data.i);
 }
 
-int all_defined(TTable *tbl){
+void all_defined(TTable *tbl){
     if (tbl != NULL) {
         for (unsigned int i = 0; i < tbl->size; i++) {
             TElement *active = tbl->list_firsts[i];
@@ -546,8 +546,8 @@ int commandsAndVariables(TTable *Table, TTable *local) {
 //TODO prejde print a; b (za poslednym neni ;)
 int print_params(TTable *Table, TTable *local) {
     char *ret_var = NULL;
-    char ret[BUFFSIZE];
-    static int print_par = 0;
+    //char ret[BUFFSIZE];
+    //static int print_par = 0;
 
     int result = expression(Table, local, -2, &ret_var);
     if (result != SEMICOLLON){
