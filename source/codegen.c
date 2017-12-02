@@ -3,7 +3,7 @@
 #include "err.h"
 #include "parser.h"
 
-char oper[52][15] = {
+char oper[53][15] = {
         "MOVE",
         "CREATEFRAME",
         "PUSHFRAME",
@@ -55,6 +55,7 @@ char oper[52][15] = {
         "BREAK",
         "DPRINT",
         ".IFJcode17",
+        "FLOAT2INT",
         "#"
 };
 
@@ -204,7 +205,7 @@ t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
 }
 
 void print_operation(t_3ac *code) {
-    if (code->operation >= 0 && code->operation <= 50) {
+    if (code->operation >= 0 && code->operation <= 51) {
         if (code->operation != I_LABEL) {
             printf("    ");
         }
@@ -455,22 +456,9 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_DIV, l_op_str, tmp, dest);
         }
     }
-    create_3ac(I_PUSHS, NULL, NULL, dest);
-    //zaokruhlenie
-    create_3ac(I_FLOAT2R2EINT, dest, NULL, dest);
-    create_3ac(I_INT2FLOAT, dest, NULL, dest);
+    create_3ac(I_FLOAT2INT, dest, NULL, dest);
 
-    create_3ac(I_PUSHS, NULL, NULL, dest);
-    create_3ac(I_SUBS, NULL, NULL, NULL);
-    if (r_typ == k_integer) {
-        create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
-        create_3ac(I_PUSHS, NULL, NULL, tmp);
-    } else {
-        create_3ac(I_PUSHS, NULL, NULL, r_op_str);
-    }
-    create_3ac(I_MULS, NULL, NULL, NULL);
-    create_3ac(I_POPS, NULL, NULL, tmp);
-    create_3ac(I_FLOAT2R2EINT, tmp, NULL, dest);
+
 
     return dest;
 }

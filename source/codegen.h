@@ -61,7 +61,8 @@ enum {
     JUMPIFNEQS,
     I_BREAK,
     I_DPRINT,
-    I_HEADER            //50
+    I_HEADER,            //50
+    I_FLOAT2INT
 };
 
 
