@@ -76,6 +76,7 @@ typedef enum {
     s_block_coment_2,
     s_line_comment,
     s_INT,
+    s_double_comma,
     s_double_0,
     s_double_1,
     s_double_2,
@@ -87,12 +88,15 @@ typedef enum {
     s_str_spec_hexa1,
     s_LT,
     s_GT,
-    s_OP
+    s_OP,
+    s_Ampersand,
+    s_bin_load,
+    s_hexa_load,
+    s_octa_load,
 } tstate;
 
 
 //zaheslovane typ tokenu    //todo zmenit tak aby sedeli s ostatnymy
-//todo skonrolovat ci su to vsetky mozne typy
 /// navratove typy
 typedef enum {
     EMPTY = 0,      //0
@@ -119,15 +123,12 @@ typedef enum {
     KEY_WORD
 } ttype;
 
-
 typedef union {
     int i;
     double d;
     char *s;
 } tdata;
 
-
-//const char *key_world[]; //todo vyhadzuje warning
 /**
  * N -> cele cislo
  * R -> realne cislo
@@ -139,11 +140,20 @@ typedef struct {
     unsigned line; ///riadok z koteho sa token nacital
 } t_token;
 
+typedef struct s_scanner_node {
+    t_token * token;
+    struct s_scanner_node *next;
+}t_scanner_node;
+
+
+
 /**
  * uvolni pamet ktora bola naalokovana pre token
  * @param token
  */
 void discard_token(t_token *token);
+void load_all_token();
+t_token *load_token();
 
 
 
@@ -154,5 +164,5 @@ void discard_token(t_token *token);
  * @return
  */
 t_token *get_token();
-
+void return_token(t_token *token);
 #endif //IFJ_PROJ_SCANNER_H

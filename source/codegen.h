@@ -1,6 +1,15 @@
 #ifndef IFJ_PROJ_CODEGEN_H
 #define IFJ_PROJ_CODEGEN_H
 
+#include "expression.h"
+
+extern int used_length;
+extern int used_substr;
+extern int used_asc;
+extern int used_chr;
+
+#define BUFFSIZE 150    //"TF@"+256 pre ID + \0
+
 enum {
     I_MOVE = 0,         //0
     I_CREATEFRAME,
@@ -51,7 +60,9 @@ enum {
     I_JUMPIFEQS,
     JUMPIFNEQS,
     I_BREAK,
-    I_DPRINT            //49
+    I_DPRINT,
+    I_HEADER,            //50
+    I_FLOAT2INT
 };
 
 
@@ -68,5 +79,12 @@ t_3ac *create_3ac(int operation,char *op1, char *op2, char *dest);
 void print_operation(t_3ac *code);
 
 int generate_code();
+
+char *gen_temp_var();
+
+char *cat_string(char *frame, char *variable);
+char *call_function(char *name, Element **params, unsigned param_count);
+char *gen_and_convert(int operation, Element *l_operand, Element *r_operand);
+bool is_data_type (int typ);
 
 #endif //IFJ_PROJ_CODEGEN_H

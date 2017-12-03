@@ -1,26 +1,13 @@
-Declare Function factorial (n As Integer) As Integer
-Function factorial (n As Integer) As Integer
-Dim temp_result As Integer
-Dim decremented_n As Integer
-Dim result As Integer
-If n < 2 Then
-result = 1
-Else
-decremented_n = n - 1
-temp_result = factorial(decremented_n)
-result = n * temp_result
-End If
-Return result
-End Function
-Scope 'Hlavni telo programu
-Dim a As Integer
-Dim vysl As Integer
-Print !"Zadejte cislo pro vypocet faktorialu";
-Input a
-If a < 0 Then
-Print !"\nFaktorial nelze spocitat\n";
-Else
-vysl = factorial(a)
-Print !"\nVysledek je:" ; vysl ; !"\n";
-End If
-End Scope
+scope
+ 	dim res as integer
+ 	dim tmp as integer = 0 -10
+ 	res = asc(!"test", 0)
+ 	'res = asc(!"test", 1)
+    'res = asc(!"\001", 1)
+    'res = asc(!"\255", 1)
+    'res = asc(!"\127", 1)
+    'res = asc(!"\n", 1)
+ 	'res = asc(!"asdasd", tmp)
+ 	'res = asc(!"asdasd", 42)
+ 	print res;
+end scope

@@ -1,5 +1,5 @@
 /**
- * bytvara pole ukazovatelov ktore boly naalokovane
+ * bytvara mem_pole ukazovatelov ktore boly naalokovane
  */
 #include "scanner.h"
 #include <stdlib.h>
@@ -8,9 +8,9 @@
 #include "memwork.h"
 #include "err.h"
 
-void **pole = NULL;
-unsigned max = 0;
-unsigned top = 0;
+void **mem_pole = NULL;
+unsigned mem_max_size = 0;
+unsigned mem_size = 0;
 
 void ERR_ALLOC(){
     clear_all();
@@ -20,57 +20,57 @@ void ERR_ALLOC(){
 }
 
 void clear_all(){
-    for (unsigned i=0; i<top; i++){
-        free(pole[i]);
+    for (unsigned i=0; i<mem_size; i++){
+        free(mem_pole[i]);
     }
-    free(pole);
+    free(mem_pole);
 }
 
 void change_size(unsigned new){
-    if (top < new){
+    if (mem_size < new){
         void **tmp;
         tmp = malloc(sizeof(void *)*new);
         if (tmp == NULL){
             ERR_ALLOC();
         }
-        for (unsigned i=0;i<top;i++){
-            tmp[i] = pole[i];
+        for (unsigned i=0;i<mem_size;i++){
+            tmp[i] = mem_pole[i];
         }
-        if (pole != NULL){
-            free(pole);
+        if (mem_pole != NULL){
+            free(mem_pole);
         }
-        pole = tmp;
-        max = new;
+        mem_pole = tmp;
+        mem_max_size = new;
     }
 }
 
 void append(void *ptr){
-    if(top >= max){
-        change_size(max + 10);
+    if(mem_size >= mem_max_size){
+        change_size(mem_max_size + 10);
     }
-    pole[top] = ptr;
-    top += 1;
+    mem_pole[mem_size] = ptr;
+    mem_size += 1;
 }
 
 void replace(void *ptr, void *new){
     unsigned i = 0;
-    for (; i<top; i++){
-        if (pole[i] == ptr){
-            pole[i] = new;
+    for (; i<mem_size; i++){
+        if (mem_pole[i] == ptr){
+            mem_pole[i] = new;
             break;
         }
     }
-    if (i == top){
+    if (i == mem_size){
         append(new);
     }
 }
 
 void delete(void *ptr){
-    for (unsigned i=0; i<top; i++){
-        if (pole[i] == ptr){
-            free(pole[i]);
-            top--;
-            pole[i] = pole[top];
+    for (unsigned i=0; i<mem_size; i++){
+        if (mem_pole[i] == ptr){
+            free(mem_pole[i]);
+            mem_size--;
+            mem_pole[i] = mem_pole[mem_size];
             break;
         }
     }
@@ -86,13 +86,13 @@ void *my_malloc(size_t size){
 }
 
 void *my_realloc(void *ptr,size_t new_size){
-    void *tmp;
-    tmp = realloc(ptr, new_size);
-    if (tmp == NULL){
+    void *new_ptr;
+    new_ptr = realloc(ptr, new_size);
+    if (new_ptr == NULL){
         ERR_ALLOC();
     }
-    replace(ptr, tmp);
-    return tmp;
+    replace(ptr, new_ptr);
+    return new_ptr;
 }
 
 void my_free(void *ptr){

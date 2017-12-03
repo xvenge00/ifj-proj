@@ -3,14 +3,19 @@
 
 #define ERR_LEXIK 1
 #define ERR_SYNTA 2
-#define ERR_SEM_P 3
-#define ERR_SEM_T 4
-#define ERR_SEM_E 6
+#define ERR_SEM_DEF 3
+#define ERR_SEM_TYPE 4
+#define ERR_SEM_OTH 6
 #define ERR_INTER 99
 
-void error(int code);
-void semerror(int code);
-void is_undefined(char *name);
-void redefine_error(char *name);
+void error(char *str, int err_code, int line);
+void syntax_error(int code, int line);
+void semerror(int code, int line);
+void undefined_err(char *name, int line);
+void redefine_error(char *name, int line);
+void internall_err(int line);
+void check_null(void *ptr);
+void bad_operands_err(int line);
+void incompatible_types_err(int line);
 
 #endif //IFJ_PROJ_ERR_H

@@ -21,14 +21,13 @@ typedef union {
 
 typedef struct {
     TValue value; //obsah
-    int type; //viz enum TType
+    int type; //viz enum TType      //TODO preco to nie je TType aj vo func???
 } TVariable;
 
 typedef struct {
     int return_type; //to co vraci ma nejaky typ
     unsigned int attr_count;
     int *attributes; //pole integeru z TType
-    void *lok_table;
 } TFunction;
 
 typedef union {

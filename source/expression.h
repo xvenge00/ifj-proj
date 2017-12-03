@@ -2,6 +2,8 @@
 #define IFJ_PROJ_EXPRESSION_H
 
 #include <stddef.h>
+#include "scanner.h"
+#include "symtable.h"
 
 enum{
     xx
@@ -30,12 +32,9 @@ enum{
 
 typedef struct element{
     int type;
-    struct element *next;
-    int id;
-    t_token *token;
     char  *operand;
     int typ_konkretne;
-
+    struct element *next;
 } Element; //prvek zásobníku - type bude zakodovany typ symbolu, next ukazatel na dalsi
 
 typedef struct stack{
@@ -46,5 +45,9 @@ typedef struct stack{
 char *token2operand(t_token *token);
 int get_id();
 
-int expression(TTable *Table,TTable *tTable, int typ);
+int expression(TTable *func_table,TTable *local, int typ, char **ret_var);
+char *cat_string(char *frame, char *variable);
+char *my_strcpy(char *src);
+bool is_imm_val(char *value);
+
 #endif //IFJ_PROJ_EXPRESSION_H
