@@ -138,9 +138,8 @@ void define_asc() {
         printf("    DEFVAR TF@len\n");
 
         printf("    STRLEN TF@len TF@s\n");
-        printf("    SUB TF@len TF@len int@1\n");
 
-        printf("    LT TF@temp TF@i int@0\n");
+        printf("    LT TF@temp TF@i int@1\n");
         printf("    PUSHS TF@temp\n");
         printf("    GT TF@temp TF@i TF@len\n");
         printf("    PUSHS TF@temp\n");
@@ -153,8 +152,10 @@ void define_asc() {
 
         printf("    SUB TF@i TF@i int@1\n");
         printf("    STRI2INT TF@%%RETVAL TF@s TF@i\n");
+        printf("    RETURN\n");
 
         printf("LABEL %s\n", ret_0);
+        printf("    MOVE TF@%%RETVAL int@0\n");
         printf("    RETURN\n");
 
     }

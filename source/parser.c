@@ -577,7 +577,7 @@ int scope(TTable *Table) {
     create_3ac(I_DEFVAR, NULL, NULL, "GF@$conv_help");
     create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
 
-    TTable *local = Tbl_Create(8);    //todo preco tu sa generuje nova tabulka ??????
+    TTable *local = Tbl_Create(8);
     local->isScope = true;
 
     check_next_token_type(EOL);

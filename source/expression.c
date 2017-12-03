@@ -456,7 +456,7 @@ const int precedence_table[17][17] = {
 /* ,    */ { LT, LT, LT, LT, LT, LT, EQ, LT, LT, LT, LT, LT, LT, LT, LT, LT, EQ, },
 };
 
-void prilep(char **ret, char c, unsigned *top, unsigned *cap) {  //TODO !!!!nefunguje !!!!!!!
+void prilep(char **ret, char c, unsigned *top, unsigned *cap) {
     if (*cap <= *top + 5) {
         *cap = *top + 20;
         *ret = my_realloc(*ret, sizeof(char) * (*cap));
@@ -484,7 +484,7 @@ char *token2operand(t_token *token) {
     unsigned size = BUFFSIZE;
     char *result = my_malloc(sizeof(char) * size);
     unsigned i = 0;
-    unsigned j = i;
+    unsigned j = 0;
     switch (token->token_type) {
         case ID:
             result = my_strcpy(token->data.s);
@@ -496,10 +496,10 @@ char *token2operand(t_token *token) {
             snprintf(result, size, "float@%f", token->data.d);
             break;
         case STR:
-            while (token->data.s[i] != 0) {
+            do {
                 prilep(&result, token->data.s[i], &j, &size);
                 i++;
-            }
+            } while (token->data.s[i] != 0);
             char *tmp = my_strcpy(result);
             snprintf(result, size, "string@%s", tmp);
             break;

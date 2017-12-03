@@ -218,10 +218,10 @@ t_token *load_token() {
     tdata data;
     data.s = NULL;
 
-    scanner_buff = init_buff();     //priprava bufferu
+    scanner_buff = init_buff();                 //priprava bufferu
     static int loaded = 0;                      //inicializacia znaku
     static unsigned line = 1;                   //riadok ktory je spracovavany
-    //restartovanie pocitadla raidkou pre testi
+    //restartovanie pocitadla raidkov pre testy
     if (beginning) {
         beginning = 0;
         line = 1;
