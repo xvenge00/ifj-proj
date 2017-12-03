@@ -304,7 +304,7 @@ int generate_code() {
     printf("# ---------------------TU-SA-DEF-ZDROJ--------------------------\n");
     printf("# --------------------------------------------------------------\n");
 
-    shift_declarations();
+//    shift_declarations();
 
     t_3ac *i = head;
     while (i != NULL) {
@@ -348,7 +348,7 @@ bool is_num_type(int typ) {
 }
 
 char *gen_temp_var() {
-    char *result = malloc(sizeof(char) * BUFFSIZE);
+    char *result = my_malloc(sizeof(char) * BUFFSIZE);
     snprintf(result, BUFFSIZE, "TF@$E_E%i", get_id());
     create_3ac(I_DEFVAR, NULL, NULL, result);
     return result;

@@ -70,19 +70,24 @@ int main(int argc, char** argv) {
     /* namiesto getchar pouzivajte teda fgetc(FILE *stream) */
     if (argc == 2){
         f = fopen(argv[1],"r");
+        if (f == NULL) {
+            fprintf(stderr, "Subor sa nepodarilo otvorit\n");
+        }
     } else {                        //ked neni zadany argument, cita vstup zo stdin
         f = stdin;
     }
 
     TTable* func_table = Tbl_Create(8);
 
-
-
     declare_built_in(func_table);
-
-
 
     parse(func_table);
     generate_code();
+
+    clear_all();
+    if (argc == 2) {    //ak bol otvoreny subor, zatvor ho
+        fclose(f);
+    }
+
     return 0;
 }

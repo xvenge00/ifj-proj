@@ -188,7 +188,6 @@ int beginning = 1;
 t_token *create_token(ttype typ, tdata data, unsigned *line) {
     t_token *tmp = my_malloc(sizeof(t_token));
 
-
     tmp->token_type = typ;
     tmp->data = data;
     tmp->line = *line;
