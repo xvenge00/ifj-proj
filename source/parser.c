@@ -467,7 +467,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                 char *new_e = gen_label("w_e");
                 str_push(new_b);
                 str_push(new_e);
-                create_3ac(I_LABEL, NULL, NULL, cat_string("TF@", new_b));
+                create_3ac(I_LABEL, NULL, NULL, new_b);
                 if (expression(func_table, local, -1, &ret_var) != EOL) {
                     syntax_error(ERR_SYNTA,line);
                 } //tohle asi nepojede
