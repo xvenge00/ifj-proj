@@ -640,7 +640,7 @@ bool check_return_type(int expected, Element *el) {
  * navrat musi hlidat volajici funkce v parseru
  * Priklady takovych tokenu - EOL, Then, Semicolon
  * Pro Then je navratova hodnota tedy 120
- * toto testovat nebudu -> TODO ked je -1 tak moze byt max 1 krat < > = !=*/
+ * TODO ked je -1 tak moze byt max 1 krat < > = !=*/
 int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
     Stack stack;
     Stack_init(&stack);

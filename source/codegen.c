@@ -256,7 +256,7 @@ void print_operation(t_3ac *code) {
 
 void shift_declarations(){
     t_3ac *next_op      = NULL;
-    t_3ac *create_op    = NULL;
+    t_3ac *create_fr_op    = NULL;
     t_3ac *op           = head;
 
     while (op != NULL) {
@@ -264,24 +264,24 @@ void shift_declarations(){
 
         switch (op->operation) {
             case I_CREATEFRAME:
-                create_op = op;
+                create_fr_op = op;
                 break;
             case I_DEFVAR:
                 //shift
-                if (op != create_op->next){
+                if (create_fr_op != NULL && op != create_fr_op->next){
                     op->prev->next = op->next;
                     op->next->prev = op->prev;
 
-                    op->next = create_op->next;
-                    op->prev = create_op;
+                    op->next = create_fr_op->next;
+                    op->prev = create_fr_op;
 
-                    create_op->next->prev = op;
-                    create_op->next = op;
+                    create_fr_op->next->prev = op;
+                    create_fr_op->next = op;
                 }
 
                 break;
-            case I_POPFRAME:
-                create_op = NULL;
+            case I_POPFRAME:        //todo popframe je problem lebo v kode moze byt viac krat!!!, musim prerobit volanie
+                create_fr_op = NULL;
                 break;
             default:
                 ;

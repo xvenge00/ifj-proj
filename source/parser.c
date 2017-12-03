@@ -217,7 +217,6 @@ int function(int decDef, TTable *func_table, TTable *local) {
     return i;
 }
 
-//TODO pridaj func_table a pozri sa aj tam ci uz neexistuje funckia s rovn menom
 int params(TTable *func_table, TTable *local, unsigned *attr_count, int **attributes, int decDef) {
     int start = 1;
     TValue value;
@@ -310,11 +309,11 @@ int command_func_var(t_token *input, TTable *local, TTable *func_table) {
         syntax_error(ERR_SYNTA, line);
     }
     create_3ac(I_MOVE, ret_var, NULL, cat_string("TF@", name));
-//    create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
 
     return 0;
 }
 
+//TODO pridaj parameter meno funckie, potrebujeme zistit navratovy typ a generovat label pre end
 int command_keyword(t_token *input, TTable *local, TTable *func_table) {
     t_token *tmp1 = NULL;
     tdata value = input->data;
@@ -504,9 +503,9 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                     syntax_error(ERR_SYNTA, line);
                 }
                 if (ret_var !=NULL) {
-                    //create_3ac(I_MOVE, ret_var, NULL, "TF@%RETVAL");
                     create_3ac(I_PUSHS, NULL, NULL, ret_var);
                 }
+                //TODO prerob na JUMP end_(meno funkcie)
                 create_3ac(I_POPFRAME, NULL, NULL, NULL);
                 create_3ac(I_RETURN, NULL, NULL, NULL);
                 return commandsAndVariables(func_table, local);

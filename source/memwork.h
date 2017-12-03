@@ -24,7 +24,7 @@ void *my_malloc(size_t size);
  */
 void *my_realloc(void *ptr,size_t new_size);
 /**
- * funguje rovnako ako free len v poli naalokovanych najde a nahradi NULL todo mozno prerobit aby sa celkovo vymazalo
+ * funguje rovnako ako free len v poli naalokovanych najde a nahradi NULL
  * @param ptr co uvolnit
  */
 void my_free(void *ptr);
