@@ -581,6 +581,7 @@ t_token *load_token() {
                 /*****************************************************************************************************/
 
             case s_Ampersand:
+                append_buff(scanner_buff, '0');
                 if (loaded == 'b') {
                     state = s_bin_load;
                 } else if (loaded == 'o') {
@@ -606,7 +607,7 @@ t_token *load_token() {
                 /*****************************************************************************************************/
 
             case s_octa_load:
-                if (loaded >= '0' && loaded <= '8') {
+                if (loaded >= '0' && loaded <= '7') {
                     append_buff(scanner_buff, (char) loaded);
                 } else {
                     old = loaded;

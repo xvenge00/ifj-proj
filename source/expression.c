@@ -642,6 +642,7 @@ bool check_return_type(int expected, Element *el) {
  * Pro Then je navratova hodnota tedy 120
  * TODO ked je -1 tak moze byt max 1 krat < > = !=*/
 int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
+    *ret_var = NULL;
     Stack stack;
     Stack_init(&stack);
     Stack_push(&stack, E_DOLLAR, NULL, 0);
@@ -726,7 +727,7 @@ int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
     if (last_el != NULL){               //asi zbytocne malo by to platit vzdy
         check_return_type(typ, last_el);
     } else {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
     }
 
 

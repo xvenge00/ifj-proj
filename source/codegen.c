@@ -357,7 +357,7 @@ char *gen_temp_var() {
 
 char *op_add(int operation, Element *l_operand, Element *r_operand) {
     if (operation != E_PLUS) {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
     }
     char *dest = gen_temp_var();
 
@@ -403,7 +403,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand) {
     } else if (operation == E_MUL) {
         operation = I_MUL;
     } else {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
     }
 
     char *dest = gen_temp_var();
@@ -441,7 +441,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand) {
 
 char *op_div(int operation, Element *l_operand, Element *r_operand) {
     if (operation != E_DIV) {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
 
     }
     char *dest = gen_temp_var();
@@ -486,7 +486,7 @@ char *op_div(int operation, Element *l_operand, Element *r_operand) {
 
 char *op_mod(int operation, Element *l_operand, Element *r_operand) {
     if (operation != E_MOD) {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
 
     }
     char *tmp = gen_temp_var();
@@ -542,10 +542,10 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand) {
         operation = I_LT;
     } else if (operation == E_GT) {
         operation = I_GT;
-    } else if (operation == E_EQ) {
+    } else if (operation == E_EQ || operation == E_NEQ) {
         operation = I_EQ;
     } else {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
 
     }
     char *dest = gen_temp_var();
@@ -587,7 +587,7 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand) {
     } else if (operation == E_GE) {
         operation = I_GT;
     } else {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
 
     }
     char *dest = gen_temp_var();
@@ -682,7 +682,7 @@ char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_NOT, dest, NULL, dest);    //E_EQ ale na koniec zneguj
             break;
         default:
-            internall_err(__LINE__);
+            internall_err(__LINE__,__FILE__);
     }
 
     return dest;

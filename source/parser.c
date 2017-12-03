@@ -404,7 +404,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
             } else if (el->data->data->var->type == k_string) {
                 i = 2;
             } else {
-                internall_err(__LINE__);
+                internall_err(__LINE__,__FILE__);
             }
 
             char *type[10] = {"float", "int", "string"};
@@ -472,7 +472,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                 str_push(new_b);
                 str_push(new_e);
                 create_3ac(I_LABEL, NULL, NULL, new_b);
-                if (expression(func_table, local, -1, &ret_var) != EOL) {
+                if (expression(func_table, local, -1, &ret_var) != EOL || ret_var == NULL) {
                     syntax_error(ERR_SYNTA,line);
                 } //tohle asi nepojede
                 create_3ac(I_PUSHS, NULL, NULL, ret_var);
@@ -518,7 +518,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
 
 int commandsAndVariables(TTable *Table, TTable *local) {
     if (local == NULL || Table == NULL) {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
     }
 
     create_3ac(-1, NULL, NULL, NULL);   //generuj prazdny riadok
