@@ -228,6 +228,7 @@ t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
     result->op2 = my_strcpy(op2);
     result->dest = my_strcpy(dest);
     result->next = NULL;
+    result->prev = tail;
     append_3ac(result);
 //    print_operation(result);
     return result;
@@ -254,7 +255,6 @@ void print_operation(t_3ac *code) {
 }
 
 void shift_declarations(){
-    t_3ac *prev_op      = NULL;
     t_3ac *next_op      = NULL;
     t_3ac *create_op    = NULL;
     t_3ac *op           = head;
@@ -268,9 +268,14 @@ void shift_declarations(){
                 break;
             case I_DEFVAR:
                 //shift
-                if (1){
-                    prev_op->next = op->next;
+                if (op != create_op->next){
+                    op->prev->next = op->next;
+                    op->next->prev = op->prev;
+
                     op->next = create_op->next;
+                    op->prev = create_op;
+
+                    create_op->next->prev = op;
                     create_op->next = op;
                 }
 
@@ -282,7 +287,6 @@ void shift_declarations(){
                 ;
         }
 
-        prev_op = op;
         op = next_op;
     }
 }
@@ -304,7 +308,7 @@ int generate_code() {
     printf("# ---------------------TU-SA-DEF-ZDROJ--------------------------\n");
     printf("# --------------------------------------------------------------\n");
 
-//    shift_declarations();
+    shift_declarations();
 
     t_3ac *i = head;
     while (i != NULL) {
