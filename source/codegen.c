@@ -416,54 +416,59 @@ char *op_div(int operation, Element *l_operand, Element *r_operand) {
     }
     return dest;
 }
-//netreba uz naprv sa robi delenie normalne a potom sa vysledok oreze na int a mame celociselne delenie
-//char *op_mod(int operation, Element *l_operand, Element *r_operand) {
-//    if (operation != E_MOD) {
-//        internall_err(__LINE__);
-//
-//    }
-//
-//    char *dest = gen_temp_var();
-//
-//    char *tmp = dest;
-//
-//
-//    char *l_op_str = l_operand->operand;
-//    char *r_op_str = r_operand->operand;
-//
-//    int l_typ = l_operand->typ_konkretne;
-//    int r_typ = r_operand->typ_konkretne;
-//
-//    if (!is_num_type(l_typ) || !is_num_type(r_typ)) {
-//        bad_operands_err(line);
-//    }
-//
-//    if (l_typ == r_typ) {
-//        if (l_typ == k_integer) {
-//            create_3ac(I_INT2FLOAT, l_op_str, NULL, dest);
-//            create_3ac(I_PUSHS, NULL, NULL, dest);
-//            create_3ac(I_INT2FLOAT, r_op_str, NULL, dest);
-//            create_3ac(I_PUSHS, NULL, NULL, dest);
-//            create_3ac(I_DIVS, NULL, NULL, NULL);
-//            create_3ac(I_POPS, NULL, NULL, dest);
-//        } else {    //double
-//            create_3ac(I_DIV, l_op_str, r_op_str, dest);
-//        }
-//    } else {    //treba konverziu
-//        if (l_typ == k_integer && r_typ == k_double) {
-//            create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
-//            create_3ac(I_DIV, tmp, r_op_str, dest);
-//        } else {    //double && int
-//            create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
-//            create_3ac(I_DIV, l_op_str, tmp, dest);
-//        }
-//    }
-//    create_3ac(I_FLOAT2INT, dest, NULL, dest);
-//
-//
-//
-//    return dest;
-//}
+
+char *op_mod(int operation, Element *l_operand, Element *r_operand) {
+    if (operation != E_MOD) {
+        internall_err(__LINE__);
+
+    }
+    char *tmp = gen_temp_var();
+
+    char *dest = gen_temp_var();
+
+    char *l_op_str = l_operand->operand;
+    char *r_op_str = r_operand->operand;
+
+    int l_typ = l_operand->typ_konkretne;
+    int r_typ = r_operand->typ_konkretne;
+
+    if (!is_num_type(l_typ) || !is_num_type(r_typ)) {
+        bad_operands_err(line);
+    }
+
+    if (l_typ == r_typ) {
+        if (l_typ == k_integer) {
+            create_3ac(I_INT2FLOAT, l_op_str, NULL, dest);
+            create_3ac(I_PUSHS, NULL, NULL, dest);
+            create_3ac(I_INT2FLOAT, r_op_str, NULL, dest);
+            create_3ac(I_PUSHS, NULL, NULL, dest);
+            create_3ac(I_DIVS, NULL, NULL, NULL);
+            create_3ac(I_POPS, NULL, NULL, dest);
+        } else {    //double
+            // druhe daj na int a naspat
+            create_3ac(I_FLOAT2INT, r_op_str, NULL, tmp);
+            create_3ac(I_INT2FLOAT, tmp, NULL, tmp);
+            create_3ac(I_DIV, l_op_str, tmp, dest);
+        }
+    } else {
+        if (l_typ == k_integer && r_typ == k_double) {
+            create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
+            create_3ac(I_PUSHS, NULL, NULL, tmp);
+            //druhy operand osekni
+            create_3ac(I_FLOAT2INT, r_op_str, NULL, tmp);
+            create_3ac(I_INT2FLOAT, tmp, NULL, tmp);
+            create_3ac(I_PUSHS, NULL, NULL, tmp);
+            create_3ac(I_DIVS, NULL, NULL, NULL);
+            create_3ac(I_POPS, NULL, NULL, dest);
+        } else {    //double && int
+            create_3ac(I_INT2FLOAT, r_op_str, NULL, tmp);
+            create_3ac(I_DIV, l_op_str, tmp, dest);
+        }
+    }
+    create_3ac(I_FLOAT2INT, dest, NULL, dest);  //osekni na cele
+
+    return dest;
+}
 
 char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand) {
     if (operation == E_LT) {
@@ -588,8 +593,7 @@ char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
             dest = op_div(operation, l_operand, r_operand);
             break;
         case E_MOD:     //!!!netestovane, len skopirovane z expression.c
-            dest = op_div(E_DIV, l_operand, r_operand);
-            create_3ac(I_FLOAT2INT, dest, NULL, dest);
+            dest = op_mod(operation, l_operand, r_operand);
             break;
         case E_LT:
             dest = op_lt_gt_eq(operation, l_operand, r_operand);
