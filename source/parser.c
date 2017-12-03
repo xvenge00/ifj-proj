@@ -128,6 +128,9 @@ int function(int decDef, TTable *func_table, TTable *local) {
     int ret_type = -1;
     if (decDef == k_function) {
         create_3ac(I_LABEL, NULL, NULL, name_f);
+        create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
+        create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
+        create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
     }
     TData *func = NULL;
     TSymbol *sym = NULL;
@@ -206,6 +209,8 @@ int function(int decDef, TTable *func_table, TTable *local) {
 
         i = commandsAndVariables(func_table, local);
         act_type = -1;
+        create_3ac(I_PUSHS, NULL, NULL, "TF@%RETVAL");
+        create_3ac(I_POPFRAME, NULL, NULL, NULL);
         create_3ac(I_RETURN, NULL, NULL, NULL);
     }
 
@@ -499,9 +504,10 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                     syntax_error(ERR_SYNTA, line);
                 }
                 if (ret_var !=NULL) {
-                    create_3ac(I_MOVE, ret_var, NULL, "TF@%RETVAL");
+                    //create_3ac(I_MOVE, ret_var, NULL, "TF@%RETVAL");
+                    create_3ac(I_PUSHS, NULL, NULL, ret_var);
                 }
-//                create_3ac(I_POPS, NULL, NULL, cat_string("TF@", "%RETVAL"));
+                create_3ac(I_POPFRAME, NULL, NULL, NULL);
                 create_3ac(I_RETURN, NULL, NULL, NULL);
                 return commandsAndVariables(func_table, local);
             }
@@ -531,7 +537,7 @@ int commandsAndVariables(TTable *Table, TTable *local) {
         check_pointer(input);
     }
 
-    if (input->token_type == ID) { //todo co ak je id funckia a ma sa volat funkcia bez parametru
+    if (input->token_type == ID) {
         //bude sa volat funkcia alebo priradovat do premennej
         command_func_var(input, local, Table);
         return commandsAndVariables(Table, local);
@@ -539,11 +545,10 @@ int commandsAndVariables(TTable *Table, TTable *local) {
         //!!!!!!!nepriama rekurzia, vo funcii sa vola commandsAndVariables()
         return command_keyword(input, local, Table);
     }
-    error("Neocakavany vyraz.\n", ERR_SYNTA, line); //todo pozri err_code
+    error("Neocakavany vyraz.\n", ERR_SYNTA, line);
     return -1;
 }
 
-//TODO prejde print a; b (za poslednym neni ;)
 int print_params(TTable *Table, TTable *local) {
     char *ret_var = NULL;
     //char ret[BUFFSIZE];
@@ -554,7 +559,6 @@ int print_params(TTable *Table, TTable *local) {
         syntax_error(ERR_SYNTA, line);
     }
 
-    //TODO prerob na I_MOVE
     create_3ac(I_WRITE, NULL, NULL, ret_var);
 
     while (result == SEMICOLLON) {

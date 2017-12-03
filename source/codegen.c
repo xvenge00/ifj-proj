@@ -69,9 +69,18 @@ int used_chr = 0;
 void define_length() {
     if (used_length) {
         printf("LABEL length\n");
-        printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
-        printf("STRLEN TF@%%RETVAL TF@s\n");
-        printf("RETURN\n");
+
+        printf("    PUSHFRAME\n");
+        printf("    CREATEFRAME\n");
+        printf("    DEFVAR TF@%%RETVAL\n");
+
+        printf("    DEFVAR %s\n    POPS %s\n", "TF@s", "TF@s");
+        printf("    STRLEN TF@%%RETVAL TF@s\n");
+
+        printf("    PUSHS TF@%%RETVAL\n");
+        printf("    POPFRAME\n");
+
+        printf("    RETURN\n");
     }
 }
 
@@ -79,6 +88,11 @@ void define_substr() {
     if (used_substr) {
         //  t_3ac j;
         printf("LABEL substr\n");
+
+        printf("    PUSHFRAME\n");
+        printf("    CREATEFRAME\n");
+        printf("    DEFVAR TF@%%RETVAL\n");
+
         printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
         printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
         printf("DEFVAR %s\n POPS %s\n", "TF@n", "TF@n");
@@ -88,42 +102,43 @@ void define_substr() {
         //char *ret_o = gen_label("return0");
         //char *n_ok = gen_label("back");
 
-        printf("DEFVAR TF@tlac\n");
-        printf("MOVE TF@tlac string@\n");
-        printf("DEFVAR TF@temp\n");
-        printf("DEFVAR TF@len\n");
-        printf("STRLEN TF@len TF@s\n");
-        printf("SUB TF@len TF@len TF@i\n");
-        printf("LT TF@temp TF@i int@0\n");
-        printf("JUMPIFEQ l_return0_0 TF@temp bool@true\n");
-        printf("LT TF@temp TF@len int@1\n");
-        printf("JUMPIFEQ l_return0_0 TF@temp bool@true\n");
-        printf("GT TF@temp TF@n int@-1\n");
-        printf("PUSHS TF@temp\n");
-        printf("LT TF@temp TF@n TF@len\n");
-        printf("PUSHS TF@temp\n");
-        printf("EQ TF@temp TF@n TF@len\n");
-        printf("PUSHS TF@temp\n");
-        printf("ORS\n");
-        printf("ANDS\n");
-        printf("POPS TF@temp\n");
-        printf("JUMPIFEQ l_back_1 TF@temp bool@true\n");
-        printf("MOVE TF@n TF@len\n");
-        printf("LABEL l_back_1\n");
-        printf("LABEL $substr_while\n");
-        printf("GT TF@temp TF@n int@0\n");
-        printf("JUMPIFEQ $substr_end_while TF@temp bool@false\n");
-        printf("GETCHAR TF@temp TF@s TF@i\n");
-        printf("ADD TF@i TF@i int@1\n");
-        printf("SUB TF@n TF@n int@1\n");
-        printf("CONCAT TF@tlac  TF@tlac TF@temp\n");
-        printf("JUMP $substr_while\n");
-        printf("LABEL $substr_end_while\n");
-        printf("LABEL l_return0_0\n");
-        printf("MOVE TF@%%RETVAL TF@tlac\n");
+        printf("    DEFVAR TF@tlac\n");
+        printf("    MOVE TF@tlac string@\n");
+        printf("    DEFVAR TF@temp\n");
+        printf("    DEFVAR TF@len\n");
+        printf("    STRLEN TF@len TF@s\n");
+        printf("    SUB TF@len TF@len TF@i\n");
+        printf("    LT TF@temp TF@i int@0\n");
+        printf("    JUMPIFEQ l_return0_0 TF@temp bool@true\n");
+        printf("    LT TF@temp TF@len int@1\n");
+        printf("    JUMPIFEQ l_return0_0 TF@temp bool@true\n");
+        printf("    GT TF@temp TF@n int@-1\n");
+        printf("    PUSHS TF@temp\n");
+        printf("    LT TF@temp TF@n TF@len\n");
+        printf("    PUSHS TF@temp\n");
+        printf("    EQ TF@temp TF@n TF@len\n");
+        printf("    PUSHS TF@temp\n");
+        printf("    ORS\n");
+        printf("    ANDS\n");
+        printf("    POPS TF@temp\n");
+        printf("    JUMPIFEQ l_back_1 TF@temp bool@true\n");
+        printf("    MOVE TF@n TF@len\n");
+        printf("    LABEL l_back_1\n");
+        printf("    LABEL $substr_while\n");
+        printf("    GT TF@temp TF@n int@0\n");
+        printf("    JUMPIFEQ $substr_end_while TF@temp bool@false\n");
+        printf("    GETCHAR TF@temp TF@s TF@i\n");
+        printf("    ADD TF@i TF@i int@1\n");
+        printf("    SUB TF@n TF@n int@1\n");
+        printf("    CONCAT TF@tlac  TF@tlac TF@temp\n");
+        printf("    JUMP $substr_while\n");
+        printf("    LABEL $substr_end_while\n");
+        printf("    LABEL l_return0_0\n");
+        printf("    MOVE TF@%%RETVAL TF@tlac\n");
 
-
-        printf("RETURN\n");
+        printf("    PUSHS TF@%%RETVAL\n");
+        printf("    POPFRAME\n");
+        printf("    RETURN\n");
 
     }
 }
@@ -131,6 +146,11 @@ void define_substr() {
 void define_asc() {
     if (used_asc) {
         printf("LABEL asc\n");
+
+        printf("    PUSHFRAME\n");
+        printf("    CREATEFRAME\n");
+        printf("    DEFVAR TF@%%RETVAL\n");
+
         printf("    DEFVAR %s\n    POPS %s\n", "TF@s", "TF@s");
         printf("    DEFVAR %s\n    POPS %s\n", "TF@i", "TF@i");
 
@@ -152,10 +172,13 @@ void define_asc() {
 
         printf("    SUB TF@i TF@i int@1\n");
         printf("    STRI2INT TF@%%RETVAL TF@s TF@i\n");
+        printf("    PUSHS TF@%%RETVAL\n");
+        printf("    POPFRAME\n");
         printf("    RETURN\n");
 
         printf("LABEL %s\n", ret_0);
-        printf("    MOVE TF@%%RETVAL int@0\n");
+        printf("    PUSHS int@0\n");
+        printf("    POPFRAME\n");
         printf("    RETURN\n");
 
     }
@@ -164,9 +187,18 @@ void define_asc() {
 void define_chr() {
     if (used_chr) {
         printf("LABEL chr\n");
-        printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
-        printf("INT2CHAR TF@%%RETVAL TF@i\n");
-        printf("RETURN\n");
+
+        printf("    PUSHFRAME\n");
+        printf("    CREATEFRAME\n");
+        printf("    DEFVAR TF@%%RETVAL\n");
+
+        printf("    DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
+        printf("    INT2CHAR TF@%%RETVAL TF@i\n");
+
+        printf("    PUSHS TF@%%RETVAL\n");
+        printf("    POPFRAME\n");
+
+        printf("    RETURN\n");
     }
 }
 
@@ -260,17 +292,20 @@ int generate_code() {
 char *call_function(char *name, Element **params, unsigned param_count) {
     char *dest = gen_temp_var();
     char *tmp = my_strcpy(dest);
-    tmp[0] = 'L';
-    tmp[1] = 'F';
+//    tmp[0] = 'L';
+//    tmp[1] = 'F';
     for (unsigned i = 0; i < param_count; ++i) {
         create_3ac(I_PUSHS, NULL, NULL, params[i]->operand);
     }
-    create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
-    create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
-    create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
+
     create_3ac(I_CALL, NULL, NULL, name);
-    create_3ac(I_MOVE, "TF@%RETVAL", NULL, tmp);
-    create_3ac(I_POPFRAME, NULL, NULL, NULL);
+    create_3ac(I_POPS, NULL, NULL, tmp);
+//    create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
+//    create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
+//    create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
+//    create_3ac(I_CALL, NULL, NULL, name);
+//    create_3ac(I_MOVE, "TF@%RETVAL", NULL, tmp);
+//    create_3ac(I_POPFRAME, NULL, NULL, NULL);
     return dest;
 }
 
