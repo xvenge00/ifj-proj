@@ -280,9 +280,6 @@ void shift_declarations(){
                 }
 
                 break;
-            case I_POPFRAME:        //todo popframe je problem lebo v kode moze byt viac krat!!!, musim prerobit volanie
-                create_fr_op = NULL;
-                break;
             default:
                 ;
         }

@@ -313,7 +313,7 @@ int command_func_var(t_token *input, TTable *local, TTable *func_table) {
     return 0;
 }
 
-//TODO pridaj parameter meno funckie, potrebujeme zistit navratovy typ a generovat label pre end
+//TODO pridaj parameter meno funckie, potrebujeme zistit navratovy typ
 int command_keyword(t_token *input, TTable *local, TTable *func_table) {
     t_token *tmp1 = NULL;
     tdata value = input->data;
@@ -505,7 +505,6 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                 if (ret_var !=NULL) {
                     create_3ac(I_PUSHS, NULL, NULL, ret_var);
                 }
-                //TODO prerob na JUMP end_(meno funkcie)
                 create_3ac(I_POPFRAME, NULL, NULL, NULL);
                 create_3ac(I_RETURN, NULL, NULL, NULL);
                 return commandsAndVariables(func_table, local);
