@@ -202,17 +202,14 @@ void define_chr() {
     }
 }
 
-
 void point_swap(char **p1, char **p2) {
     char *tmp = *p1;
     *p1 = *p2;
     *p2 = tmp;
 }
 
-
 t_3ac *head = NULL;
 t_3ac *tail = NULL;
-
 
 void append_3ac(t_3ac *code) {
     if (head == NULL) {
@@ -223,7 +220,6 @@ void append_3ac(t_3ac *code) {
         tail = code;
     }
 }
-
 
 t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
     t_3ac *result = my_malloc(sizeof(t_3ac));
@@ -257,6 +253,39 @@ void print_operation(t_3ac *code) {
     printf("\n");
 }
 
+void shift_declarations(){
+    t_3ac *prev_op      = NULL;
+    t_3ac *next_op      = NULL;
+    t_3ac *create_op    = NULL;
+    t_3ac *op           = head;
+
+    while (op != NULL) {
+        next_op = op->next;
+
+        switch (op->operation) {
+            case I_CREATEFRAME:
+                create_op = op;
+                break;
+            case I_DEFVAR:
+                //shift
+                if (1){
+                    prev_op->next = op->next;
+                    op->next = create_op->next;
+                    create_op->next = op;
+                }
+
+                break;
+            case I_POPFRAME:
+                create_op = NULL;
+                break;
+            default:
+                ;
+        }
+
+        prev_op = op;
+        op = next_op;
+    }
+}
 
 int generate_code() {
     // na zaciatku musi byt .IFJcode17
@@ -275,6 +304,7 @@ int generate_code() {
     printf("# ---------------------TU-SA-DEF-ZDROJ--------------------------\n");
     printf("# --------------------------------------------------------------\n");
 
+    shift_declarations();
 
     t_3ac *i = head;
     while (i != NULL) {

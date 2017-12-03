@@ -578,7 +578,6 @@ int print_params(TTable *Table, TTable *local) {
 
 int scope(TTable *Table) {
     create_3ac(I_LABEL, NULL, NULL, "$l_main");
-    create_3ac(I_DEFVAR, NULL, NULL, "GF@$conv_help");
     create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
 
     TTable *local = Tbl_Create(8);

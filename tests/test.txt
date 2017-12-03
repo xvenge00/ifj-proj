@@ -1,13 +1,6 @@
 scope
- 	dim res as integer
- 	dim tmp as integer = 0 -10
- 	res = asc(!"test", 0)
- 	'res = asc(!"test", 1)
-    'res = asc(!"\001", 1)
-    'res = asc(!"\255", 1)
-    'res = asc(!"\127", 1)
-    'res = asc(!"\n", 1)
- 	'res = asc(!"asdasd", tmp)
- 	'res = asc(!"asdasd", 42)
- 	print res;
+dim _ as integer = 6.5
+dim __ as double = 5
+print _;__;
 end scope
+
