@@ -188,13 +188,12 @@ int beginning = 1;
 t_token *create_token(ttype typ, tdata data, unsigned *line) {
     t_token *tmp = my_malloc(sizeof(t_token));
 
-
     tmp->token_type = typ;
     tmp->data = data;
     tmp->line = *line;
     //vymaz buffer
     my_free(scanner_buff->ret);
-    my_free(scanner_buff);
+    //my_free(scanner_buff);       //valgrind ukazuje chybu
     scanner_buff->top = 0;
     scanner_buff->max = 0;
     if (typ == EOL) {
@@ -582,6 +581,7 @@ t_token *load_token() {
                 /*****************************************************************************************************/
 
             case s_Ampersand:
+                append_buff(scanner_buff, '0');
                 if (loaded == 'b') {
                     state = s_bin_load;
                 } else if (loaded == 'o') {
@@ -607,7 +607,7 @@ t_token *load_token() {
                 /*****************************************************************************************************/
 
             case s_octa_load:
-                if (loaded >= '0' && loaded <= '8') {
+                if (loaded >= '0' && loaded <= '7') {
                     append_buff(scanner_buff, (char) loaded);
                 } else {
                     old = loaded;

@@ -1,13 +1,19 @@
-scope
- 	dim res as integer
- 	dim tmp as integer = 0 -10
- 	res = asc(!"test", 0)
- 	'res = asc(!"test", 1)
-    'res = asc(!"\001", 1)
-    'res = asc(!"\255", 1)
-    'res = asc(!"\127", 1)
-    'res = asc(!"\n", 1)
- 	'res = asc(!"asdasd", tmp)
- 	'res = asc(!"asdasd", 42)
- 	print res;
-end scope
+declare function hanoi(________________ as integer, from as string, too as string, middle as string) as integer
+
+ function hanoi(n as integer, from as string, too as string, middle as string) as integer
+     dim c as integer
+     dim promena as integer = n - 1
+     if n = 1 then
+         print !"Move disk 1 from row "; from; !" to rod "; too; !"\n";
+         return 0
+     else
+     end if
+     c = hanoi(promena, from, middle, too)
+     print !"Move disk"; n; !" from row "; from; !" to rod "; too; !"\n";
+     c = hanoi(promena, middle, too, from)
+ end function
+
+ scope
+ 	dim ______dkhfskldfhsdfsfhjghs as integer
+     ______dkhfskldfhsdfsfhjghs = hanoi(4, !"A", !"B", !"C")
+ end scope

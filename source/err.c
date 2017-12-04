@@ -13,6 +13,7 @@ void error(char *str, int err_code, int line) {
 
 void syntax_error(int code, int line) {
     fprintf(stderr, "Error v syntakticke analyze - spatny typ tokenu na riadku %i.\n",line);
+    clear_all();
     exit(code);
 }
 
@@ -34,8 +35,8 @@ void redefine_error(char *name, int line) {
     exit(ERR_SEM_DEF);
 }
 
-void internall_err(int line) {
-    fprintf(stderr, "Interna chyba prekladaca riadok %i. zdrojoveho kodu\n",line);
+void internall_err(int line, char *file) {
+    fprintf(stderr, "Interna chyba prekladaca riadok %i. vo subore %s\n",line,file);
     clear_all();
     exit(ERR_INTER);
 }

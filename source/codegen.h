@@ -72,6 +72,7 @@ typedef struct s_3ac{
     char *op2;
     char *dest;
     struct s_3ac *next;
+    struct s_3ac *prev;
 }t_3ac;
 
 void append_3ac(t_3ac *code);

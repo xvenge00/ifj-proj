@@ -13,7 +13,7 @@ void syntax_error(int code, int line);
 void semerror(int code, int line);
 void undefined_err(char *name, int line);
 void redefine_error(char *name, int line);
-void internall_err(int line);
+void internall_err(int line, char*file);
 void check_null(void *ptr);
 void bad_operands_err(int line);
 void incompatible_types_err(int line);

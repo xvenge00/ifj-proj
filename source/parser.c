@@ -128,6 +128,9 @@ int function(int decDef, TTable *func_table, TTable *local) {
     int ret_type = -1;
     if (decDef == k_function) {
         create_3ac(I_LABEL, NULL, NULL, name_f);
+        create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
+        create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
+        create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
     }
     TData *func = NULL;
     TSymbol *sym = NULL;
@@ -206,13 +209,14 @@ int function(int decDef, TTable *func_table, TTable *local) {
 
         i = commandsAndVariables(func_table, local);
         act_type = -1;
+        create_3ac(I_PUSHS, NULL, NULL, "TF@%RETVAL");
+        create_3ac(I_POPFRAME, NULL, NULL, NULL);
         create_3ac(I_RETURN, NULL, NULL, NULL);
     }
 
     return i;
 }
 
-//TODO pridaj func_table a pozri sa aj tam ci uz neexistuje funckia s rovn menom
 int params(TTable *func_table, TTable *local, unsigned *attr_count, int **attributes, int decDef) {
     int start = 1;
     TValue value;
@@ -305,11 +309,11 @@ int command_func_var(t_token *input, TTable *local, TTable *func_table) {
         syntax_error(ERR_SYNTA, line);
     }
     create_3ac(I_MOVE, ret_var, NULL, cat_string("TF@", name));
-//    create_3ac(I_POPS, NULL, NULL, cat_string("TF@", name));
 
     return 0;
 }
 
+//TODO pridaj parameter meno funckie, potrebujeme zistit navratovy typ
 int command_keyword(t_token *input, TTable *local, TTable *func_table) {
     t_token *tmp1 = NULL;
     tdata value = input->data;
@@ -400,7 +404,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
             } else if (el->data->data->var->type == k_string) {
                 i = 2;
             } else {
-                internall_err(__LINE__);
+                internall_err(__LINE__,__FILE__);
             }
 
             char *type[10] = {"float", "int", "string"};
@@ -468,7 +472,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                 str_push(new_b);
                 str_push(new_e);
                 create_3ac(I_LABEL, NULL, NULL, new_b);
-                if (expression(func_table, local, -1, &ret_var) != EOL) {
+                if (expression(func_table, local, -1, &ret_var) != EOL || ret_var == NULL) {
                     syntax_error(ERR_SYNTA,line);
                 } //tohle asi nepojede
                 create_3ac(I_PUSHS, NULL, NULL, ret_var);
@@ -499,9 +503,9 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                     syntax_error(ERR_SYNTA, line);
                 }
                 if (ret_var !=NULL) {
-                    create_3ac(I_MOVE, ret_var, NULL, "TF@%RETVAL");
+                    create_3ac(I_PUSHS, NULL, NULL, ret_var);
                 }
-//                create_3ac(I_POPS, NULL, NULL, cat_string("TF@", "%RETVAL"));
+                create_3ac(I_POPFRAME, NULL, NULL, NULL);
                 create_3ac(I_RETURN, NULL, NULL, NULL);
                 return commandsAndVariables(func_table, local);
             }
@@ -514,7 +518,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
 
 int commandsAndVariables(TTable *Table, TTable *local) {
     if (local == NULL || Table == NULL) {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
     }
 
     create_3ac(-1, NULL, NULL, NULL);   //generuj prazdny riadok
@@ -531,7 +535,7 @@ int commandsAndVariables(TTable *Table, TTable *local) {
         check_pointer(input);
     }
 
-    if (input->token_type == ID) { //todo co ak je id funckia a ma sa volat funkcia bez parametru
+    if (input->token_type == ID) {
         //bude sa volat funkcia alebo priradovat do premennej
         command_func_var(input, local, Table);
         return commandsAndVariables(Table, local);
@@ -539,11 +543,10 @@ int commandsAndVariables(TTable *Table, TTable *local) {
         //!!!!!!!nepriama rekurzia, vo funcii sa vola commandsAndVariables()
         return command_keyword(input, local, Table);
     }
-    error("Neocakavany vyraz.\n", ERR_SYNTA, line); //todo pozri err_code
+    error("Neocakavany vyraz.\n", ERR_SYNTA, line);
     return -1;
 }
 
-//TODO prejde print a; b (za poslednym neni ;)
 int print_params(TTable *Table, TTable *local) {
     char *ret_var = NULL;
     //char ret[BUFFSIZE];
@@ -554,7 +557,6 @@ int print_params(TTable *Table, TTable *local) {
         syntax_error(ERR_SYNTA, line);
     }
 
-    //TODO prerob na I_MOVE
     create_3ac(I_WRITE, NULL, NULL, ret_var);
 
     while (result == SEMICOLLON) {
@@ -574,7 +576,6 @@ int print_params(TTable *Table, TTable *local) {
 
 int scope(TTable *Table) {
     create_3ac(I_LABEL, NULL, NULL, "$l_main");
-    create_3ac(I_DEFVAR, NULL, NULL, "GF@$conv_help");
     create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
 
     TTable *local = Tbl_Create(8);

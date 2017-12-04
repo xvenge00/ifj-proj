@@ -69,9 +69,18 @@ int used_chr = 0;
 void define_length() {
     if (used_length) {
         printf("LABEL length\n");
-        printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
-        printf("STRLEN TF@%%RETVAL TF@s\n");
-        printf("RETURN\n");
+
+        printf("    PUSHFRAME\n");
+        printf("    CREATEFRAME\n");
+        printf("    DEFVAR TF@%%RETVAL\n");
+
+        printf("    DEFVAR %s\n    POPS %s\n", "TF@s", "TF@s");
+        printf("    STRLEN TF@%%RETVAL TF@s\n");
+
+        printf("    PUSHS TF@%%RETVAL\n");
+        printf("    POPFRAME\n");
+
+        printf("    RETURN\n");
     }
 }
 
@@ -79,6 +88,11 @@ void define_substr() {
     if (used_substr) {
         //  t_3ac j;
         printf("LABEL substr\n");
+
+        printf("    PUSHFRAME\n");
+        printf("    CREATEFRAME\n");
+        printf("    DEFVAR TF@%%RETVAL\n");
+
         printf("DEFVAR %s\n POPS %s\n", "TF@s", "TF@s");
         printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
         printf("DEFVAR %s\n POPS %s\n", "TF@n", "TF@n");
@@ -88,42 +102,43 @@ void define_substr() {
         //char *ret_o = gen_label("return0");
         //char *n_ok = gen_label("back");
 
-        printf("DEFVAR TF@tlac\n");
-        printf("MOVE TF@tlac string@\n");
-        printf("DEFVAR TF@temp\n");
-        printf("DEFVAR TF@len\n");
-        printf("STRLEN TF@len TF@s\n");
-        printf("SUB TF@len TF@len TF@i\n");
-        printf("LT TF@temp TF@i int@0\n");
-        printf("JUMPIFEQ l_return0_0 TF@temp bool@true\n");
-        printf("LT TF@temp TF@len int@1\n");
-        printf("JUMPIFEQ l_return0_0 TF@temp bool@true\n");
-        printf("GT TF@temp TF@n int@-1\n");
-        printf("PUSHS TF@temp\n");
-        printf("LT TF@temp TF@n TF@len\n");
-        printf("PUSHS TF@temp\n");
-        printf("EQ TF@temp TF@n TF@len\n");
-        printf("PUSHS TF@temp\n");
-        printf("ORS\n");
-        printf("ANDS\n");
-        printf("POPS TF@temp\n");
-        printf("JUMPIFEQ l_back_1 TF@temp bool@true\n");
-        printf("MOVE TF@n TF@len\n");
-        printf("LABEL l_back_1\n");
-        printf("LABEL $substr_while\n");
-        printf("GT TF@temp TF@n int@0\n");
-        printf("JUMPIFEQ $substr_end_while TF@temp bool@false\n");
-        printf("GETCHAR TF@temp TF@s TF@i\n");
-        printf("ADD TF@i TF@i int@1\n");
-        printf("SUB TF@n TF@n int@1\n");
-        printf("CONCAT TF@tlac  TF@tlac TF@temp\n");
-        printf("JUMP $substr_while\n");
-        printf("LABEL $substr_end_while\n");
-        printf("LABEL l_return0_0\n");
-        printf("MOVE TF@%%RETVAL TF@tlac\n");
+        printf("    DEFVAR TF@tlac\n");
+        printf("    MOVE TF@tlac string@\n");
+        printf("    DEFVAR TF@temp\n");
+        printf("    DEFVAR TF@len\n");
+        printf("    STRLEN TF@len TF@s\n");
+        printf("    SUB TF@len TF@len TF@i\n");
+        printf("    LT TF@temp TF@i int@0\n");
+        printf("    JUMPIFEQ l_return0_0 TF@temp bool@true\n");
+        printf("    LT TF@temp TF@len int@1\n");
+        printf("    JUMPIFEQ l_return0_0 TF@temp bool@true\n");
+        printf("    GT TF@temp TF@n int@-1\n");
+        printf("    PUSHS TF@temp\n");
+        printf("    LT TF@temp TF@n TF@len\n");
+        printf("    PUSHS TF@temp\n");
+        printf("    EQ TF@temp TF@n TF@len\n");
+        printf("    PUSHS TF@temp\n");
+        printf("    ORS\n");
+        printf("    ANDS\n");
+        printf("    POPS TF@temp\n");
+        printf("    JUMPIFEQ l_back_1 TF@temp bool@true\n");
+        printf("    MOVE TF@n TF@len\n");
+        printf("    LABEL l_back_1\n");
+        printf("    LABEL $substr_while\n");
+        printf("    GT TF@temp TF@n int@0\n");
+        printf("    JUMPIFEQ $substr_end_while TF@temp bool@false\n");
+        printf("    GETCHAR TF@temp TF@s TF@i\n");
+        printf("    ADD TF@i TF@i int@1\n");
+        printf("    SUB TF@n TF@n int@1\n");
+        printf("    CONCAT TF@tlac  TF@tlac TF@temp\n");
+        printf("    JUMP $substr_while\n");
+        printf("    LABEL $substr_end_while\n");
+        printf("    LABEL l_return0_0\n");
+        printf("    MOVE TF@%%RETVAL TF@tlac\n");
 
-
-        printf("RETURN\n");
+        printf("    PUSHS TF@%%RETVAL\n");
+        printf("    POPFRAME\n");
+        printf("    RETURN\n");
 
     }
 }
@@ -131,6 +146,11 @@ void define_substr() {
 void define_asc() {
     if (used_asc) {
         printf("LABEL asc\n");
+
+        printf("    PUSHFRAME\n");
+        printf("    CREATEFRAME\n");
+        printf("    DEFVAR TF@%%RETVAL\n");
+
         printf("    DEFVAR %s\n    POPS %s\n", "TF@s", "TF@s");
         printf("    DEFVAR %s\n    POPS %s\n", "TF@i", "TF@i");
 
@@ -152,10 +172,13 @@ void define_asc() {
 
         printf("    SUB TF@i TF@i int@1\n");
         printf("    STRI2INT TF@%%RETVAL TF@s TF@i\n");
+        printf("    PUSHS TF@%%RETVAL\n");
+        printf("    POPFRAME\n");
         printf("    RETURN\n");
 
         printf("LABEL %s\n", ret_0);
-        printf("    MOVE TF@%%RETVAL int@0\n");
+        printf("    PUSHS int@0\n");
+        printf("    POPFRAME\n");
         printf("    RETURN\n");
 
     }
@@ -164,12 +187,20 @@ void define_asc() {
 void define_chr() {
     if (used_chr) {
         printf("LABEL chr\n");
-        printf("DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
-        printf("INT2CHAR TF@%%RETVAL TF@i\n");
-        printf("RETURN\n");
+
+        printf("    PUSHFRAME\n");
+        printf("    CREATEFRAME\n");
+        printf("    DEFVAR TF@%%RETVAL\n");
+
+        printf("    DEFVAR %s\n POPS %s\n", "TF@i", "TF@i");
+        printf("    INT2CHAR TF@%%RETVAL TF@i\n");
+
+        printf("    PUSHS TF@%%RETVAL\n");
+        printf("    POPFRAME\n");
+
+        printf("    RETURN\n");
     }
 }
-
 
 void point_swap(char **p1, char **p2) {
     char *tmp = *p1;
@@ -177,10 +208,8 @@ void point_swap(char **p1, char **p2) {
     *p2 = tmp;
 }
 
-
 t_3ac *head = NULL;
 t_3ac *tail = NULL;
-
 
 void append_3ac(t_3ac *code) {
     if (head == NULL) {
@@ -192,7 +221,6 @@ void append_3ac(t_3ac *code) {
     }
 }
 
-
 t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
     t_3ac *result = my_malloc(sizeof(t_3ac));
     result->operation = operation;
@@ -200,6 +228,7 @@ t_3ac *create_3ac(int operation, char *op1, char *op2, char *dest) {
     result->op2 = my_strcpy(op2);
     result->dest = my_strcpy(dest);
     result->next = NULL;
+    result->prev = tail;
     append_3ac(result);
 //    print_operation(result);
     return result;
@@ -225,6 +254,39 @@ void print_operation(t_3ac *code) {
     printf("\n");
 }
 
+void shift_declarations(){
+    t_3ac *next_op      = NULL;
+    t_3ac *create_fr_op    = NULL;
+    t_3ac *op           = head;
+
+    while (op != NULL) {
+        next_op = op->next;
+
+        switch (op->operation) {
+            case I_CREATEFRAME:
+                create_fr_op = op;
+                break;
+            case I_DEFVAR:
+                //shift
+                if (create_fr_op != NULL && op != create_fr_op->next){
+                    op->prev->next = op->next;
+                    op->next->prev = op->prev;
+
+                    op->next = create_fr_op->next;
+                    op->prev = create_fr_op;
+
+                    create_fr_op->next->prev = op;
+                    create_fr_op->next = op;
+                }
+
+                break;
+            default:
+                ;
+        }
+
+        op = next_op;
+    }
+}
 
 int generate_code() {
     // na zaciatku musi byt .IFJcode17
@@ -243,6 +305,7 @@ int generate_code() {
     printf("# ---------------------TU-SA-DEF-ZDROJ--------------------------\n");
     printf("# --------------------------------------------------------------\n");
 
+    shift_declarations();
 
     t_3ac *i = head;
     while (i != NULL) {
@@ -260,17 +323,20 @@ int generate_code() {
 char *call_function(char *name, Element **params, unsigned param_count) {
     char *dest = gen_temp_var();
     char *tmp = my_strcpy(dest);
-    tmp[0] = 'L';
-    tmp[1] = 'F';
+//    tmp[0] = 'L';
+//    tmp[1] = 'F';
     for (unsigned i = 0; i < param_count; ++i) {
         create_3ac(I_PUSHS, NULL, NULL, params[i]->operand);
     }
-    create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
-    create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
-    create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
+
     create_3ac(I_CALL, NULL, NULL, name);
-    create_3ac(I_MOVE, "TF@%RETVAL", NULL, tmp);
-    create_3ac(I_POPFRAME, NULL, NULL, NULL);
+    create_3ac(I_POPS, NULL, NULL, tmp);
+//    create_3ac(I_PUSHFRAME, NULL, NULL, NULL);
+//    create_3ac(I_CREATEFRAME, NULL, NULL, NULL);
+//    create_3ac(I_DEFVAR, NULL, NULL, "TF@%RETVAL");
+//    create_3ac(I_CALL, NULL, NULL, name);
+//    create_3ac(I_MOVE, "TF@%RETVAL", NULL, tmp);
+//    create_3ac(I_POPFRAME, NULL, NULL, NULL);
     return dest;
 }
 
@@ -283,7 +349,7 @@ bool is_num_type(int typ) {
 }
 
 char *gen_temp_var() {
-    char *result = malloc(sizeof(char) * BUFFSIZE);
+    char *result = my_malloc(sizeof(char) * BUFFSIZE);
     snprintf(result, BUFFSIZE, "TF@$E_E%i", get_id());
     create_3ac(I_DEFVAR, NULL, NULL, result);
     return result;
@@ -291,7 +357,7 @@ char *gen_temp_var() {
 
 char *op_add(int operation, Element *l_operand, Element *r_operand) {
     if (operation != E_PLUS) {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
     }
     char *dest = gen_temp_var();
 
@@ -337,7 +403,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand) {
     } else if (operation == E_MUL) {
         operation = I_MUL;
     } else {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
     }
 
     char *dest = gen_temp_var();
@@ -375,7 +441,7 @@ char *op_sub_mul(int operation, Element *l_operand, Element *r_operand) {
 
 char *op_div(int operation, Element *l_operand, Element *r_operand) {
     if (operation != E_DIV) {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
 
     }
     char *dest = gen_temp_var();
@@ -420,7 +486,7 @@ char *op_div(int operation, Element *l_operand, Element *r_operand) {
 
 char *op_mod(int operation, Element *l_operand, Element *r_operand) {
     if (operation != E_MOD) {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
 
     }
     char *tmp = gen_temp_var();
@@ -447,7 +513,7 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_POPS, NULL, NULL, dest);
         } else {    //double
             // druhe daj na int a naspat
-            create_3ac(I_FLOAT2INT, r_op_str, NULL, tmp);
+            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
             create_3ac(I_INT2FLOAT, tmp, NULL, tmp);
             create_3ac(I_DIV, l_op_str, tmp, dest);
         }
@@ -456,7 +522,7 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
             create_3ac(I_PUSHS, NULL, NULL, tmp);
             //druhy operand osekni
-            create_3ac(I_FLOAT2INT, r_op_str, NULL, tmp);
+            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
             create_3ac(I_INT2FLOAT, tmp, NULL, tmp);
             create_3ac(I_PUSHS, NULL, NULL, tmp);
             create_3ac(I_DIVS, NULL, NULL, NULL);
@@ -476,10 +542,10 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand) {
         operation = I_LT;
     } else if (operation == E_GT) {
         operation = I_GT;
-    } else if (operation == E_EQ) {
+    } else if (operation == E_EQ || operation == E_NEQ) {
         operation = I_EQ;
     } else {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
 
     }
     char *dest = gen_temp_var();
@@ -495,7 +561,7 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand) {
     }
 
     if (l_typ == r_typ) {
-        create_3ac(I_LT, l_op_str, r_op_str, dest);
+        create_3ac(operation, l_op_str, r_op_str, dest);
     } else {
         char *tmp = dest;
         point_swap(&tmp, &dest);
@@ -521,7 +587,7 @@ char *op_le_ge(int operation, Element *l_operand, Element *r_operand) {
     } else if (operation == E_GE) {
         operation = I_GT;
     } else {
-        internall_err(__LINE__);
+        internall_err(__LINE__,__FILE__);
 
     }
     char *dest = gen_temp_var();
@@ -616,7 +682,7 @@ char *gen_and_convert(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_NOT, dest, NULL, dest);    //E_EQ ale na koniec zneguj
             break;
         default:
-            internall_err(__LINE__);
+            internall_err(__LINE__,__FILE__);
     }
 
     return dest;
