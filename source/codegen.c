@@ -513,7 +513,7 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_POPS, NULL, NULL, dest);
         } else {    //double
             // druhe daj na int a naspat
-            create_3ac(I_FLOAT2INT, r_op_str, NULL, tmp);
+            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
             create_3ac(I_INT2FLOAT, tmp, NULL, tmp);
             create_3ac(I_DIV, l_op_str, tmp, dest);
         }
@@ -522,7 +522,7 @@ char *op_mod(int operation, Element *l_operand, Element *r_operand) {
             create_3ac(I_INT2FLOAT, l_op_str, NULL, tmp);
             create_3ac(I_PUSHS, NULL, NULL, tmp);
             //druhy operand osekni
-            create_3ac(I_FLOAT2INT, r_op_str, NULL, tmp);
+            create_3ac(I_FLOAT2R2EINT, r_op_str, NULL, tmp);
             create_3ac(I_INT2FLOAT, tmp, NULL, tmp);
             create_3ac(I_PUSHS, NULL, NULL, tmp);
             create_3ac(I_DIVS, NULL, NULL, NULL);
