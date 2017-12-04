@@ -561,7 +561,7 @@ char *op_lt_gt_eq(int operation, Element *l_operand, Element *r_operand) {
     }
 
     if (l_typ == r_typ) {
-        create_3ac(I_LT, l_op_str, r_op_str, dest);
+        create_3ac(operation, l_op_str, r_op_str, dest);
     } else {
         char *tmp = dest;
         point_swap(&tmp, &dest);
