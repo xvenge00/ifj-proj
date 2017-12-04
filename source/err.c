@@ -13,6 +13,7 @@ void error(char *str, int err_code, int line) {
 
 void syntax_error(int code, int line) {
     fprintf(stderr, "Error v syntakticke analyze - spatny typ tokenu na riadku %i.\n",line);
+    clear_all();
     exit(code);
 }
 

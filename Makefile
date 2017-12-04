@@ -9,7 +9,7 @@ EXECUTABLE = $(PROJ)
 $(EXECUTABLE): $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-.PHONY: clean
+.PHONY: clean pack clean_all debug
 clean:
 	rm -f $(OBJS)
 
@@ -18,3 +18,4 @@ pack:
 
 clean_all:
 	rm -f $(OBJS) $(EXECUTABLE)
+
