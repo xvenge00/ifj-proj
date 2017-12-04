@@ -193,7 +193,7 @@ t_token *create_token(ttype typ, tdata data, unsigned *line) {
     tmp->line = *line;
     //vymaz buffer
     my_free(scanner_buff->ret);
-    my_free(scanner_buff);
+    //my_free(scanner_buff);       //valgrind ukazuje chybu
     scanner_buff->top = 0;
     scanner_buff->max = 0;
     if (typ == EOL) {

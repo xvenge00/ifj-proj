@@ -333,9 +333,9 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                         }
                     }
                 case E_COMMA:
-                    arr_el = my_realloc(arr_el, sizeof(Element *) * (i + 1));
+                    arr_el = my_realloc(arr_el, sizeof(Element *) * (i + 2));
                     arr_el[i++] = tmp1;
-                    arr_el[i++] = check_next_element_type(E_E, stack);
+                    arr_el[i++] = check_next_element_type(E_E, stack);  //todo !!!!! tu to pada !!!!
 
                     input = Stack_pop(stack);
                     while (input->type == E_COMMA) {
