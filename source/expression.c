@@ -493,7 +493,7 @@ char *token2operand(t_token *token) {
             snprintf(result, size, "int@%i", token->data.i);
             break;
         case DOUBLE:
-            snprintf(result, size, "float@%f", token->data.d);
+            snprintf(result, size, "float@%e", token->data.d);
             break;
         case STR:
             do {
