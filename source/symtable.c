@@ -244,8 +244,6 @@ void El_Delete(TTable *tbl, char *name) {
 
 void Tbl_Delete(TTable *tbl) {
     if (tbl != NULL) {
-        TElement *tmp = NULL;
-        TElement *tmp2 = NULL;
         for (unsigned i = 0; i < tbl->size; i++) {
             TElement *tmp = tbl->list_firsts[i];
             TElement *temp = NULL;
