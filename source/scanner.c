@@ -476,7 +476,7 @@ t_token *load_token() {
                 } else if (loaded == '\\') {
                     append_buff(scanner_buff, (char)loaded);
                     state = s_str_spec;
-                } else if (loaded > 31 && isascii(loaded)) {
+                } else if (loaded > 31 && (loaded < 256)) {
                     if (isalnum(loaded)){
                         append_buff(scanner_buff, (char) loaded);
                     } else {

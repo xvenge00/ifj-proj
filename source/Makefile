@@ -1,7 +1,7 @@
 #DEPLOY Makefile
 CC = gcc
-CFLAGS = -Wall -pedantic -Wextra -Werror
-SRCS = $(wildcard *.c)   #pri odovzdani vymazat source/
+CFLAGS = -Wall -pedantic -Wextra -Werror -std=c99
+SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 PROJ = ifj
 EXECUTABLE = $(PROJ)

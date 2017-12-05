@@ -1,6 +1,6 @@
 #DEV MAKEFILE
 CC = gcc
-CFLAGS = -Wall -pedantic -Wextra # -Werror
+CFLAGS = -Wall -pedantic -Wextra -std=c99
 SRCS = $(wildcard source/*.c)   #pri odovzdani vymazat source/
 OBJS = $(SRCS:.c=.o)
 PROJ = ifj

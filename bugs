@@ -1,62 +1,9 @@
 =========================================
 prazdny subor vyhadzyje syn err
 =========================================
-
-=========================================
-=========================================
-
-=========================================
-funckia ma vratit 151, vrati 0
-function _add_two(_ as integer) as integer
- 	dim res as integer
- 	res = _ + 2
- 	return res
-end function
-
-declare function _multiply(__acv as integer, __foo__ as integer) as integer
-
-function _multiply(_ as integer, __ as integer) as integer
-	return _ * __
-end function
-
-function ____(_______ as integer) as double
-	return _______ * 0.5
-end function
-
-function __compute() as double
- 	dim res as integer
-	res = _multiply(30, 10)
- 	res = _add_two(res)
- 	res = ____(res)
- 	return res
-end function
+malo by vratit ERR 2
 
 scope
-	dim a as double
- 	a = __compute()
- 	print a;
+  dim __a7as as integer = 31f.412
 end scope
-====================================
-====================================
-
-====================================
-SIGSEV -- na merline a valgrind
-declare function hanoi(________________ as integer, from as string, too as string, middle as string) as integer
-
- function hanoi(n as integer, from as string, too as string, middle as string) as integer
-     dim c as integer
-     dim promena as integer = n - 1
-     if n = 1 then
-         print !"Move disk 1 from row "; from; !" to rod "; too; !"\n";
-         return 0
-     else
-     end if
-     c = hanoi(promena, from, middle, too)
-     print !"Move disk"; n; !" from row "; from; !" to rod "; too; !"\n";
-     c = hanoi(promena, middle, too, from)
- end function
-
- scope
- 	dim ______dkhfskldfhsdfsfhjghs as integer
-     ______dkhfskldfhsdfsfhjghs = hanoi(4, !"A", !"B", !"C")
- end scope
+=========================================
