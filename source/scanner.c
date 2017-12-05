@@ -140,7 +140,6 @@ const char key_word_str[35][20] = {
  * chybove hlasenia
  */
 void ERR_LEX(tstate state, char *loaded, int line) {
-    //TODO chybove hlasenia
 
     fprintf(stderr, "ERR_LEX : neplatna lexema na riadku :%i  -- %s\n", line, loaded);
     if (state == s_block_coment_1 || state == s_block_coment_2) {

@@ -120,7 +120,6 @@ int parse(TTable *func_table) {
             }
             case k_scope: //scope
                 if (scope(func_table) == SUCCESS) {
-                    //todo skontrolovat ze vsetky deklarovane funkcie su aj definovate
                     all_defined(func_table);
                     return SUCCESS;
                 }
@@ -327,7 +326,6 @@ int command_func_var(t_token *input, TTable *local, TTable *func_table) {
     return 0;
 }
 
-//TODO pridaj parameter meno funckie, potrebujeme zistit navratovy typ
 int command_keyword(t_token *input, TTable *local, TTable *func_table) {
     t_token *tmp1 = NULL;
     tdata value = input->data;
@@ -511,7 +509,7 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
             if (local->isScope) {
                 syntax_error(ERR_SYNTA,line);
             } else {
-                dollar_source = expression(func_table, local, act_type, &ret_var); //todo neviem zistit akeho typu ma byt navrat
+                dollar_source = expression(func_table, local, act_type, &ret_var);
                 if (dollar_source != EOL){
                     syntax_error(ERR_SYNTA, line);
                 }

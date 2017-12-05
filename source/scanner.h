@@ -108,7 +108,7 @@ typedef enum {
 } tstate;
 
 
-//zaheslovane typ tokenu    //todo zmenit tak aby sedeli s ostatnymy
+//zaheslovane typ tokenu
 /// navratove typy
 typedef enum {
     EMPTY = 0,      //0

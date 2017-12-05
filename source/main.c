@@ -13,9 +13,7 @@
 #include <stdio.h>
 #include "scanner.h"
 #include "parser.h"
-#include "symtable.h"
 #include "codegen.h"
-#include "err.h"
 #include "memwork.h"
 
 void declare_built_in(TTable* func_table){

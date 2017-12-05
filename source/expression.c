@@ -346,7 +346,7 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                 case E_COMMA:
                     arr_el = my_realloc(arr_el, sizeof(Element *) * (i + 2));
                     arr_el[i++] = tmp1;
-                    arr_el[i++] = check_next_element_type(E_E, stack);  //todo !!!!! tu to pada !!!!
+                    arr_el[i++] = check_next_element_type(E_E, stack);
 
                     input = Stack_pop(stack);
                     while (input->type == E_COMMA) {
@@ -552,7 +552,7 @@ int code_type(int *dollar_source, t_token *input, TTable *local, TTable *func_ta
                     return -1;
                 }
             }
-            if (found->data->type == ST_Function && found->data->isDeclared) { //todo na konci parse overit ci vsetky f boli def
+            if (found->data->type == ST_Function && found->data->isDeclared) {
                 return E_FUNC;
             } else if (found->data->type == ST_Variable && found->data->isDeclared) {
                 return E_ID;
@@ -639,7 +639,7 @@ bool check_return_type(int expected, Element *el) {
         case 0:
             return true;
         case 1:
-            //convert druhy //TODO generacia konverzie
+            //convert druhy
             return true;
         default:
             incompatible_types_err(line);
@@ -653,7 +653,7 @@ bool check_return_type(int expected, Element *el) {
  * navrat musi hlidat volajici funkce v parseru
  * Priklady takovych tokenu - EOL, Then, Semicolon
  * Pro Then je navratova hodnota tedy 120
- * TODO ked je -1 tak moze byt max 1 krat < > = !=*/
+ */
 int expression(TTable *func_table, TTable *local, int typ, char **ret_var) {
     *ret_var = NULL;
     Stack stack;
