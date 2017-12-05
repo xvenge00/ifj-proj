@@ -34,6 +34,7 @@ int print_params(TTable *Table,TTable *local);
 t_token* check_next_token_type(int type);
 bool check_token_int_value(t_token * input, int value);
 bool check_pointer(void* input);
+void all_defined(TTable *tbl);
 
 
 

@@ -89,6 +89,8 @@ void all_defined(TTable *tbl){
 }
 
 int parse(TTable *func_table) {
+    static bool scope_defined = false;
+
     t_token *input = get_token();
     line = input->line;
     check_pointer(input);
@@ -96,6 +98,10 @@ int parse(TTable *func_table) {
         input = get_token();
         line = input->line;
         check_pointer(input);
+    }
+
+    if(input->token_type == EMPTY && scope_defined) {
+        return SUCCESS;
     }
 
     //prvni token musi byt Declare nebo Function nebo SCOPE
@@ -119,11 +125,18 @@ int parse(TTable *func_table) {
                 }
             }
             case k_scope: //scope
-                if (scope(func_table) == SUCCESS) {
-                    //todo skontrolovat ze vsetky deklarovane funkcie su aj definovate
-                    all_defined(func_table);
-                    return SUCCESS;
+                if (scope_defined){
+                    syntax_error(ERR_SYNTA,line);
                 }
+
+                scope_defined = true;
+                scope(func_table);
+                return parse(func_table);
+//                if (scope(func_table) == SUCCESS) {
+//                    //todo skontrolovat ze vsetky deklarovane funkcie su aj definovate
+//                    all_defined(func_table);
+//                    return SUCCESS;
+//                }
             default:
                 syntax_error(ERR_SYNTA,line);
         }
@@ -517,6 +530,8 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
                 }
                 if (ret_var !=NULL) {
                     create_3ac(I_PUSHS, NULL, NULL, ret_var);
+                } else {
+                    create_3ac(I_PUSHS, NULL, NULL, "TF@%RETVAL");
                 }
                 create_3ac(I_POPFRAME, NULL, NULL, NULL);
                 create_3ac(I_RETURN, NULL, NULL, NULL);
@@ -597,7 +612,9 @@ int scope(TTable *Table) {
     check_next_token_type(EOL);
     int res = commandsAndVariables(Table, local);
     if (res == k_scope) {
-        t_token *input = get_token();
+        create_3ac(I_JUMP, NULL, NULL, "$l_end");
+        return SUCCESS;
+/*        t_token *input = get_token();
         line = input->line;
 
         check_pointer(input);
@@ -610,7 +627,7 @@ int scope(TTable *Table) {
         if (input->token_type == EMPTY) {
             create_3ac(I_JUMP, NULL, NULL, "$l_end");
             return SUCCESS;
-        }
+        }*/
     }
     syntax_error(ERR_SYNTA,line);
     return 0;

@@ -92,6 +92,7 @@ int main(int argc, char** argv) {
     declare_built_in(func_table);
 
     parse(func_table);
+    all_defined(func_table);
     generate_code();
 
     clear_all();

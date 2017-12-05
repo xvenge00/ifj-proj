@@ -1,3 +1,5 @@
+declare function lol(a as integer) as integer
+
 function foo() as integer
  	return
 end function
@@ -5,5 +7,9 @@ end function
 scope
  	dim a as integer
 	a = 3 + foo()
- 	print a;
- end scope
+ 	print lol(a);
+end scope
+
+function lol(a as integer) as integer
+    return 12
+end function
