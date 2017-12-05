@@ -23,7 +23,7 @@ add_executable(str_buff ${SOURCE_FILES_STR_BUFF} tests/test_str_buff.cpp)
 target_link_libraries(str_buff gtest)
 
 #testy symtable
-set(SOURCE_FILES_SYMTABLE source/symtable.h source/symtable.c ${SOURCE_FILES_STR_BUFF})
+set(SOURCE_FILES_SYMTABLE source/symtable.h source/symtable.c source/err.c ${SOURCE_FILES_STR_BUFF})
 add_executable(symtable ${SOURCE_FILES_SYMTABLE} tests/symtable_test.cpp)
 target_link_libraries(symtable gtest)
 

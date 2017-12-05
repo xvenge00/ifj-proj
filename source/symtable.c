@@ -49,6 +49,9 @@ TData *Var_Create(TValue value, int type) {
 
 //konstruktor symbolu
 TSymbol *Sym_Create(Symbol_type type, TData *data, char *name) {
+    if (data == NULL || name == NULL || (type != ST_Function && type != ST_Variable)){
+        internall_err(__LINE__, __FILE__);
+    }
     TSymbol *symbol = NULL;
     symbol = my_malloc(sizeof(TSymbol));
     if (symbol != NULL) {
@@ -141,7 +144,7 @@ int Tbl_Insert(TTable *tbl, TElement *el) {
     //kontrola ukazatelu
 
     if (tbl == NULL || el == NULL) {
-        return ERR_INTER;
+        internall_err(__LINE__, __FILE__);
     }
     TElement *tmp = Tbl_GetDirect(tbl, el->key);
     if (tmp != NULL) {
@@ -219,38 +222,23 @@ V případě, že prvek neexistuje, má operace
 sémantiku prázdné operace.*/
 void El_Delete(TTable *tbl, char *name) {
     if (tbl != NULL) {
-        for (unsigned int i = 0; i < tbl->size; i++) {
-            TElement *active = tbl->list_firsts[i];
-            if (active != NULL) {
-                if (!strcmp(active->key, name)) { //mazeme prvni
-                    if (active->next != NULL) {
-                        tbl->list_firsts[i]->next = active->next;
-                        El_Free(active);
-                        return;
-                    }
-                    El_Free(tbl->list_firsts[i]);
-                    tbl->list_firsts[i] = NULL; //opetovny init pro dalsi pouziti
-                    return;
+        int el_hash = hash(name, tbl->size);
+        TElement *tmp = tbl->list_firsts[el_hash];
+        TElement *temp = NULL;
+        while (tmp != NULL) {
+            if (strcmp(tmp->key, name) == 0) {
+                if (temp == NULL){
+                    tbl->list_firsts[el_hash] = tmp->next;
+                } else {
+                    temp->next = tmp->next;
                 }
-
-                while (active->next != NULL) {
-
-                    if (!strcmp(active->next->key, name)) { //uprostred
-                        TElement *tmp = active->next;
-                        active->next = active->next->next;
-                        El_Free(tmp);
-                        return;
-                    }
-                    active = active->next;
-                }
-
-                if (!strcmp(active->key, name)) { //mazeme posledni
-                    tbl->list_firsts[i]->next = active->next;
-                    El_Free(active);
-                    return;
-                }
+                El_Free(tmp);
+                return;
             }
+            temp = tmp;
+            tmp = tmp->next;
         }
+
     }
 }
 
@@ -259,26 +247,13 @@ void Tbl_Delete(TTable *tbl) {
         TElement *tmp = NULL;
         TElement *tmp2 = NULL;
         for (unsigned i = 0; i < tbl->size; i++) {
-            if (tbl->list_firsts[i] != NULL) { //neco v tom seznamu je
-                if (tbl->list_firsts[i]->next != NULL) { //je tam vic nez jeden
-                    tmp = tbl->list_firsts[i]->next;
-                    El_Free(tbl->list_firsts[i]);
-
-                    while (tmp != NULL) //cyklime do konce seznamu
-                    {
-                        tmp2 = tmp;
-                        tmp = tmp->next;
-
-                        El_Free(tmp2);
-                    }
-                }
-                    //je jen jeden
-                else {
-                    El_Free(tbl->list_firsts[i]);
-                    tbl->count--;
-                }
-
-            } //if neni radek null
+            TElement *tmp = tbl->list_firsts[i];
+            TElement *temp = NULL;
+            while (tmp != NULL) {
+                temp = tmp->next;
+                El_Free(tmp);
+                tmp = temp;
+            }
         }//for pres radky
         my_free(tbl->list_firsts);
         my_free(tbl);
