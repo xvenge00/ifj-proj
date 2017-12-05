@@ -275,7 +275,11 @@ t_token *load_token() {
                     state = s_LT;
                 } else if (loaded == '\n') { //EOL
 
-                    while (isspace(old = fgetc(f)));    //odstranuje zbytocne medzery a parzdne riadky
+                    while (isspace(old = fgetc(f))){
+                        if (old == '\n'){
+                            line++;
+                        }
+                    }   //odstranuje zbytocne medzery a parzdne riadky
 
                     return create_token(EOL, data, &line);
                 } else if (loaded == '(') {
