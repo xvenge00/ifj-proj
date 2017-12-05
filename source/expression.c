@@ -1,3 +1,15 @@
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include <stdio.h>
 #include "parser.h"
 #include "err.h"
@@ -275,7 +287,6 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
             *last_type = input->typ_konkretne;
             *ret_var = dest;
             return 13;
-            break;
         case E_E:
             tmp1 = input;
             input = Stack_pop(stack);
@@ -390,6 +401,8 @@ int ruleE_RPAR(Stack *stack, TTable *func_table, TTable *local, char **ret_var,i
                     } else {
                         syntax_error(ERR_SYNTA, line);
                     }
+                default:
+                    ;
             }
             syntax_error(ERR_SYNTA, line);
 

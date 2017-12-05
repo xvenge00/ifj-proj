@@ -1,3 +1,15 @@
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #ifndef IFJ_PROJ_PARSER_H
 #define IFJ_PROJ_PARSER_H
 
@@ -17,9 +29,6 @@ int params(TTable *func_table, TTable *local, unsigned *attr_count, int **attrib
 int commandsAndVariables(TTable *Table,TTable *local);
 
 char *gen_label(char *ret);
-//int expression();
-int expressionOrFunction();
-int idList();
 int scope(TTable *Table);
 int print_params(TTable *Table,TTable *local);
 t_token* check_next_token_type(int type);

@@ -1,4 +1,14 @@
-//Author: xrandy00 14.10.2017
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <stdbool.h>
 #include "scanner.h"

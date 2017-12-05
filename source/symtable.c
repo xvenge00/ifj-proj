@@ -1,4 +1,14 @@
-//Author: xrandy00 14.10.2017
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include "symtable.h"
 #include "memwork.h"
@@ -144,7 +154,8 @@ int Tbl_Insert(TTable *tbl, TElement *el) {
     //kontrola ukazatelu
 
     if (tbl == NULL || el == NULL) {
-        internall_err(__LINE__, __FILE__);
+        //internall_err(__LINE__, __FILE__);
+        return ERR_INTER;
     }
     TElement *tmp = Tbl_GetDirect(tbl, el->key);
     if (tmp != NULL) {

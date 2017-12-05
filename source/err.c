@@ -1,3 +1,15 @@
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include "err.h"
 #include <stdio.h>
 #include <stdlib.h>

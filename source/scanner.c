@@ -1,3 +1,15 @@
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include <stdio.h>
 #include "scanner.h"
 #include <string.h>
@@ -71,7 +83,7 @@ void return_token(t_token *token) {
 }
 
 /**
- * uvolny token
+ * uvolni token
  * @param token
  */
 void discard_token(t_token *token) {
@@ -571,7 +583,6 @@ t_token *load_token() {
                     old = loaded;
                     return create_token(LT, data, &line);
                 }
-                break;
                 /*****************************************************************************************************/
 
             case s_GT:  // stav vasci nez
@@ -581,7 +592,6 @@ t_token *load_token() {
                     old = loaded;
                     return create_token(GT, data, &line);
                 }
-                break;
                 /*****************************************************************************************************/
 
             case s_Ampersand:

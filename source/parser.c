@@ -1,3 +1,15 @@
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include "parser.h"
 #include "err.h"
 #include "expression.h"
@@ -204,6 +216,9 @@ int function(int decDef, TTable *func_table, TTable *local) {
                 break;
             case k_string:
                 create_3ac(I_MOVE, "string@", NULL, "TF@%RETVAL");
+                break;
+            default:
+                ;
         }
 
 
@@ -218,7 +233,6 @@ int function(int decDef, TTable *func_table, TTable *local) {
 }
 
 int params(TTable *func_table, TTable *local, unsigned *attr_count, int **attributes, int decDef) {
-    int start = 1;
     TValue value;
     TData *var = NULL;
     TSymbol *lSymbol = NULL;
@@ -226,7 +240,7 @@ int params(TTable *func_table, TTable *local, unsigned *attr_count, int **attrib
 
     t_token *input = get_token();
     line = input->line;
-    if (start && input->token_type == RPAR) {
+    if (input->token_type == RPAR) {
         return SUCCESS;
     }
     while (input->token_type == ID) {
@@ -322,7 +336,6 @@ int command_keyword(t_token *input, TTable *local, TTable *func_table) {
     switch (value.i) {
         case k_dim: //dim
             input = check_next_token_type(ID);
-            tmp1 = input;
             char *name = input->data.s;
             TElement *found_func = Tbl_GetDirect(func_table, name);
             if (found_func != NULL) {

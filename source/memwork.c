@@ -1,10 +1,20 @@
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 /**
- * bytvara mem_pole ukazovatelov ktore boly naalokovane
+ * vytvara mem_pole ukazovatelov ktore boli naalokovane
  */
 #include "scanner.h"
 #include <stdlib.h>
-#include <stdio.h>
-
 #include "memwork.h"
 #include "err.h"
 

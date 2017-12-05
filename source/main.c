@@ -1,3 +1,15 @@
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  Implementace prekladace imperativniho jazyka IFJ17
+ *
+ *  Autori:
+ *      xvenge00 - Adam Venger
+ *      xbabka01 - Peter Babka
+ *      xrandy00 - Vojtech Randysek
+ *      xdosed08 - Ondrej Dosedel
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include <stdio.h>
 #include "scanner.h"
 #include "parser.h"
@@ -5,8 +17,6 @@
 #include "codegen.h"
 #include "err.h"
 #include "memwork.h"
-
-#define FILE_ERROR 5
 
 void declare_built_in(TTable* func_table){
     /**
