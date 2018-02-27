@@ -66,7 +66,7 @@ char oper[53][15] = {
         "JUMPIFNEQS",
         "BREAK",
         "DPRINT",
-        ".IFJcode17",
+        ".IPPcode18",
         "FLOAT2INT",
         "#"
 };
