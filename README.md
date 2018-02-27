@@ -1,5 +1,7 @@
 # ifj-proj
-Prekladač jazyka IFJ17 do jazyka IFJcode17
+Prekladač jazyka IFJ17 do jazyka IPPcode17
+
+Upraveny pôvodný projekt pre účely IPP.
 ## Build
 ```
 make
